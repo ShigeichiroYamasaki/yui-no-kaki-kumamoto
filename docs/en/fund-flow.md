@@ -30,7 +30,13 @@ The contract does not perform exchange services. Conversion of ETH or JPYC to ye
 
 The public interface separately shows quantities by asset, indicative ETH value, confirmed yen value at conversion, amount remitted to Kumamoto Prefecture, amount pending, balance, and fees.
 
-The core reconciliation is `received = remitted + pending + balance + disclosed fees`. Indicative valuations are never presented as confirmed receipts.
+The core reconciliation is:
+
+$$
+R = K + P + B + F
+$$
+
+Here, $R$ is the amount received, $K$ is the amount remitted to Kumamoto Prefecture, $P$ is the amount pending, $B$ is the balance, and $F$ is disclosed fees. Indicative valuations are never presented as confirmed receipts.
 
 ## Proof of receipt
 

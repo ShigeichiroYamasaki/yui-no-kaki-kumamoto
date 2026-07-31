@@ -81,3 +81,7 @@ npm run docs:build
 ```
 
 GitHub Pages: https://shigeichiroyamasaki.github.io/yui-no-kaki-kumamoto/
+
+### 図と数式
+
+ホワイトペーパーでは、コードフェンスの言語を `mermaid` にすると図として描画されます。TeX数式はインラインの `$...$` と、別行立ての `$$...$$` を利用できます。
