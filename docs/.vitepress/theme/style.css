@@ -1,0 +1,50 @@
+:root {
+  --vp-c-brand-1: #1c6b57;
+  --vp-c-brand-2: #165544;
+  --vp-c-brand-3: #103d32;
+  --vp-c-brand-soft: rgba(28, 107, 87, 0.14);
+  --vp-c-bg: #fbfaf6;
+  --vp-c-bg-alt: #f2f0e9;
+  --vp-c-text-1: #18231f;
+  --vp-font-family-base: "Hiragino Sans", "Yu Gothic", system-ui, sans-serif;
+}
+
+.dark { --vp-c-bg: #101815; --vp-c-bg-alt: #16211d; --vp-c-bg-soft: #1b2924; }
+.VPNavBarTitle .title { letter-spacing: .12em; }
+.VPDoc h1, .VPDoc h2 { letter-spacing: .04em; }
+.VPDoc h2 { border-top: 1px solid var(--vp-c-divider); padding-top: 1.7rem; }
+
+.whitepaper-hero {
+  min-height: 670px;
+  display: grid;
+  align-items: end;
+  position: relative;
+  margin: calc(var(--vp-nav-height) * -1) 0 0;
+  padding: 160px max(28px, calc((100vw - 1180px) / 2)) 74px;
+  color: #fff;
+  background: linear-gradient(90deg, rgba(8, 16, 13, .86) 0%, rgba(8, 16, 13, .48) 48%, rgba(8, 16, 13, .16) 75%), linear-gradient(0deg, rgba(8, 16, 13, .72) 0%, transparent 48%), url('/yui-no-kaki-kumamoto/kumamoto-tamagaki-hero.png') center/cover;
+}
+.whitepaper-hero__copy { max-width: 760px; position: relative; }
+.whitepaper-hero__eyebrow { font-size: 12px; font-weight: 700; letter-spacing: .24em; color: #d3b36b; }
+.whitepaper-hero h1 { margin: 14px 0 20px; font-size: clamp(48px, 8vw, 94px); line-height: .98; letter-spacing: .08em; }
+.whitepaper-hero h1 span { display: block; margin-top: 18px; font-size: clamp(19px, 2.4vw, 30px); font-weight: 500; letter-spacing: .08em; }
+.whitepaper-hero p { max-width: 650px; font-size: clamp(16px, 2vw, 20px); line-height: 1.9; color: rgba(255,255,255,.9); }
+.hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
+.hero-actions a { padding: 12px 20px; border: 1px solid rgba(255,255,255,.55); border-radius: 999px; color: #fff; font-weight: 700; text-decoration: none; }
+.hero-actions a:first-child { color: #14211d; background: #fff; border-color: #fff; }
+.whitepaper-home { max-width: 1180px; margin: 0 auto; padding: 72px 28px 100px; }
+.principles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin: 34px 0 70px; }
+.principles article { padding: 26px; border: 1px solid var(--vp-c-divider); border-radius: 16px; background: var(--vp-c-bg-soft); }
+.principles b { display: block; margin-bottom: 10px; color: var(--vp-c-brand-1); font-size: 19px; }
+.flow-strip { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin: 28px 0; }
+.flow-strip span { padding: 20px 12px; text-align: center; border-radius: 10px; background: #15241f; color: #fff; font-weight: 700; }
+.scope-note { margin-top: 48px; padding: 24px 28px; border-left: 4px solid #b8954e; background: rgba(184,149,78,.1); }
+.chapter-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 28px 0 52px; }
+.chapter-grid a { display: flex; gap: 18px; align-items: center; padding: 19px 22px; border: 1px solid var(--vp-c-divider); border-radius: 12px; color: var(--vp-c-text-1); text-decoration: none; transition: border-color .2s, transform .2s; }
+.chapter-grid a:hover { border-color: var(--vp-c-brand-1); transform: translateY(-2px); }
+.chapter-grid b { color: var(--vp-c-brand-1); font-size: 13px; letter-spacing: .1em; }
+.chapter-grid span { font-weight: 700; }
+@media (max-width: 760px) {
+  .whitepaper-hero { min-height: 610px; padding-top: 130px; background-position: 63% center; }
+  .principles, .flow-strip, .chapter-grid { grid-template-columns: 1fr; }
+}

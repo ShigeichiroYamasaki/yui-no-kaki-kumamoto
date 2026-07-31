@@ -70,3 +70,14 @@ npm run contracts:deploy:base-sepolia
 - デモ系は実ウォレット、実JPYC、実受入口座へ接続しない
 
 詳細は[ADR索引](docs/adr/README.md)を参照してください。
+
+## ホワイトペーパー
+
+VitePress版ホワイトペーパーは`docs/`にあります。
+
+```bash
+npm run docs:dev
+npm run docs:build
+```
+
+GitHub Pages: https://shigeichiroyamasaki.github.io/yui-no-kaki-kumamoto/

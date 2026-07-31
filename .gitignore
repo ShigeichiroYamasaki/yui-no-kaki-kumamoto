@@ -44,3 +44,5 @@ next-env.d.ts
 /artifacts/
 /cache/
 /ignition/deployments/
+/docs/.vitepress/cache/
+/docs/.vitepress/dist/

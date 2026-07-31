@@ -17,7 +17,10 @@
     "contracts:deploy:local": "hardhat ignition deploy ignition/modules/DemoRecoverySupport.ts",
     "contracts:deploy:sepolia": "hardhat ignition deploy ignition/modules/RecoverySupport.ts --network sepolia --parameters ignition/parameters/production.json --build-profile production",
     "contracts:deploy:base-sepolia": "hardhat ignition deploy ignition/modules/RecoverySupport.ts --network baseSepolia --parameters ignition/parameters/production.json --build-profile production",
-    "lint": "eslint . --ignore-pattern dist --ignore-pattern .next --ignore-pattern artifacts --ignore-pattern cache --ignore-pattern ignition/deployments",
+    "docs:dev": "vitepress dev docs --base /yui-no-kaki-kumamoto/",
+    "docs:build": "vitepress build docs --base /yui-no-kaki-kumamoto/",
+    "docs:preview": "vitepress preview docs --base /yui-no-kaki-kumamoto/",
+    "lint": "eslint . --ignore-pattern dist --ignore-pattern .next --ignore-pattern artifacts --ignore-pattern cache --ignore-pattern ignition/deployments --ignore-pattern docs/.vitepress/dist --ignore-pattern work",
     "db:generate": "drizzle-kit generate"
   },
   "dependencies": {
@@ -44,6 +47,7 @@
     "react-server-dom-webpack": "19.2.6",
     "tailwindcss": "4.2.1",
     "typescript": "5.9.3",
+    "vitepress": "^1.6.4",
     "vinext": "0.0.50",
     "vite": "8.0.13",
     "wrangler": "4.92.0"
