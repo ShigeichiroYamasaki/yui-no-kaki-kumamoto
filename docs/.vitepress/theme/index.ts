@@ -20,13 +20,13 @@ const Layout = defineComponent({
       const languageLink = isEnglish
         ? `/${pageSlug}`
         : translatedPages.includes(pageSlug) ? `/en/${pageSlug}` : "/en/";
-      site.value.title = isEnglish ? "Yui no Kaki Whitepaper" : "結の垣 Whitepaper";
+      site.value.title = isEnglish ? "Kumamoto Relief DAO Whitepaper" : "熊本災害支援DAO Whitepaper";
       site.value.description = isEnglish
         ? "From the world to Kumamoto: a verifiable recovery support platform."
         : "世界から熊本へ。検証可能な復興支援基盤のホワイトペーパー。";
       Object.assign(theme.value, {
       logo: "/favicon.svg",
-      siteTitle: isEnglish ? "Yui no Kaki" : "結の垣",
+      siteTitle: isEnglish ? "Kumamoto Relief DAO" : "熊本災害支援DAO",
       nav: isEnglish ? [
         { text: "Whitepaper", link: "/en/vision" },
         { text: "Architecture", link: "/en/architecture" },
@@ -88,7 +88,7 @@ const Layout = defineComponent({
         message: isEnglish
           ? "This whitepaper describes a concept and technical prototype."
           : "本サイトは構想・技術検証段階のホワイトペーパーです。",
-        copyright: isEnglish ? "Yui no Kaki Project" : "結の垣プロジェクト",
+        copyright: isEnglish ? "Kumamoto Relief DAO Project" : "熊本災害支援DAOプロジェクト",
       },
       outline: { level: [2, 3], label: isEnglish ? "On this page" : "このページ" },
       docFooter: { prev: isEnglish ? "Previous" : "前へ", next: isEnglish ? "Next" : "次へ" },
@@ -98,6 +98,6 @@ const Layout = defineComponent({
   },
 });
 
-const YuiNoKakiTheme = { ...DefaultTheme, Layout };
+const KumamotoReliefDaoTheme = { ...DefaultTheme, Layout };
 
-export default YuiNoKakiTheme;
+export default KumamotoReliefDaoTheme;

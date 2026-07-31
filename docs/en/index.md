@@ -1,6 +1,6 @@
 ---
 layout: false
-title: Yui no Kaki Whitepaper
+title: Kumamoto Relief DAO Whitepaper
 description: From the world to Kumamoto. A verifiable recovery support platform.
 head:
   - - meta
@@ -8,7 +8,7 @@ head:
       content: "#101b18"
   - - meta
     - property: og:title
-      content: Yui no Kaki Whitepaper
+      content: Kumamoto Relief DAO Whitepaper
   - - meta
     - property: og:description
       content: From the world to Kumamoto. A verifiable recovery support platform.
@@ -18,7 +18,7 @@ head:
 ---
 
 <nav class="home-nav" aria-label="Homepage navigation">
-  <a class="home-nav__brand" href="./">Yui no Kaki</a>
+  <a class="home-nav__brand" href="./">Kumamoto Relief DAO</a>
   <div class="home-nav__links">
     <a href="./vision">Whitepaper</a>
     <a href="./architecture">Architecture</a>
@@ -33,8 +33,8 @@ head:
 
 <div class="whitepaper-hero">
   <div class="whitepaper-hero__copy">
-    <div class="whitepaper-hero__eyebrow">YUI NO KAKI / KUMAMOTO RECOVERY SUPPORT</div>
-    <h1>Yui no Kaki <span>Turning global solidarity into Kumamoto's power to recover.</span></h1>
+    <div class="whitepaper-hero__eyebrow">KUMAMOTO RELIEF DAO / RECOVERY SUPPORT</div>
+    <h1>Kumamoto Relief DAO <span>Turning global solidarity into Kumamoto's power to recover.</span></h1>
     <p>A public support platform that represents recovery contributions from Japan and abroad as digital tamagaki, enabling anyone to verify how funds reach Kumamoto Prefecture and contribute to infrastructure restoration.</p>
     <div class="hero-actions">
       <a href="./vision">Read the whitepaper</a>
@@ -48,7 +48,7 @@ head:
 <main class="whitepaper-home">
   <p class="whitepaper-hero__eyebrow">EXECUTIVE SUMMARY</p>
   <h2>From receiving support to reporting recovery.</h2>
-  <p>Yui no Kaki connects disaster recovery support in ETH and JPYC, non-transferable Tamagaki SBTs, transfer of funds to a destination designated by Kumamoto Prefecture, proof of receipt, and recovery project updates in one verifiable flow. It is not a tax-incentive scheme; it is intended solely to support infrastructure recovery.</p>
+  <p>Kumamoto Relief DAO connects disaster recovery support in ETH and JPYC, non-transferable Tamagaki SBTs, transfer of funds to a destination designated by Kumamoto Prefecture, proof of receipt, and recovery project updates in one verifiable flow. It is not a tax-incentive scheme; it is intended solely to support infrastructure recovery.</p>
   <section class="principles">
     <article><b>Verifiability</b><span>Key evidence for receipt, consolidated transfer, prefectural receipt, and recovery reporting is publicly linked and independently verifiable.</span></article>
     <article><b>Public mandate</b><span>DAO-style participation provides a channel for views. Supporter votes do not bind Kumamoto Prefecture's budgets or public works.</span></article>

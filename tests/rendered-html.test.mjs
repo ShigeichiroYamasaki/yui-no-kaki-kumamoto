@@ -30,7 +30,7 @@ test("server-renders the Kumamoto recovery support prototype", async () => {
 
   const html = await response.text();
   assert.match(html, /<html lang="ja">/i);
-  assert.match(html, /<title>結の垣｜熊本災害復興支援プロトタイプ<\/title>/i);
+  assert.match(html, /<title>熊本災害支援DAO｜復興支援プロトタイプ<\/title>/i);
   assert.match(html, /INTERACTIVE PROTOTYPE/);
   assert.match(html, /世界の想いを、/);
   assert.match(html, /熊本県へ送金済み/);
@@ -45,7 +45,7 @@ test("keeps the demo disclosure and privacy policy visible in source", async () 
     readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
   ]);
 
-  assert.match(layout, /結の垣｜熊本災害復興支援プロトタイプ/);
+  assert.match(layout, /熊本災害支援DAO｜復興支援プロトタイプ/);
   assert.match(page, /INTERACTIVE PROTOTYPE/);
   assert.match(page, /説明用のサンプル/);
   assert.match(page, /ウォレットから国を推測することはありません/);

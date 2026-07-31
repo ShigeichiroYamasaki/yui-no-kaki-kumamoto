@@ -1,6 +1,6 @@
 ---
 layout: false
-title: 結の垣 Whitepaper
+title: 熊本災害支援DAO Whitepaper
 description: 世界から熊本へ。検証可能な復興支援基盤の設計。
 head:
   - - meta
@@ -8,7 +8,7 @@ head:
       content: "#101b18"
   - - meta
     - property: og:title
-      content: 結の垣 Whitepaper
+      content: 熊本災害支援DAO Whitepaper
   - - meta
     - property: og:description
       content: 世界から熊本へ。検証可能な復興支援基盤の設計。
@@ -18,7 +18,7 @@ head:
 ---
 
 <nav class="home-nav" aria-label="トップページナビゲーション">
-  <a class="home-nav__brand" href="./">結の垣</a>
+  <a class="home-nav__brand" href="./">熊本災害支援DAO</a>
   <div class="home-nav__links">
     <a href="./vision">ホワイトペーパー</a>
     <a href="./architecture">技術設計</a>
@@ -33,8 +33,8 @@ head:
 
 <div class="whitepaper-hero">
   <div class="whitepaper-hero__copy">
-    <div class="whitepaper-hero__eyebrow">YUI NO KAKI / KUMAMOTO RECOVERY SUPPORT</div>
-    <h1>結の垣 <span>世界の想いを、熊本の復興力へ。</span></h1>
+    <div class="whitepaper-hero__eyebrow">KUMAMOTO RELIEF DAO / RECOVERY SUPPORT</div>
+    <h1>熊本災害支援DAO <span>世界の想いを、熊本の復興力へ。</span></h1>
     <p>国内外から届く復興支援をデジタル玉垣として可視化し、資金が熊本県へ届き、インフラ復旧へつながる過程を誰もが検証できる公共的な支援基盤。</p>
     <div class="hero-actions">
       <a href="./vision">ホワイトペーパーを読む</a>
@@ -49,7 +49,7 @@ head:
 <main class="whitepaper-home">
   <p class="whitepaper-hero__eyebrow">EXECUTIVE SUMMARY</p>
   <h2>支援の入口から、復興の報告まで。</h2>
-  <p>結の垣は、ETH・JPYCによる災害復興支援、譲渡不能な玉垣SBT、熊本県指定先への資金移転、受領証跡、復興事業の進捗報告を一つの検証可能な流れとして接続する構想です。税制優遇を提供する仕組みではなく、インフラ復旧を目的とする純粋な復興支援を対象とします。</p>
+  <p>熊本災害支援DAOは、ETH・JPYCによる災害復興支援、譲渡不能な玉垣SBT、熊本県指定先への資金移転、受領証跡、復興事業の進捗報告を一つの検証可能な流れとして接続する構想です。税制優遇を提供する仕組みではなく、インフラ復旧を目的とする純粋な復興支援を対象とします。</p>
   <section class="principles">
     <article><b>検証可能性</b><span>支援受付、集約送金、県受領、復興報告の重要な証跡を公開検証できる形で結びます。</span></article>
     <article><b>公共性の尊重</b><span>DAOは意見表明の場です。支援者投票が熊本県の予算や公共事業を拘束することはありません。</span></article>

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "結の垣｜熊本災害復興支援プロトタイプ",
+  title: "熊本災害支援DAO｜復興支援プロトタイプ",
   description:
     "世界から熊本へ届く復興支援と、インフラ復旧の進捗をつなぐインタラクティブ・プロトタイプ。",
   icons: {
@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     shortcut: "/favicon.png",
   },
   openGraph: {
-    title: "結の垣｜熊本災害復興支援プロトタイプ",
+    title: "熊本災害支援DAO｜復興支援プロトタイプ",
     description: "世界の想いを、熊本の力へ。",
     locale: "ja_JP",
     type: "website",
@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "結の垣｜熊本災害復興支援プロトタイプ",
+    title: "熊本災害支援DAO｜復興支援プロトタイプ",
     description: "世界の想いを、熊本の力へ。",
     images: ["/og.png"],
   },

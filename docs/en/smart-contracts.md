@@ -1,6 +1,6 @@
 # Smart Contracts
 
-The Yui no Kaki smart contracts are published and maintained in the same GitHub repository as this whitepaper. The current implementation is a prototype prepared before stakeholder coordination and has not been deployed to a production environment that accepts real funds.
+The Kumamoto Relief DAO smart contracts are published and maintained in the same GitHub repository as this whitepaper. The current implementation is a prototype prepared before stakeholder coordination and has not been deployed to a production environment that accepts real funds.
 
 [View all contract source code on GitHub](https://github.com/ShigeichiroYamasaki/yui-no-kaki-kumamoto/tree/main/contracts)
 

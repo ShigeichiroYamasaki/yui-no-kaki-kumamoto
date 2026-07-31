@@ -113,7 +113,7 @@ export default function Home() {
       <div className="demo-ribbon"><b>INTERACTIVE PROTOTYPE</b><span>このサイトの資金・人物・事業はすべて説明用のサンプルです</span></div>
 
       <header className="site-header">
-        <a className="brand" href="#top"><span className="brand-mark">結</span><span><b>結の垣</b><small>YUI NO KAKI</small></span></a>
+        <a className="brand" href="#top"><span className="brand-mark">熊</span><span><b>熊本災害支援DAO</b><small>KUMAMOTO RELIEF DAO</small></span></a>
         <nav>
           <a href="#world">世界からの支援</a>
           <a href="#funds">資金の流れ</a>
@@ -280,7 +280,7 @@ export default function Home() {
       </section>
 
       <footer>
-        <div className="brand"><span className="brand-mark">結</span><span><b>結の垣</b><small>YUI NO KAKI</small></span></div>
+        <div className="brand"><span className="brand-mark">熊</span><span><b>熊本災害支援DAO</b><small>KUMAMOTO RELIEF DAO</small></span></div>
         <p>熊本災害復興支援プロトタイプ</p>
         <small>実在の募金・金融サービスではありません。送金、ウォレット接続、税制優遇、熊本県による承認はすべて未実装です。</small>
       </footer>

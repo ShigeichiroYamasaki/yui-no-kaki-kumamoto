@@ -8,7 +8,7 @@ For supporters, especially those overseas, it is difficult to continuously verif
 
 ## Objectives
 
-Yui no Kaki seeks to achieve three goals simultaneously:
+Kumamoto Relief DAO seeks to achieve three goals simultaneously:
 
 1. Enable people in Japan and abroad to participate in recovery support with minimal friction.
 2. Make the path of support to a destination designated by Kumamoto Prefecture publicly verifiable.

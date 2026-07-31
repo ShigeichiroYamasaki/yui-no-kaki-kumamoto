@@ -2,7 +2,7 @@
 
 ## Role of DAO-style participation
 
-The Yui no Kaki DAO does not replace a legal entity or administrative authority. It is a public community through which supporters can share views on recovery areas and participate in improving the project.
+Kumamoto Relief DAO does not replace a legal entity or administrative authority. It is a public community through which supporters can share views on recovery areas and participate in improving the project.
 
 ## Advisory voting
 
