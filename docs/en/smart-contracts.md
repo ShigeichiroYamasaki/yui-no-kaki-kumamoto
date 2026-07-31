@@ -31,3 +31,9 @@ The Kumamoto Relief DAO smart contracts are published and maintained in the same
 - Production requires an external audit, multisignature control, timelocks, a formal receipt agreement, and confirmation of the official JPYC address on the selected network.
 
 See the [system architecture](./architecture) for the wider technical design. The original [ADR records](../adr/) are currently maintained in Japanese.
+
+## On-chain aggregation on the home page
+
+The home page uses a read-only Viem Public Client to retrieve `SupportReceived` events from `RecoverySupportVault` every 30 seconds. Block timestamps and asset addresses are used to calculate cumulative ETH, cumulative JPYC, and the contribution count.
+
+For a GitHub Pages deployment, configure `RECOVERY_RPC_URL`, `RECOVERY_VAULT_ADDRESS`, `JPYC_ADDRESS`, `RECOVERY_DEPLOYMENT_BLOCK`, and `JPYC_DECIMALS` as repository Actions variables. No private key or write permission is used. When configuration is absent, the page shows an awaiting-connection state rather than fabricated data.

@@ -1,6 +1,8 @@
 import { defineComponent, h, watchEffect } from "vue";
 import DefaultTheme from "vitepress/theme";
 import { useData } from "vitepress";
+import type { Theme } from "vitepress";
+import SupportTrend from "./components/SupportTrend.vue";
 import "./style.css";
 
 const Layout = defineComponent({
@@ -98,6 +100,12 @@ const Layout = defineComponent({
   },
 });
 
-const KumamotoReliefDaoTheme = { ...DefaultTheme, Layout };
+const KumamotoReliefDaoTheme: Theme = {
+  ...DefaultTheme,
+  Layout,
+  enhanceApp({ app }) {
+    app.component("SupportTrend", SupportTrend);
+  },
+};
 
 export default KumamotoReliefDaoTheme;

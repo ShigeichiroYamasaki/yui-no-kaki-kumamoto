@@ -31,3 +31,9 @@
 - 本番導入には、外部監査、マルチシグ、タイムロック、正式な受領合意、利用チェーン上の公式JPYCアドレス確認が必要です。
 
 関連する設計判断は、[ADR一覧](./adr/)と[システム構造](./architecture)で確認できます。
+
+## トップページのオンチェーン集計
+
+トップページはViemの読み取り専用Public Clientを使用し、`RecoverySupportVault`の`SupportReceived`イベントを30秒ごとに取得します。各イベントのブロック時刻と資産アドレスから、ETH・JPYCの累計額と支援件数を算出します。
+
+GitHub Pagesのデプロイ時には、リポジトリのActions variablesへ`RECOVERY_RPC_URL`、`RECOVERY_VAULT_ADDRESS`、`JPYC_ADDRESS`、`RECOVERY_DEPLOYMENT_BLOCK`、`JPYC_DECIMALS`を設定します。秘密鍵や書き込み権限は使用しません。未設定時は仮データを表示せず、接続待ち状態になります。

@@ -47,6 +47,7 @@ head:
 </div>
 
 <main class="whitepaper-home">
+  <SupportTrend locale="ja" />
   <p class="whitepaper-hero__eyebrow">EXECUTIVE SUMMARY</p>
   <h2>支援の入口から、復興の報告まで。</h2>
   <p>熊本災害支援DAOは、ETH・JPYCによる災害復興支援、譲渡不能な玉垣SBT、熊本県指定先への資金移転、受領証跡、復興事業の進捗報告を一つの検証可能な流れとして接続する構想です。税制優遇を提供する仕組みではなく、インフラ復旧を目的とする純粋な復興支援を対象とします。</p>
