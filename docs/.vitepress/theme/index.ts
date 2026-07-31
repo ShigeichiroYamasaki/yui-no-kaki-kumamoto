@@ -15,6 +15,7 @@ const Layout = defineComponent({
       nav: [
         { text: "ホワイトペーパー", link: "/vision" },
         { text: "技術設計", link: "/architecture" },
+        { text: "コントラクト", link: "/smart-contracts" },
         { text: "ADR", link: "/adr/" },
         { text: "GitHub", link: "https://github.com/ShigeichiroYamasaki/yui-no-kaki-kumamoto" },
       ],
@@ -33,6 +34,10 @@ const Layout = defineComponent({
             { text: "8. ロードマップ", link: "/roadmap" },
             { text: "9. リスクと免責", link: "/risks" },
           ],
+        },
+        {
+          text: "実装",
+          items: [{ text: "スマートコントラクト", link: "/smart-contracts" }],
         },
         { text: "設計記録", items: [{ text: "ADR一覧", link: "/adr/" }] },
       ],
