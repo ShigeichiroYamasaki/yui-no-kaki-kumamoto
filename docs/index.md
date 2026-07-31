@@ -25,6 +25,7 @@ head:
     <div class="hero-actions">
       <a href="./vision">ホワイトペーパーを読む</a>
       <a href="./architecture">技術構造を見る</a>
+      <a href="./adr/">ADRを確認する</a>
       <a href="https://yui-no-kaki-kumamoto.minty-goose-0011.chatgpt.site/">デモを体験する</a>
     </div>
   </div>
@@ -52,7 +53,7 @@ head:
     <a href="./environments"><b>07</b><span>本番系とデモ系</span></a>
     <a href="./roadmap"><b>08</b><span>ロードマップ</span></a>
     <a href="./risks"><b>09</b><span>リスクと免責</span></a>
-    <a href="./adr/"><b>ADR</b><span>設計判断の原記録</span></a>
+    <a href="./adr/"><b>ADR</b><span>設計判断の一覧と原記録を確認</span></a>
   </section>
   <div class="scope-note"><strong>現在の位置づけ</strong><br>本書は関係者協議前の提案・技術検証版です。掲載されたデモは実資金、実JPYC、熊本県のシステムへ接続しておらず、熊本県による承認を示すものではありません。</div>
 </main>
