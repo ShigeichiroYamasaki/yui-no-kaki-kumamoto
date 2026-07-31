@@ -31,15 +31,15 @@ const Layout = defineComponent({
         { text: "Whitepaper", link: "/en/vision" },
         { text: "Architecture", link: "/en/architecture" },
         { text: "Contracts", link: "/en/smart-contracts" },
-        { text: "日本語", link: languageLink },
         { text: "GitHub", link: "https://github.com/ShigeichiroYamasaki/yui-no-kaki-kumamoto" },
+        { text: "日本語", link: languageLink },
       ] : [
         { text: "ホワイトペーパー", link: "/vision" },
         { text: "技術設計", link: "/architecture" },
         { text: "コントラクト", link: "/smart-contracts" },
-        { text: "English", link: languageLink },
         { text: "ADR", link: "/adr/" },
         { text: "GitHub", link: "https://github.com/ShigeichiroYamasaki/yui-no-kaki-kumamoto" },
+        { text: "English", link: languageLink },
       ],
       sidebar: isEnglish ? [
         {

@@ -19,6 +19,12 @@ head:
 
 <nav class="home-nav" aria-label="Homepage navigation">
   <a class="home-nav__brand" href="./">Yui no Kaki</a>
+  <div class="home-nav__links">
+    <a href="./vision">Whitepaper</a>
+    <a href="./architecture">Architecture</a>
+    <a href="./smart-contracts">Contracts</a>
+    <a href="https://github.com/ShigeichiroYamasaki/yui-no-kaki-kumamoto">GitHub</a>
+  </div>
   <div class="home-nav__languages" aria-label="Display language">
     <a href="../" lang="ja">日本語</a>
     <a href="./" aria-current="page">English</a>

@@ -19,6 +19,12 @@ head:
 
 <nav class="home-nav" aria-label="トップページナビゲーション">
   <a class="home-nav__brand" href="./">結の垣</a>
+  <div class="home-nav__links">
+    <a href="./vision">ホワイトペーパー</a>
+    <a href="./architecture">技術設計</a>
+    <a href="./smart-contracts">コントラクト</a>
+    <a href="./adr/">ADR</a>
+  </div>
   <div class="home-nav__languages" aria-label="表示言語">
     <a href="./" aria-current="page">日本語</a>
     <a href="./en/" lang="en">English</a>
