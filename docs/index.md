@@ -17,6 +17,14 @@ head:
       content: https://shigeichiroyamasaki.github.io/yui-no-kaki-kumamoto/kumamoto-tamagaki-hero.png
 ---
 
+<nav class="home-nav" aria-label="トップページナビゲーション">
+  <a class="home-nav__brand" href="./">結の垣</a>
+  <div class="home-nav__languages" aria-label="表示言語">
+    <a href="./" aria-current="page">日本語</a>
+    <a href="./en/" lang="en">English</a>
+  </div>
+</nav>
+
 <div class="whitepaper-hero">
   <div class="whitepaper-hero__copy">
     <div class="whitepaper-hero__eyebrow">YUI NO KAKI / KUMAMOTO RECOVERY SUPPORT</div>

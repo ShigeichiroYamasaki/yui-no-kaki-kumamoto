@@ -17,6 +17,14 @@ head:
       content: https://shigeichiroyamasaki.github.io/yui-no-kaki-kumamoto/kumamoto-tamagaki-hero.png
 ---
 
+<nav class="home-nav" aria-label="Homepage navigation">
+  <a class="home-nav__brand" href="./">Yui no Kaki</a>
+  <div class="home-nav__languages" aria-label="Display language">
+    <a href="../" lang="ja">日本語</a>
+    <a href="./" aria-current="page">English</a>
+  </div>
+</nav>
+
 <div class="whitepaper-hero">
   <div class="whitepaper-hero__copy">
     <div class="whitepaper-hero__eyebrow">YUI NO KAKI / KUMAMOTO RECOVERY SUPPORT</div>
@@ -26,7 +34,6 @@ head:
       <a href="./vision">Read the whitepaper</a>
       <a href="./architecture">View the architecture</a>
       <a href="./smart-contracts">View the contracts</a>
-      <a href="../">日本語版</a>
       <a href="https://yui-no-kaki-kumamoto.minty-goose-0011.chatgpt.site/">Try the demo</a>
     </div>
   </div>
