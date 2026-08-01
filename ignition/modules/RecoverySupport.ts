@@ -6,8 +6,8 @@ const REPORTER_ROLE = keccak256(stringToHex("REPORTER_ROLE"));
 
 export default buildModule("RecoverySupportModule", (m) => {
   const admin = m.getParameter("admin", m.getAccount(0));
-  const beneficiary = m.getParameter("beneficiary", admin);
-  const reporter = m.getParameter("reporter", admin);
+  const beneficiary = m.getParameter("beneficiary", m.getAccount(0));
+  const reporter = m.getParameter("reporter", m.getAccount(0));
   const baseTokenURI = m.getParameter("baseTokenURI", "ipfs://kumamoto-tamagaki/");
   const approvedJpyc = m.getParameter("approvedJpyc", zeroAddress);
 

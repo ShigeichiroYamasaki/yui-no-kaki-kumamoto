@@ -2,6 +2,56 @@
 
 This chapter defines the experience for a supporter using MetaMask or another EVM wallet, from opening the support site through verifying ownership of a Tamagaki SBT. The interface may evolve, but users must understand what they are connecting, authorizing, sending, and receiving before signing.
 
+::: warning This is currently a testnet demo
+Sepolia ETH and MockJPYC have no monetary value, and production fundraising has not started. Never enter a private key or Secret Recovery Phrase into this site, a faucet, or a message to another person.
+:::
+
+## Beginner setup
+
+### Step 1. Install and open MetaMask
+
+Install MetaMask from the [official download page](https://metamask.io/download/), create or open a wallet, and select a test-only account. Avoid using an account that holds real assets. Store the Secret Recovery Phrase offline or in a trusted secure location; this demo never requests it.
+
+### Step 2. Enable Sepolia
+
+1. Open MetaMask and select Networks.
+2. Enable “Show test networks” at the bottom of the network list.
+3. Select `Sepolia`.
+4. Confirm that the active network is Sepolia; its chain ID is `11155111`.
+
+Sepolia is normally built into MetaMask, so no custom RPC is required. See [MetaMask's official testnet instructions](https://support.metamask.io/configure/networks/how-to-view-testnets-in-metamask/) if the menu differs.
+
+### Step 3. Copy the public address
+
+Copy the selected account address beginning with `0x`. This public address, normally 42 characters long, is the faucet destination. Never paste a 64-digit private key or a Secret Recovery Phrase into a faucet.
+
+### Step 4. Obtain Sepolia ETH
+
+1. Open the [official Ethereum list of Sepolia faucets](https://ethereum.org/developers/docs/networks/#sepolia).
+2. Select a listed provider such as Alchemy, Google Cloud, Infura, or QuickNode.
+3. Confirm that the selected network is Ethereum Sepolia.
+4. Paste only the public account address and request test ETH.
+5. Save the transaction hash and wait for confirmation.
+
+Provider login requirements, cooldowns, and daily limits differ. If one provider rejects the request, read its stated condition and try another provider from the official list. Stop immediately if a page asks for a private key, recovery phrase, real funds, unlimited token approval, or NFT `setApprovalForAll`.
+
+### Step 5. Verify receipt
+
+Check the ETH balance while MetaMask is set to Sepolia. If it does not update, search the public address on [Sepolia Etherscan](https://sepolia.etherscan.io/). An incoming transaction and balance in the explorer confirm receipt even if the wallet display is delayed.
+
+### Step 6. Open the interactive demo
+
+After confirming a Sepolia ETH balance, open the [Ethereum Sepolia support demo](../demo.md). Connect the test account, obtain MockJPYC, enter an ETH or MockJPYC amount, review each MetaMask prompt, and verify the resulting transaction and Tamagaki SBT token ID in the explorer. The MockJPYC faucet transaction also requires a small amount of Sepolia ETH for gas.
+
+| Problem | Check |
+|---|---|
+| Sepolia is missing | Enable “Show test networks” |
+| Faucet rejects the request | Confirm Ethereum Sepolia and provider cooldown or login requirements |
+| ETH is not visible | Confirm the selected network and check Etherscan |
+| Demo will not connect | Unlock MetaMask and permit the site connection |
+| Insufficient gas | Confirm the Sepolia ETH balance is not zero |
+| MockJPYC is missing | Check the faucet transaction and refresh the demo balance |
+
 ## Experience principles
 
 - Explain wallet connection, token approval, and contribution as separate actions.
@@ -35,7 +85,7 @@ flowchart TD
 
 The site tells the user which EVM wallets are supported, the official domain, network and chain ID, required balances, and whether the campaign is production or a valueless testnet demonstration. ETH contributions require enough ETH for both the amount and gas. JPYC contributions require JPYC plus the network's gas asset.
 
-The demo identifies Base Sepolia, test ETH, and MockJPYC at the top of the page and before signing. Production addresses for the network, Vault, and official JPYC must also be verifiable through independent official channels.
+The demo identifies Ethereum Sepolia, test ETH, and MockJPYC at the top of the page and before signing. Production addresses for the network, Vault, and official JPYC must also be verifiable through independent official channels.
 
 ## 1. Connect the wallet
 
@@ -108,7 +158,7 @@ The site and wallet let the user cross-check the official domain, chain and chai
 
 ## Demo and production
 
-| Item | Base Sepolia demo | Production candidate |
+| Item | Ethereum Sepolia demo | Production candidate |
 |---|---|---|
 | Assets | Test ETH and valueless MockJPYC | Approved ETH and official JPYC |
 | Purpose | Validate signing, transfer, and SBT minting | Formal recovery support intake |

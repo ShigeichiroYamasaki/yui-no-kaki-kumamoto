@@ -56,9 +56,12 @@ npm run contracts:deploy:local
 4. 次のいずれかを実行する。
 
 ```bash
+npm run contracts:deploy:demo:sepolia
 npm run contracts:deploy:sepolia
 npm run contracts:deploy:base-sepolia
 ```
+
+プロトタイプの標準統合デモはEthereum Sepoliaとし、`contracts:deploy:demo:sepolia`で価値を持たない`MockJPYC`を含むデモ一式をデプロイします。Base Sepolia用コマンドは代替テストネットとして残します。
 
 本番デプロイ前には外部監査、正式な受領合意、公式JPYCのチェーン・コントラクト確認、マルチシグとタイムロックの導入が必要です。
 

@@ -11,7 +11,7 @@
 - 玉垣はERC-721とERC-5192を採用する。
 - チェーン間集計はインデクサーで統合し、支援IDにチェーンIDと受付コントラクトを含める。
 - 受領確認・復興報告は文書本体ではなくハッシュを`RecoveryAttestationRegistry`へ記録する。
-- Base Sepoliaは統合デモ専用ネットワークとし、そこで発行する`MockJPYC`と玉垣SBTを本番資産・本番証明として扱わない。
+- Ethereum Sepoliaを標準統合デモネットワークとし、そこで発行する`MockJPYC`と玉垣SBTを本番資産・本番証明として扱わない。Base Sepoliaは代替検証先として設定を残す。
 
 ## 理由
 

@@ -41,7 +41,7 @@ head:
       <a href="./vision">Read the whitepaper</a>
       <a href="./architecture">View the architecture</a>
       <a href="./smart-contracts">View the contracts</a>
-      <a href="../demo">Testnet demo</a>
+      <a href="./wallet-experience">Start the testnet demo</a>
     </div>
   </div>
 </div>
