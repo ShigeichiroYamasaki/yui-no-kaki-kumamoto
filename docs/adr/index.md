@@ -9,6 +9,7 @@
 | [ADR-0003](./0003-fund-governance-and-custody.md) | Proposed | 資金管理とDAOガバナンスの分離 |
 | [ADR-0004](./0004-chain-sbt-and-attestation.md) | Proposed | チェーン、SBT、アテステーション |
 | [ADR-0005](./0005-privacy-and-public-data.md) | Accepted | 個人情報と公開データ |
+| [ADR-0006](./0006-security-boundaries-and-verifiable-batches.md) | Proposed | セキュリティ境界、資金滞留、検証可能な送金バッチ |
 
 ## 状態の意味
 

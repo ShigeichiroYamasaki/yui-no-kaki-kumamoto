@@ -6,6 +6,12 @@
 
 Risks include implementation defects, compromised private keys, incorrect permissions, L2 outages, and chain reorganizations. Mitigations include least privilege, pausing, multisignature approval, timelocks, audits, and incident-response procedures.
 
+Critical scenarios include changing the recipient through a compromised administrator key, misuse of a treasury key, advisory-vote Sybil attacks using many micro-contribution wallets, explanatory double inclusion across transfer batches, and false reports from a compromised reporter. Retained-balance limits, separation of duties, eligibility snapshots, Merkle inclusion proofs, and organizational multisignatures reduce these risks.
+
+### Public data infrastructure
+
+RPC failures, chain reorganizations, indexer double counting, and compromise of GitHub Pages or DNS could produce incorrect totals or direct users to a false contract. Production mitigations include multiple RPC providers, finality tracking, a replayable indexer, publication of official addresses through independent channels, pinned dependencies, and a content security policy.
+
 ### Assets and exchange
 
 Risks include ETH price volatility, liquidity, JPYC network availability, provider outages, and remittance fees. Indicative valuations are separated from confirmed yen conversion, and both accepted assets and providers are restricted.
