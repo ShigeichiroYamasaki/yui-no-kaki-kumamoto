@@ -41,7 +41,7 @@ head:
       <a href="./architecture">技術構造を見る</a>
       <a href="./smart-contracts">コントラクトを見る</a>
       <a href="./adr/">ADRを確認する</a>
-      <a href="https://yui-no-kaki-kumamoto.minty-goose-0011.chatgpt.site/">デモを体験する</a>
+      <a href="./demo">テストネットデモ</a>
     </div>
   </div>
 </div>

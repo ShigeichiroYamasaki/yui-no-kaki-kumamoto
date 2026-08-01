@@ -35,6 +35,7 @@ jobs:
           VITE_RECOVERY_RPC_URL: ${{ vars.RECOVERY_RPC_URL }}
           VITE_RECOVERY_VAULT_ADDRESS: ${{ vars.RECOVERY_VAULT_ADDRESS }}
           VITE_JPYC_ADDRESS: ${{ vars.JPYC_ADDRESS }}
+          VITE_TAMAGAKI_SBT_ADDRESS: ${{ vars.TAMAGAKI_SBT_ADDRESS }}
           VITE_RECOVERY_DEPLOYMENT_BLOCK: ${{ vars.RECOVERY_DEPLOYMENT_BLOCK }}
           VITE_JPYC_DECIMALS: ${{ vars.JPYC_DECIMALS }}
       - uses: actions/configure-pages@v5

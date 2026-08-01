@@ -67,9 +67,8 @@ describe("RecoverySupportVault", async function () {
 
   it("accepts only allowlisted ERC-20 and forwards a batch only to the beneficiary", async () => {
     const jpyc = await viem.deployContract("MockJPYC");
-    await jpyc.write.mint([supporter.account.address, 100_000n]);
-
     const jpycAsSupporter = await viem.getContractAt("MockJPYC", jpyc.address, { client: { wallet: supporter } });
+    await jpycAsSupporter.write.faucet();
     const vaultAsSupporter = await viem.getContractAt("RecoverySupportVault", fixture.vault.address, { client: { wallet: supporter } });
     await jpycAsSupporter.write.approve([fixture.vault.address, 100_000n]);
 
@@ -100,6 +99,14 @@ describe("RecoverySupportVault", async function () {
     await fixture.vault.write.transferBatch([batchId, jpyc.address, 30_000n]);
     assert.equal(await jpyc.read.balanceOf([beneficiary.account.address]), 30_000n);
     assert.equal(await jpyc.read.balanceOf([fixture.vault.address]), 0n);
+  });
+
+  it("dispenses demo JPYC from the faucet and enforces its cooldown", async () => {
+    const jpyc = await viem.deployContract("MockJPYC");
+    const jpycAsSupporter = await viem.getContractAt("MockJPYC", jpyc.address, { client: { wallet: supporter } });
+    await jpycAsSupporter.write.faucet();
+    assert.equal(await jpyc.read.balanceOf([supporter.account.address]), await jpyc.read.FAUCET_AMOUNT());
+    await viem.assertions.revertWithCustomError(jpycAsSupporter.write.faucet(), jpyc, "FaucetCooldown");
   });
 
   it("rejects duplicate batch transfers and unauthorized treasury actions", async () => {

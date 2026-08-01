@@ -40,7 +40,7 @@ head:
       <a href="./vision">Read the whitepaper</a>
       <a href="./architecture">View the architecture</a>
       <a href="./smart-contracts">View the contracts</a>
-      <a href="https://yui-no-kaki-kumamoto.minty-goose-0011.chatgpt.site/">Try the demo</a>
+      <a href="../demo">Testnet demo</a>
     </div>
   </div>
 </div>

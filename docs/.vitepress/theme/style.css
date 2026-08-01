@@ -109,6 +109,17 @@
 .support-trend__empty strong { color: var(--vp-c-text-1); }
 .support-trend__error { color: #c43d3d; font-size: 13px; }
 .support-trend__updated { margin: 12px 0 0; color: var(--vp-c-text-3); font-size: 12px; text-align: right; }
+.testnet-demo { display:grid; gap:22px; margin-top:24px; }
+.demo-warning { padding:16px 18px; border-left:4px solid #d3a33e; background:rgba(211,163,62,.14); }
+.demo-warning b { display:block; }
+.demo-primary,.demo-faucets button,.demo-support-grid button { padding:11px 16px; border:0; border-radius:10px; background:var(--vp-c-brand-1); color:var(--vp-c-bg); font-weight:800; cursor:pointer; }
+.demo-faucets { display:flex; flex-wrap:wrap; align-items:center; gap:14px; padding:18px; border:1px solid var(--vp-c-divider); border-radius:14px; }
+.demo-support-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:16px; }
+.demo-support-grid article { padding:22px; border:1px solid var(--vp-c-divider); border-radius:16px; background:var(--vp-c-bg-soft); }
+.demo-support-grid input { width:65%; padding:11px; margin:10px 8px 18px 0; border:1px solid var(--vp-c-divider); border-radius:8px; background:var(--vp-c-bg); color:var(--vp-c-text-1); }
+.demo-support-grid button { display:block; width:100%; }
+.testnet-demo button:disabled { opacity:.45; cursor:not-allowed; }
+.demo-result { min-height:48px; padding:14px; border-radius:10px; background:var(--vp-c-bg-soft); }
 .principles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin: 34px 0 70px; }
 .principles article { padding: 26px; border: 1px solid var(--vp-c-divider); border-radius: 16px; background: var(--vp-c-bg-soft); }
 .principles b { display: block; margin-bottom: 10px; color: var(--vp-c-brand-1); font-size: 19px; }
@@ -137,6 +148,7 @@
   .home-nav__languages { padding-left: 14px; }
   .support-trend { padding: 22px 18px; }
   .support-trend__totals { grid-template-columns: 1fr; }
+  .demo-support-grid { grid-template-columns:1fr; }
   .home-nav__languages a { padding: 6px 10px; }
   .whitepaper-hero { min-height: 610px; padding-top: 130px; background-position: 63% center; }
   .principles, .flow-strip, .chapter-grid { grid-template-columns: 1fr; }

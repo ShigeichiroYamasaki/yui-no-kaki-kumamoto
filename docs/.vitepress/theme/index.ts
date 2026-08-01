@@ -3,6 +3,7 @@ import DefaultTheme from "vitepress/theme";
 import { useData } from "vitepress";
 import type { Theme } from "vitepress";
 import SupportTrend from "./components/SupportTrend.vue";
+import TestnetDemo from "./components/TestnetDemo.vue";
 import "./style.css";
 
 const Layout = defineComponent({
@@ -33,12 +34,14 @@ const Layout = defineComponent({
         { text: "Whitepaper", link: "/en/vision" },
         { text: "Architecture", link: "/en/architecture" },
         { text: "Contracts", link: "/en/smart-contracts" },
+        { text: "Testnet Demo", link: "/demo" },
         { text: "GitHub", link: "https://github.com/ShigeichiroYamasaki/yui-no-kaki-kumamoto" },
         { text: "日本語", link: languageLink },
       ] : [
         { text: "ホワイトペーパー", link: "/vision" },
         { text: "技術設計", link: "/architecture" },
         { text: "コントラクト", link: "/smart-contracts" },
+        { text: "デモ", link: "/demo" },
         { text: "ADR", link: "/adr/" },
         { text: "GitHub", link: "https://github.com/ShigeichiroYamasaki/yui-no-kaki-kumamoto" },
         { text: "English", link: languageLink },
@@ -105,6 +108,7 @@ const KumamotoReliefDaoTheme: Theme = {
   Layout,
   enhanceApp({ app }) {
     app.component("SupportTrend", SupportTrend);
+    app.component("TestnetDemo", TestnetDemo);
   },
 };
 
