@@ -33,6 +33,7 @@ head:
 
 <div class="whitepaper-hero">
   <div class="whitepaper-hero__copy">
+    <div class="fundraising-notice" role="status"><strong>まだ募金を受け付けていません</strong><span>現在は構想・技術検証段階です。テストネットデモでは実資産を使用しません。</span></div>
     <div class="whitepaper-hero__eyebrow">KUMAMOTO RELIEF DAO / RECOVERY SUPPORT</div>
     <h1>熊本災害支援DAO <span>世界の想いを、熊本の復興力へ。</span></h1>
     <p>国内外から届く復興支援をデジタル玉垣として可視化し、資金が熊本県へ届き、インフラ復旧へつながる過程を誰もが検証できる公共的な支援基盤。</p>

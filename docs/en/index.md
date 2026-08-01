@@ -33,6 +33,7 @@ head:
 
 <div class="whitepaper-hero">
   <div class="whitepaper-hero__copy">
+    <div class="fundraising-notice" role="status"><strong>Fundraising has not started</strong><span>This project is currently at the concept and technical validation stage. The testnet demo uses no real assets.</span></div>
     <div class="whitepaper-hero__eyebrow">KUMAMOTO RELIEF DAO / RECOVERY SUPPORT</div>
     <h1>Kumamoto Relief DAO <span>Turning global solidarity into Kumamoto's power to recover.</span></h1>
     <p>A public support platform that represents recovery contributions from Japan and abroad as digital tamagaki, enabling anyone to verify how funds reach Kumamoto Prefecture and contribute to infrastructure restoration.</p>
