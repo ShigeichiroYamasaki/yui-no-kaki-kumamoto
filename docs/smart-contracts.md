@@ -11,7 +11,7 @@
 | RecoverySupportVault | ETHと許可されたERC-20による支援を受け付け、指定受領先への資金移転を記録します。 | [RecoverySupportVault.sol](https://github.com/ShigeichiroYamasaki/yui-no-kaki-kumamoto/blob/main/contracts/RecoverySupportVault.sol) |
 | TamagakiSBT | 支援参加の証しとなる、ERC-721およびERC-5192型の譲渡不能な玉垣SBTを発行します。 | [TamagakiSBT.sol](https://github.com/ShigeichiroYamasaki/yui-no-kaki-kumamoto/blob/main/contracts/TamagakiSBT.sol) |
 | RecoveryAttestationRegistry | 熊本県側の受領確認や復興事業報告について、文書ハッシュと参照情報を記録します。 | [RecoveryAttestationRegistry.sol](https://github.com/ShigeichiroYamasaki/yui-no-kaki-kumamoto/blob/main/contracts/RecoveryAttestationRegistry.sol) |
-| RecoverySupportCouncil | SBT保有者による非拘束の参考投票を提供します。資金移動権限は持ちません。 | [RecoverySupportCouncil.sol](https://github.com/ShigeichiroYamasaki/yui-no-kaki-kumamoto/blob/main/contracts/RecoverySupportCouncil.sol) |
+| RecoverySupportCouncil | SBT保有者による非拘束のクアドラティック参考投票を提供します。資金移動権限は持ちません。 | [RecoverySupportCouncil.sol](https://github.com/ShigeichiroYamasaki/yui-no-kaki-kumamoto/blob/main/contracts/RecoverySupportCouncil.sol) |
 | MockJPYC | ローカル環境でJPYC相当のERC-20支援フローを確認するためのテスト専用トークンです。 | [MockJPYC.sol](https://github.com/ShigeichiroYamasaki/yui-no-kaki-kumamoto/blob/main/contracts/mocks/MockJPYC.sol) |
 
 ## テストとデプロイ

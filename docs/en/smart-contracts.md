@@ -11,7 +11,7 @@ The Kumamoto Relief DAO smart contracts are published and maintained in the same
 | RecoverySupportVault | Receives ETH and approved ERC-20 support and records transfers to the designated destination. | [RecoverySupportVault.sol](https://github.com/ShigeichiroYamasaki/yui-no-kaki-kumamoto/blob/main/contracts/RecoverySupportVault.sol) |
 | TamagakiSBT | Issues non-transferable ERC-721 and ERC-5192 Tamagaki SBTs as proof of participation. | [TamagakiSBT.sol](https://github.com/ShigeichiroYamasaki/yui-no-kaki-kumamoto/blob/main/contracts/TamagakiSBT.sol) |
 | RecoveryAttestationRegistry | Records document hashes and references for prefectural receipt confirmation and recovery reporting. | [RecoveryAttestationRegistry.sol](https://github.com/ShigeichiroYamasaki/yui-no-kaki-kumamoto/blob/main/contracts/RecoveryAttestationRegistry.sol) |
-| RecoverySupportCouncil | Provides non-binding advisory voting for SBT holders and has no authority to move funds. | [RecoverySupportCouncil.sol](https://github.com/ShigeichiroYamasaki/yui-no-kaki-kumamoto/blob/main/contracts/RecoverySupportCouncil.sol) |
+| RecoverySupportCouncil | Provides non-binding quadratic advisory voting for SBT holders and has no authority to move funds. | [RecoverySupportCouncil.sol](https://github.com/ShigeichiroYamasaki/yui-no-kaki-kumamoto/blob/main/contracts/RecoverySupportCouncil.sol) |
 | MockJPYC | Test-only token for validating a JPYC-like ERC-20 support flow locally. | [MockJPYC.sol](https://github.com/ShigeichiroYamasaki/yui-no-kaki-kumamoto/blob/main/contracts/mocks/MockJPYC.sol) |
 
 ## Tests and deployment

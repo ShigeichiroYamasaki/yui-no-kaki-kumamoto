@@ -6,14 +6,15 @@ Kumamoto Relief DAO does not replace a legal entity or administrative authority.
 
 ## Advisory voting
 
-Wallets holding a Tamagaki SBT can participate in non-binding advisory votes on themes such as roads and bridges, water and sewer systems, and disaster-response facilities.
+Wallets holding a Tamagaki SBT can participate in non-binding quadratic advisory voting on themes such as roads and bridges, water and sewer systems, and disaster-response facilities.
 
-- One wallet, one vote
-- No additional voting power based on contribution amount
+- Each wallet receives 100 voice credits per proposal
+- A ballot selects 1–10 votes and spends the square of that number (for example, 7 votes cost 49 credits)
+- One ballot is permitted per proposal, with no additional credits based on contribution amount or SBT count
 - Results aggregate views and do not bind administrative decisions
 - The voting contract cannot hold or move funds
 
-These constraints reduce domination by large contributors, governance attacks, and inappropriate intervention in public procurement.
+This lets every eligible wallet express intensity from the same budget while making stronger votes progressively more expensive. The constraints reduce domination by large contributors, governance attacks, and inappropriate intervention in public procurement.
 
 ## Operational roles
 
