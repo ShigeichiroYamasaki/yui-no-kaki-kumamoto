@@ -70,6 +70,7 @@ head:
     <a href="./environments"><b>07</b><span>本番系とデモ系</span></a>
     <a href="./roadmap"><b>08</b><span>ロードマップ</span></a>
     <a href="./risks"><b>09</b><span>リスクと免責</span></a>
+    <a href="./wallet-experience"><b>UX</b><span>ウォレットから支援し玉垣SBTを受け取る</span></a>
     <a href="./smart-contracts"><b>CODE</b><span>スマートコントラクトとソースコード</span></a>
     <a href="./adr/"><b>ADR</b><span>設計判断の一覧と原記録を確認</span></a>
   </section>

@@ -69,6 +69,7 @@ head:
     <a href="./environments"><b>07</b><span>Production and demo systems</span></a>
     <a href="./roadmap"><b>08</b><span>Roadmap</span></a>
     <a href="./risks"><b>09</b><span>Risks and disclaimer</span></a>
+    <a href="./wallet-experience"><b>UX</b><span>Contribute from a wallet and receive a Tamagaki SBT</span></a>
     <a href="./smart-contracts"><b>CODE</b><span>Smart contracts and source code</span></a>
   </section>
   <div class="scope-note"><strong>Current status</strong><br>This document is a proposal and technical prototype prepared before coordination with relevant parties. The demo is not connected to real funds, real JPYC, or any Kumamoto Prefecture system, and does not indicate endorsement by Kumamoto Prefecture.</div>

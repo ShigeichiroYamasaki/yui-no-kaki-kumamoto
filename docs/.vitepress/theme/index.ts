@@ -18,7 +18,7 @@ const Layout = defineComponent({
         .replace(/\.md$/, "");
       const translatedPages = [
         "", "vision", "architecture", "fund-flow", "tamagaki-sbt", "transparency",
-        "governance", "environments", "roadmap", "risks", "smart-contracts",
+        "governance", "environments", "roadmap", "risks", "wallet-experience", "smart-contracts",
       ];
       const languageLink = isEnglish
         ? `/${pageSlug}`
@@ -60,6 +60,7 @@ const Layout = defineComponent({
             { text: "7. Production and Demo", link: "/en/environments" },
             { text: "8. Roadmap", link: "/en/roadmap" },
             { text: "9. Risks and Disclaimer", link: "/en/risks" },
+            { text: "Wallet User Experience", link: "/en/wallet-experience" },
           ],
         },
         { text: "Implementation", items: [{ text: "Smart Contracts", link: "/en/smart-contracts" }] },
@@ -78,6 +79,7 @@ const Layout = defineComponent({
             { text: "7. 本番系とデモ系", link: "/environments" },
             { text: "8. ロードマップ", link: "/roadmap" },
             { text: "9. リスクと免責", link: "/risks" },
+            { text: "ウォレット利用体験", link: "/wallet-experience" },
           ],
         },
         {
