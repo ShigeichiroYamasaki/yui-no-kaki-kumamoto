@@ -48,6 +48,7 @@ head:
 </div>
 
 <main class="whitepaper-home">
+  <MainnetSupportTrend locale="en" />
   <p class="whitepaper-hero__eyebrow">EXECUTIVE SUMMARY</p>
   <h2>From receiving support to reporting recovery.</h2>
   <p>Kumamoto Relief DAO connects disaster recovery support in ETH and JPYC, non-transferable Tamagaki SBTs, transfer of funds to a destination designated by Kumamoto Prefecture, proof of receipt, and recovery project updates in one verifiable flow. It is not a tax-incentive scheme; it is intended solely to support infrastructure recovery.</p>

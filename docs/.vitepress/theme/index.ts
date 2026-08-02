@@ -4,6 +4,7 @@ import { useData } from "vitepress";
 import type { Theme } from "vitepress";
 import TestnetDemo from "./components/TestnetDemo.vue";
 import DemoStatus from "./components/DemoStatus.vue";
+import MainnetSupportTrend from "./components/MainnetSupportTrend.vue";
 import "./style.css";
 
 const Layout = defineComponent({
@@ -119,6 +120,7 @@ const KumamotoReliefDaoTheme: Theme = {
   enhanceApp({ app }) {
     app.component("TestnetDemo", TestnetDemo);
     app.component("DemoStatus", DemoStatus);
+    app.component("MainnetSupportTrend", MainnetSupportTrend);
   },
 };
 
