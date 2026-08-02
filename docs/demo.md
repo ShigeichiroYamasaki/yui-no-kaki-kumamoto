@@ -4,4 +4,6 @@
 
 署名内容、JPYCの利用承認、確認状態、SBTの確認方法は[ウォレット利用体験](./wallet-experience.md)で説明しています。
 
+発行後は[デモ集計ページ](./demo-status.md)で支援履歴と取得されたSBTを確認できます。
+
 <TestnetDemo />

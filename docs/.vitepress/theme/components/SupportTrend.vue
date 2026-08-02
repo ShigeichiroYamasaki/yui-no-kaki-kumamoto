@@ -11,10 +11,10 @@ import {
 import { buildSupportTrend, chartPolyline, type SupportEventPoint } from "../support-trend";
 
 const props = defineProps<{ locale: "ja" | "en" }>();
-const rpcUrl = import.meta.env.VITE_RECOVERY_RPC_URL as string | undefined;
-const vaultAddress = import.meta.env.VITE_RECOVERY_VAULT_ADDRESS as Address | undefined;
-const jpycAddress = import.meta.env.VITE_JPYC_ADDRESS as Address | undefined;
-const deploymentBlock = BigInt(import.meta.env.VITE_RECOVERY_DEPLOYMENT_BLOCK || "0");
+const rpcUrl = (import.meta.env.VITE_RECOVERY_RPC_URL as string | undefined) || "https://ethereum-sepolia-rpc.publicnode.com";
+const vaultAddress = (import.meta.env.VITE_RECOVERY_VAULT_ADDRESS || "0x6B8BE5103712368fe276499393B53DC26e805c1C") as Address;
+const jpycAddress = (import.meta.env.VITE_JPYC_ADDRESS || "0x2d61d67cBe34208b524980F815358184858ba80f") as Address;
+const deploymentBlock = BigInt(import.meta.env.VITE_RECOVERY_DEPLOYMENT_BLOCK || "11395458");
 const jpycDecimals = Number(import.meta.env.VITE_JPYC_DECIMALS || "18");
 const configured = Boolean(rpcUrl && vaultAddress && jpycAddress);
 const eventDefinition = parseAbiItem(

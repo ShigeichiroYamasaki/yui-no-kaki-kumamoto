@@ -6,6 +6,30 @@ This chapter defines the experience for a supporter using MetaMask or another EV
 Sepolia ETH and MockJPYC have no monetary value, and production fundraising has not started. Never enter a private key or Secret Recovery Phrase into this site, a faucet, or a message to another person.
 :::
 
+<div class="demo-launch-card">
+  <div>
+    <span>DEMO IS LIVE ON SEPOLIA</span>
+    <strong>The testnet prototype is available</strong>
+    <p>Chain ID 11155111 · Deployment block 11395458</p>
+  </div>
+  <div class="demo-launch-card__actions">
+    <a href="../demo">Open support demo</a>
+    <a href="./demo-status">View contracts, SBTs, and totals</a>
+  </div>
+</div>
+
+### Connected contracts
+
+Before signing, confirm that the destination shown by MetaMask matches the relevant Sepolia demo address below.
+
+| Purpose | Contract address |
+|---|---|
+| Contribution Vault | [`0x6B8BE5103712368fe276499393B53DC26e805c1C`](https://sepolia.etherscan.io/address/0x6B8BE5103712368fe276499393B53DC26e805c1C) |
+| MockJPYC | [`0x2d61d67cBe34208b524980F815358184858ba80f`](https://sepolia.etherscan.io/address/0x2d61d67cBe34208b524980F815358184858ba80f) |
+| Tamagaki SBT | [`0xC2D1fAC9517544A839D35e67008c76A1839366aA`](https://sepolia.etherscan.io/address/0xC2D1fAC9517544A839D35e67008c76A1839366aA) |
+
+MockJPYC is not official JPYC; it is a valueless test token used only by this prototype. See the [demo data page](./demo-status.md) for all five deployed contracts.
+
 ## Beginner setup
 
 ### Step 1. Install and open MetaMask
@@ -42,6 +66,8 @@ Check the ETH balance while MetaMask is set to Sepolia. If it does not update, s
 ### Step 6. Open the interactive demo
 
 After confirming a Sepolia ETH balance, open the [Ethereum Sepolia support demo](../demo.md). Connect the test account, obtain MockJPYC, enter an ETH or MockJPYC amount, review each MetaMask prompt, and verify the resulting transaction and Tamagaki SBT token ID in the explorer. The MockJPYC faucet transaction also requires a small amount of Sepolia ETH for gas.
+
+After the contribution transaction completes, open the [contracts, SBT, and contribution totals page](./demo-status.md). It lists the issued SBT number, owner wallet, contribution asset and amount, and the corresponding Etherscan transaction.
 
 | Problem | Check |
 |---|---|

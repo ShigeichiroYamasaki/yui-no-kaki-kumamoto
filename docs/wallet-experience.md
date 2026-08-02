@@ -6,6 +6,30 @@
 ここで使用するSepolia ETHとMockJPYCには金銭的価値がありません。本番の支援募集はまだ開始していません。秘密鍵やシークレットリカバリーフレーズを、このサイト、faucet、第三者へ入力しないでください。
 :::
 
+<div class="demo-launch-card">
+  <div>
+    <span>DEMO IS LIVE ON SEPOLIA</span>
+    <strong>テストネット版を利用できます</strong>
+    <p>Chain ID 11155111 · デプロイ開始ブロック 11395458</p>
+  </div>
+  <div class="demo-launch-card__actions">
+    <a href="./demo">支援デモを開く</a>
+    <a href="./demo-status">コントラクト・SBT・集計を見る</a>
+  </div>
+</div>
+
+### 接続先コントラクト
+
+署名前にMetaMaskへ表示される接続先が、次のSepoliaデモアドレスと一致することを確認してください。
+
+| 用途 | コントラクトアドレス |
+|---|---|
+| 支援受付 Vault | [`0x6B8BE5103712368fe276499393B53DC26e805c1C`](https://sepolia.etherscan.io/address/0x6B8BE5103712368fe276499393B53DC26e805c1C) |
+| MockJPYC | [`0x2d61d67cBe34208b524980F815358184858ba80f`](https://sepolia.etherscan.io/address/0x2d61d67cBe34208b524980F815358184858ba80f) |
+| 玉垣SBT | [`0xC2D1fAC9517544A839D35e67008c76A1839366aA`](https://sepolia.etherscan.io/address/0xC2D1fAC9517544A839D35e67008c76A1839366aA) |
+
+MockJPYCは公式JPYCではなく、このデモコントラクトだけで使用する無価値のテストトークンです。5コントラクトすべてのアドレスは[デモ集計ページ](./demo-status.md)で確認できます。
+
 ## はじめての方：デモを始めるまで
 
 次の順に準備します。すでにMetaMaskとSepolia ETHがある場合は「実際のデモを開く」まで進んで構いません。
@@ -76,6 +100,8 @@ Explorerに入金トランザクションと残高が表示されていれば受
 MetaMaskでSepoliaを選択し、Sepolia ETHの受領を確認したら、次のページへ進みます。
 
 [Ethereum Sepolia支援デモを開く](./demo.md)
+
+支援トランザクション完了後は、[コントラクト・SBT・支援金の集計ページ](./demo-status.md)を開きます。発行されたSBT番号、所有ウォレット、支援資産と金額、Etherscan上のトランザクションが一覧へ反映されます。
 
 デモ画面では次の順に操作します。
 

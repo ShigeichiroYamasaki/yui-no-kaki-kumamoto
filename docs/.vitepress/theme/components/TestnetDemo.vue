@@ -3,9 +3,9 @@ import { computed, ref } from "vue";
 import { sepolia } from "viem/chains";
 import { createPublicClient, createWalletClient, custom, decodeEventLog, formatEther, http, keccak256, parseEther, parseUnits, stringToHex, zeroHash, type Address, type EIP1193Provider, type Hash } from "viem";
 
-const vault = import.meta.env.VITE_RECOVERY_VAULT_ADDRESS as Address | undefined;
-const jpyc = import.meta.env.VITE_JPYC_ADDRESS as Address | undefined;
-const sbt = import.meta.env.VITE_TAMAGAKI_SBT_ADDRESS as Address | undefined;
+const vault = (import.meta.env.VITE_RECOVERY_VAULT_ADDRESS || "0x6B8BE5103712368fe276499393B53DC26e805c1C") as Address;
+const jpyc = (import.meta.env.VITE_JPYC_ADDRESS || "0x2d61d67cBe34208b524980F815358184858ba80f") as Address;
+const sbt = (import.meta.env.VITE_TAMAGAKI_SBT_ADDRESS || "0xC2D1fAC9517544A839D35e67008c76A1839366aA") as Address;
 const rpc = (import.meta.env.VITE_RECOVERY_RPC_URL as string | undefined) || "https://ethereum-sepolia-rpc.publicnode.com";
 const ready = Boolean(vault && jpyc && sbt);
 const account = ref<Address>();
