@@ -8,9 +8,9 @@ Contributions awaiting block confirmation are labeled “pending” and excluded
 
 ## Privacy
 
-Names, addresses, email addresses, IP addresses, precise locations, and identity-verification data are not stored on-chain. Wallets are not casually linked to identity. Country, public name, and message are voluntary.
+In production, names, addresses, email addresses, IP addresses, precise locations, and identity-verification data are not stored on-chain. Wallets are not casually linked to identity. Country, public name, and message are voluntary and withdrawable off-chain.
 
-On-chain events cannot be deleted. Off-chain public profiles can be withdrawn. This distinction is disclosed before support is submitted.
+The image-enabled Sepolia demo may record an optional display name and message in the on-chain SVG only after explicit consent. Those fields and on-chain events cannot be deleted or corrected; production off-chain profiles can be withdrawn. This distinction is disclosed before support is submitted.
 
 ## Feedback from Kumamoto Prefecture
 

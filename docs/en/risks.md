@@ -26,7 +26,7 @@ At present, this proposal does not indicate endorsement, partnership, or receipt
 
 ### Privacy
 
-Wallet history may allow behavior to be inferred. Personal information is not stored on-chain, and optional public information is minimized and made withdrawable off-chain.
+Wallet history may allow behavior to be inferred. Production keeps personal data off-chain and makes optional public information minimal and withdrawable. A display name or message recorded with consent in the image-enabled Sepolia demo cannot be withdrawn and may become linked to the wallet; anonymous display remains available and third-party data must not be entered.
 
 ## Disclaimer
 

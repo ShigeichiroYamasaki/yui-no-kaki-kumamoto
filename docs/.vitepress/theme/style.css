@@ -123,6 +123,33 @@
 .demo-support-grid button { display:block; width:100%; }
 .testnet-demo button:disabled { opacity:.45; cursor:not-allowed; }
 .demo-result { min-height:48px; padding:14px; border-radius:10px; background:var(--vp-c-bg-soft); }
+.metadata-upgrade-notice { display: grid; gap: 4px; padding: 14px 16px; border: 1px solid rgba(211,163,62,.55); border-radius: 12px; background: rgba(211,163,62,.12); }
+.metadata-upgrade-notice span { color: var(--vp-c-text-2); font-size: 13px; }
+.tamagaki-editor { display: grid; grid-template-columns: minmax(300px,.85fr) minmax(360px,1.15fr); gap: 22px; align-items: start; }
+.tamagaki-editor__form { display: grid; gap: 16px; padding: 22px; border: 1px solid var(--vp-c-divider); border-radius: 16px; background: var(--vp-c-bg-soft); }
+.tamagaki-editor__form h2,.tamagaki-editor__form p { margin: 0; }
+.tamagaki-editor__form fieldset { display: flex; gap: 18px; padding: 12px; border: 1px solid var(--vp-c-divider); border-radius: 10px; }
+.tamagaki-editor__form legend,.editor-field span { font-size: 12px; font-weight: 800; }
+.editor-field { display: grid; grid-template-columns: 1fr auto; gap: 7px 10px; }
+.editor-field span { grid-column: 1 / -1; }
+.editor-field input { min-width: 0; padding: 11px; border: 1px solid var(--vp-c-divider); border-radius: 8px; color: var(--vp-c-text-1); background: var(--vp-c-bg); }
+.editor-field small { align-self: center; color: var(--vp-c-text-3); }
+.editor-check { display: flex; align-items: flex-start; gap: 9px; font-size: 13px; }
+.editor-consent { padding: 12px; border-radius: 9px; background: rgba(211,163,62,.12); }
+.tamagaki-editor .demo-primary { width: 100%; }
+.tamagaki-preview { position: relative; display: grid; place-items: center; min-height: 650px; overflow: hidden; padding: 26px 70px; border-radius: 18px; background: linear-gradient(#e8dec7,#c8b78f); }
+.tamagaki-preview article,.tamagaki-preview__neighbor { border: 7px solid #8d672b; outline: 2px solid #e7ca85; background: linear-gradient(145deg,#f8e9bd,#d8b66b); box-shadow: 0 18px 34px rgba(46,34,12,.2), inset 0 0 0 3px rgba(255,255,255,.3); }
+.tamagaki-preview article { z-index: 2; display: grid; width: min(100%,390px); aspect-ratio: 2 / 3; place-items: center; align-content: space-around; padding: 30px 24px; color: #251b0b; text-align: center; }
+.tamagaki-preview article header { font-family: serif; font-size: 19px; }
+.tamagaki-preview article h3 { margin: 0; font-family: serif; font-size: 25px; }
+.tamagaki-preview article strong { font-family: serif; font-size: clamp(30px,5vw,46px); }
+.tamagaki-preview article b { font-family: serif; font-size: 27px; }
+.tamagaki-preview article p { margin: 0; font-family: serif; font-size: 18px; }
+.tamagaki-preview article footer { font-family: serif; font-weight: 800; }
+.tamagaki-preview__castle { width: 100%; padding: 30px 0 12px; border-bottom: 1px solid #8d672b; font-family: serif; font-size: 23px; }
+.tamagaki-preview__neighbor { position: absolute; width: 240px; height: 520px; opacity: .58; }
+.tamagaki-preview__neighbor.left { left: -180px; transform: perspective(600px) rotateY(14deg); }
+.tamagaki-preview__neighbor.right { right: -180px; transform: perspective(600px) rotateY(-14deg); }
 .demo-launch-card { display: flex; justify-content: space-between; align-items: center; gap: 24px; margin: 26px 0 34px; padding: 22px 24px; border: 1px solid rgba(46, 189, 133, .45); border-radius: 16px; background: linear-gradient(135deg, rgba(46,189,133,.15), var(--vp-c-bg-soft)); }
 .demo-launch-card span { display: block; margin-bottom: 4px; color: var(--vp-c-brand-1); font-size: 11px; font-weight: 900; letter-spacing: .16em; }
 .demo-launch-card strong { display: block; font-size: 20px; }
@@ -148,6 +175,7 @@
 .demo-status__note { margin: 12px 0 0; color: var(--vp-c-text-3); font-size: 12px; }
 .tamagaki-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 12px; }
 .tamagaki-grid a { display: grid; min-height: 145px; align-content: space-between; padding: 18px; border: 1px solid #a78343; border-radius: 8px 8px 18px 18px; color: #31260f; background: linear-gradient(145deg, #f7e7b6, #e0c477); box-shadow: inset 0 0 0 4px rgba(255,255,255,.2); text-decoration: none; }
+.tamagaki-grid img { display: block; width: 100%; margin-bottom: 12px; border-radius: 4px; }
 .tamagaki-grid__number { color: #72591f; font-size: 11px; font-weight: 800; letter-spacing: .15em; }
 .tamagaki-grid strong { font-size: 22px; }
 .tamagaki-grid small { color: #5b481d; }
@@ -193,6 +221,8 @@
   .support-trend { padding: 22px 18px; }
   .support-trend__totals { grid-template-columns: 1fr; }
   .demo-support-grid { grid-template-columns:1fr; }
+  .tamagaki-editor { grid-template-columns: 1fr; }
+  .tamagaki-preview { min-height: 560px; padding: 24px 42px; }
   .demo-launch-card { align-items: flex-start; flex-direction: column; }
   .demo-launch-card__actions { justify-content: flex-start; }
   .demo-status__section { padding: 18px 14px; }

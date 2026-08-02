@@ -16,7 +16,11 @@ Because every tamagaki represents a distinct contribution, it is based on ERC-72
 
 ## Metadata
 
-Only the support ID and a hash of public metadata are stored on-chain. Images, optional public name, country, and message are provided off-chain so individuals can withdraw them from public display.
+In the image-enabled demo, ERC-721 `tokenURI` returns JSON and a Base64-encoded SVG on-chain. The tamagaki combines the display name and optional message confirmed before payment with the actual asset, amount, and SBT number. The displayed amount is derived from the same value recorded by `SupportReceived`, never from free-form text.
+
+The supporter edits and previews the name and message in the browser before sending. Anonymous display is the default, and explicit publication consent is required. Because on-chain publication cannot be completely erased, production may instead use a revocable off-chain public profile.
+
+A hash of canonicalized input JSON is stored as `publicMetadataHash`, linking the artwork input to the contribution transaction. The contract enforces text length and control-character limits and XML-escapes rendered text.
 
 ## Display experience
 

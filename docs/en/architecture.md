@@ -35,6 +35,8 @@ flowchart LR
 - A document platform for bank evidence, prefectural acknowledgements, and recovery reports
 - An administrative interface for Kumamoto Prefecture or an authorized reporting party
 
+This is the production principle. The image-enabled Sepolia demo also evaluates a path that embeds an optional display name and message directly in the SBT's on-chain SVG after explicit consent. That data cannot be withdrawn, so production adoption requires a separate decision.
+
 ## Permission model
 
 Production administration will not rely on a single wallet. Administration, treasury transfers, and reporting are separated and protected through multisignature approval, timelocks, and emergency pausing. The destination is restricted in the contract to an address designated by Kumamoto Prefecture and cannot be changed by DAO voting.

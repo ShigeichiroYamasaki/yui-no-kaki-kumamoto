@@ -55,7 +55,7 @@ head:
   <section class="principles">
     <article><b>Verifiability</b><span>Key evidence for receipt, consolidated transfer, prefectural receipt, and recovery reporting is publicly linked and independently verifiable.</span></article>
     <article><b>Public mandate</b><span>DAO-style participation provides a channel for views. Supporter votes do not bind Kumamoto Prefecture's budgets or public works.</span></article>
-    <article><b>Privacy</b><span>Personal information is not stored on-chain. Public names and countries are voluntary and can be withdrawn off-chain.</span></article>
+    <article><b>Privacy</b><span>Production does not put personal data on-chain. An optional name in the image-enabled testnet demo is recorded only after explicit consent to permanent publication.</span></article>
   </section>
   <h2>End-to-end flow</h2>
   <div class="flow-strip"><span>Global support</span><span>Tamagaki SBT</span><span>Conversion and settlement</span><span>Prefectural receipt</span><span>Recovery reporting</span></div>

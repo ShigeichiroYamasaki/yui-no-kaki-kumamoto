@@ -17,7 +17,7 @@ docs/adr/               本番系・デモ系の機能仕様と意思決定記�
 ## コントラクト
 
 - `RecoverySupportVault`: ETHと許可済みERC-20を受領し、熊本県指定先だけへ集約送金
-- `TamagakiSBT`: ERC-721 + ERC-5192型の譲渡不能な玉垣
+- `TamagakiSBT`: ERC-721 + ERC-5192型の譲渡不能な玉垣。画像対応版はオンチェーンSVGメタデータを返す
 - `RecoveryAttestationRegistry`: 県受領確認と復興報告のハッシュを記録
 - `RecoverySupportCouncil`: SBT保有者による非拘束の参考投票。資金移動権限なし
 - `MockJPYC`: ローカルテスト専用
@@ -57,11 +57,12 @@ npm run contracts:deploy:local
 
 ```bash
 npm run contracts:deploy:demo:sepolia
+npm run contracts:deploy:demo:sepolia:metadata-v2
 npm run contracts:deploy:sepolia
 npm run contracts:deploy:base-sepolia
 ```
 
-プロトタイプの標準統合デモはEthereum Sepoliaとし、`contracts:deploy:demo:sepolia`で価値を持たない`MockJPYC`を含むデモ一式をデプロイします。Base Sepolia用コマンドは代替テストネットとして残します。
+プロトタイプの標準統合デモはEthereum Sepoliaとします。オンチェーンSVG対応版は`contracts:deploy:demo:sepolia:metadata-v2`で、価値を持たない`MockJPYC`を含む新しいデモ一式をデプロイします。Base Sepolia用コマンドは代替テストネットとして残します。画像対応はコントラクトABIを変更するため、既存デプロイの更新ではなく専用deployment IDで再デプロイし、GitHub Variablesのアドレス、開始ブロック、`TAMAGAKI_METADATA_VERSION=2`を更新します。
 
 本番デプロイ前には外部監査、正式な受領合意、公式JPYCのチェーン・コントラクト確認、マルチシグとタイムロックの導入が必要です。
 
@@ -69,7 +70,7 @@ npm run contracts:deploy:base-sepolia
 
 - 税額控除・寄附金控除を提供しない
 - DAO参考投票は熊本県の予算執行を拘束しない
-- 個人情報、氏名、住所、正確な位置情報をオンチェーンへ保存しない
+- 住所や正確な位置情報をオンチェーンへ保存しない。氏名・メッセージを玉垣へ公開する場合は匿名を初期値とし、不可逆な公開への明示同意を必須とする
 - デモ系は実ウォレット、実JPYC、実受入口座へ接続しない
 
 詳細は[ADR索引](docs/adr/README.md)を参照してください。

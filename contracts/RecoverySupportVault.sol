@@ -5,6 +5,7 @@ import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
 import {Pausable} from "@openzeppelin/contracts/utils/Pausable.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {IERC20Metadata} from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {TamagakiSBT} from "./TamagakiSBT.sol";
 
@@ -25,6 +26,23 @@ contract RecoverySupportVault is AccessControl, Pausable, ReentrancyGuard {
     mapping(address asset => uint256 amount) public totalReceived;
     mapping(bytes32 supportId => bool exists) public supportExists;
     mapping(bytes32 batchId => bool transferred) public transferredBatch;
+
+    struct ArtworkInput {
+        string displayName;
+        string dedicationMessage;
+        bool showAmount;
+    }
+    struct MetadataSupport {
+        address supporter;
+        address asset;
+        uint256 amount;
+        bytes32 countryCodeHash;
+        bytes32 messageHash;
+        address sbtRecipient;
+        bytes32 publicMetadataHash;
+        string assetLabel;
+        uint8 assetDecimals;
+    }
 
     error AssetNotAllowed(address asset);
     error ZeroAmount();
@@ -86,6 +104,45 @@ contract RecoverySupportVault is AccessControl, Pausable, ReentrancyGuard {
         );
     }
 
+    function supportNativeWithMetadata(
+        bytes32 countryCodeHash,
+        bytes32 messageHash,
+        address sbtRecipient,
+        bytes32 publicMetadataHash,
+        ArtworkInput calldata artworkInput
+    ) external payable whenNotPaused nonReentrant returns (bytes32 supportId, uint256 tokenId) {
+        if (!allowedAsset[NATIVE_ASSET]) revert AssetNotAllowed(NATIVE_ASSET);
+        if (msg.value == 0) revert ZeroAmount();
+        supportId = _createSupportId(msg.sender, NATIVE_ASSET, msg.value);
+        MetadataSupport memory record = MetadataSupport(
+            msg.sender, NATIVE_ASSET, msg.value, countryCodeHash, messageHash,
+            sbtRecipient, publicMetadataHash, "ETH", 18
+        );
+        tokenId = _recordSupportWithMetadata(supportId, record, artworkInput);
+    }
+
+    function supportERC20WithMetadata(
+        IERC20 asset,
+        uint256 amount,
+        bytes32 countryCodeHash,
+        bytes32 messageHash,
+        address sbtRecipient,
+        bytes32 publicMetadataHash,
+        ArtworkInput calldata artworkInput
+    ) external whenNotPaused nonReentrant returns (bytes32 supportId, uint256 tokenId) {
+        if (!allowedAsset[address(asset)]) revert AssetNotAllowed(address(asset));
+        if (amount == 0) revert ZeroAmount();
+        asset.safeTransferFrom(msg.sender, address(this), amount);
+        string memory symbol = IERC20Metadata(address(asset)).symbol();
+        uint8 decimals = IERC20Metadata(address(asset)).decimals();
+        supportId = _createSupportId(msg.sender, address(asset), amount);
+        MetadataSupport memory record = MetadataSupport(
+            msg.sender, address(asset), amount, countryCodeHash, messageHash,
+            sbtRecipient, publicMetadataHash, symbol, decimals
+        );
+        tokenId = _recordSupportWithMetadata(supportId, record, artworkInput);
+    }
+
     function transferBatch(bytes32 batchId, address asset, uint256 amount)
         external
         onlyRole(TREASURER_ROLE)
@@ -134,7 +191,7 @@ contract RecoverySupportVault is AccessControl, Pausable, ReentrancyGuard {
         address sbtRecipient,
         bytes32 publicMetadataHash
     ) private returns (bytes32 supportId, uint256 tokenId) {
-        supportId = keccak256(abi.encode(block.chainid, address(this), ++supportNonce, supporter, asset, amount));
+        supportId = _createSupportId(supporter, asset, amount);
         supportExists[supportId] = true;
         totalReceived[asset] += amount;
         if (sbtRecipient != address(0)) {
@@ -142,6 +199,30 @@ contract RecoverySupportVault is AccessControl, Pausable, ReentrancyGuard {
         }
         emit SupportReceived(
             supportId, supporter, asset, amount, countryCodeHash, messageHash, tokenId
+        );
+    }
+
+    function _createSupportId(address supporter, address asset, uint256 amount) private returns (bytes32) {
+        return keccak256(abi.encode(block.chainid, address(this), ++supportNonce, supporter, asset, amount));
+    }
+
+    function _recordSupportWithMetadata(
+        bytes32 supportId,
+        MetadataSupport memory record,
+        ArtworkInput calldata artworkInput
+    ) private returns (uint256 tokenId) {
+        supportExists[supportId] = true;
+        totalReceived[record.asset] += record.amount;
+        if (record.sbtRecipient != address(0)) {
+            tokenId = tamagakiSBT.mintWithMetadata(
+                record.sbtRecipient, supportId, record.publicMetadataHash,
+                artworkInput.displayName, artworkInput.dedicationMessage,
+                record.assetLabel, record.amount, record.assetDecimals, artworkInput.showAmount
+            );
+        }
+        emit SupportReceived(
+            supportId, record.supporter, record.asset, record.amount,
+            record.countryCodeHash, record.messageHash, tokenId
         );
     }
 }

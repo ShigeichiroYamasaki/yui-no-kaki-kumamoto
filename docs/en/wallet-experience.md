@@ -121,7 +121,7 @@ If the network is unsupported, the site displays the expected chain name and cha
 
 ## 2. Enter contribution details
 
-The supporter selects ETH or JPYC, an amount, and optional public name, country or region, and message. Anonymous or private display remains available. Asset quantities and indicative yen values are visually separated; an indicative value is not the prefecture's confirmed receipt amount. Optional text stays off-chain and can be withdrawn from public display.
+The supporter selects ETH or JPYC, an amount, and optional public name, country or region, and message. Anonymous or private display remains available. Asset quantities and indicative yen values are visually separated; an indicative value is not the prefecture's confirmed receipt amount. Production keeps optional text in withdrawable off-chain storage. In the image-enabled Sepolia demo, the supporter edits the display name, dedication message, and amount visibility, reviews the Tamagaki preview, and explicitly consents to permanent on-chain publication before sending.
 
 ## 3-A. Contribute ETH
 
@@ -130,7 +130,7 @@ ETH normally requires one transaction confirmation:
 1. The site shows the amount, estimated gas, and Vault address.
 2. MetaMask shows the contract interaction and value.
 3. The user checks the network, amount, and destination and confirms.
-4. `supportNative` records the contribution and mints the SBT in the same transaction.
+4. The image-enabled demo calls `supportNativeWithMetadata` to record the contribution and mint the SBT in the same transaction; the legacy flow uses `supportNative`.
 
 Rejecting the wallet prompt sends nothing. Because a successful on-chain transaction is generally irreversible, the final review emphasizes the value and contract address.
 
@@ -139,7 +139,7 @@ Rejecting the wallet prompt sends nothing. Because a successful on-chain transac
 JPYC, as an ERC-20, normally requires two transaction confirmations:
 
 1. **Allowance:** approve the Vault to access exactly the intended contribution amount.
-2. **Contribution:** call `supportERC20`, moving JPYC to the Vault and minting the SBT.
+2. **Contribution:** the image-enabled demo calls `supportERC20WithMetadata`, moving JPYC to the Vault and minting the SBT; the legacy flow uses `supportERC20`.
 
 The approval view identifies the token, Vault, and allowance. The default allowance equals the contribution and the site never requests unlimited approval or `setApprovalForAll`. MetaMask describes token approval as permission for a contract to access a specified token amount. See [MetaMask's token approval guide](https://support.metamask.io/stay-safe/safety-in-web3/what-is-a-token-approval/).
 

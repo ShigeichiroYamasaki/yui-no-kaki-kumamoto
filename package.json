@@ -16,6 +16,7 @@
     "contracts:coverage": "hardhat test --coverage",
     "contracts:deploy:local": "hardhat ignition deploy ignition/modules/DemoRecoverySupport.ts",
     "contracts:deploy:demo:sepolia": "hardhat ignition deploy ignition/modules/DemoRecoverySupport.ts --network sepolia --parameters ignition/parameters/demo.json --build-profile production",
+    "contracts:deploy:demo:sepolia:metadata-v2": "hardhat ignition deploy ignition/modules/DemoRecoverySupport.ts --network sepolia --parameters ignition/parameters/demo.json --deployment-id demo-sepolia-metadata-v2 --build-profile production",
     "contracts:deploy:demo:base-sepolia": "hardhat ignition deploy ignition/modules/DemoRecoverySupport.ts --network baseSepolia --parameters ignition/parameters/demo.json --build-profile production",
     "contracts:deploy:sepolia": "hardhat ignition deploy ignition/modules/RecoverySupport.ts --network sepolia --parameters ignition/parameters/production.json --build-profile production",
     "contracts:deploy:base-sepolia": "hardhat ignition deploy ignition/modules/RecoverySupport.ts --network baseSepolia --parameters ignition/parameters/production.json --build-profile production",

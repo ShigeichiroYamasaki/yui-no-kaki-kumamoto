@@ -37,6 +37,10 @@ const supportEvent = parseAbiItem(
 const transferEvent = parseAbiItem(
   "event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)",
 );
+const sbtAbi = [{
+  type: "function", name: "tokenURI", stateMutability: "view",
+  inputs: [{ name: "tokenId", type: "uint256" }], outputs: [{ type: "string" }],
+}] as const;
 
 type SupportRow = {
   txHash: Hash;
@@ -47,7 +51,7 @@ type SupportRow = {
   amount: bigint;
   tokenId: bigint;
 };
-type SbtRow = { tokenId: bigint; owner: Address; txHash: Hash; blockNumber: bigint };
+type SbtRow = { tokenId: bigint; owner: Address; txHash: Hash; blockNumber: bigint; image?: string };
 
 const loading = ref(true);
 const error = ref("");
@@ -119,11 +123,19 @@ async function refresh() {
       }];
     }).sort((a, b) => Number(b.blockNumber - a.blockNumber));
 
-    sbts.value = mintLogs.flatMap((log) => {
+    const minted = mintLogs.flatMap((log) => {
       const { to, tokenId } = log.args;
       if (!to || tokenId === undefined || !log.transactionHash) return [];
       return [{ tokenId, owner: to, txHash: log.transactionHash, blockNumber: log.blockNumber }];
     }).sort((a, b) => Number(b.tokenId - a.tokenId));
+    sbts.value = await Promise.all(minted.map(async (sbt) => {
+      try {
+        const uri = await client.readContract({ address: sbtAddress, abi: sbtAbi, functionName: "tokenURI", args: [sbt.tokenId] });
+        if (!uri.startsWith("data:application/json;base64,")) return sbt;
+        const json = JSON.parse(atob(uri.slice(uri.indexOf(",") + 1))) as { image?: string };
+        return { ...sbt, image: json.image };
+      } catch { return sbt; }
+    }));
     lastUpdated.value = new Date();
   } catch (cause) {
     error.value = cause instanceof Error ? cause.message : String(cause);
@@ -176,6 +188,7 @@ onMounted(() => void refresh());
       <h2>{{ locale === "ja" ? "取得されたSBT" : "Issued SBTs" }}</h2>
       <div v-if="sbts.length" class="tamagaki-grid">
         <a v-for="sbt in sbts" :key="sbt.tokenId.toString()" :href="explorer('token', sbtAddress, sbt.tokenId)" target="_blank" rel="noreferrer">
+          <img v-if="sbt.image" :src="sbt.image" :alt="`Tamagaki SBT #${sbt.tokenId}`">
           <span class="tamagaki-grid__number">玉垣 {{ sbt.tokenId.toString().padStart(3, "0") }}</span>
           <strong>SBT #{{ sbt.tokenId }}</strong>
           <small>{{ locale === "ja" ? "所有者" : "Owner" }} {{ short(sbt.owner) }}</small>

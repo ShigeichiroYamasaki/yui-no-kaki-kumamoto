@@ -56,7 +56,7 @@ head:
   <section class="principles">
     <article><b>検証可能性</b><span>支援受付、集約送金、県受領、復興報告の重要な証跡を公開検証できる形で結びます。</span></article>
     <article><b>公共性の尊重</b><span>DAOは意見表明の場です。支援者投票が熊本県の予算や公共事業を拘束することはありません。</span></article>
-    <article><b>プライバシー</b><span>個人情報をオンチェーンへ保存せず、公開名や国は本人の任意申告として撤回可能にします。</span></article>
+    <article><b>プライバシー</b><span>本番では個人情報をオンチェーンへ保存しません。画像付きテストネットデモの任意表示名は、永続公開への明示同意がある場合だけ記録します。</span></article>
   </section>
   <h2>全体の流れ</h2>
   <div class="flow-strip"><span>世界から支援</span><span>玉垣SBT発行</span><span>資金を集約・円転</span><span>熊本県が受領</span><span>復興状況を報告</span></div>

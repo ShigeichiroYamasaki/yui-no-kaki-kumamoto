@@ -45,6 +45,41 @@ describe("RecoverySupportVault", async function () {
     assert.equal(await fixture.vault.read.totalReceived([zeroAddress]), parseEther("0.1"));
   });
 
+  it("mints an SBT with editable-before-payment on-chain artwork metadata", async () => {
+    const vaultAsSupporter = await viem.getContractAt("RecoverySupportVault", fixture.vault.address, { client: { wallet: supporter } });
+    const metadataHash = keccak256(stringToHex("canonical artwork metadata"));
+    await vaultAsSupporter.write.supportNativeWithMetadata(
+      [
+        keccak256(stringToHex("JP")),
+        keccak256(stringToHex("熊本の復興を応援します")),
+        supporter.account.address,
+        metadataHash,
+        {
+          displayName: "山崎 茂一郎",
+          dedicationMessage: "熊本の復興を応援します",
+          showAmount: true,
+        },
+      ],
+      { value: parseEther("0.125") },
+    );
+
+    const artwork = await fixture.sbt.read.artwork([1n]);
+    assert.equal(artwork.displayName, "山崎 茂一郎");
+    assert.equal(artwork.dedicationMessage, "熊本の復興を応援します");
+    assert.equal(artwork.assetLabel, "ETH");
+    assert.equal(artwork.amount, parseEther("0.125"));
+    assert.equal(artwork.showAmount, true);
+
+    const tokenUri = await fixture.sbt.read.tokenURI([1n]);
+    assert.match(tokenUri, /^data:application\/json;base64,/);
+    const json = JSON.parse(Buffer.from(tokenUri.split(",")[1], "base64").toString("utf8"));
+    assert.match(json.image, /^data:image\/svg\+xml;base64,/);
+    const svg = Buffer.from(json.image.split(",")[1], "base64").toString("utf8");
+    assert.match(svg, /山崎 茂一郎/);
+    assert.match(svg, /0.125 ETH/);
+    assert.match(svg, /熊本の復興を応援します/);
+  });
+
   it("prevents transfer of a Tamagaki SBT", async () => {
     const vaultAsSupporter = await viem.getContractAt("RecoverySupportVault", fixture.vault.address, { client: { wallet: supporter } });
     await vaultAsSupporter.write.supportNative(

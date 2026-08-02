@@ -26,14 +26,62 @@ The Kumamoto Relief DAO smart contracts are published and maintained in the same
 
 - The `RecoverySupportVault` destination is restricted to the address designated through administrative authority.
 - The Tamagaki SBT rejects normal wallet-to-wallet transfers and serves only as proof of participation.
-- Personal information such as names, addresses, and precise locations is not stored on-chain.
+- Production does not store personal data such as names, addresses, or precise locations on-chain. Only the image-enabled Sepolia demo can record a consented optional display name and message on-chain.
 - Council voting is advisory and does not bind Kumamoto Prefecture's budget or public works.
 - Production requires an external audit, multisignature control, timelocks, a formal receipt agreement, and confirmation of the official JPYC address on the selected network.
 
 See the [system architecture](./architecture) for the wider technical design. The original [ADR records](../adr/) are currently maintained in Japanese.
 
+## Tamagaki SBT technical specification
+
+### Standards and transfer restriction
+
+- The token is based on ERC-721 and advertises ERC-5192 support through `supportsInterface(0xb45a3c0e)`.
+- Its collection name is `Kumamoto Digital Tamagaki`, symbol `KDT`, and token IDs start at 1.
+- Only the Vault holding `MINTER_ROLE` mints tokens. Every `transferFrom` or `safeTransferFrom` operation other than minting or burning reverts with `Soulbound`.
+- `locked(tokenId)` always returns `true` for an existing token, and minting emits the ERC-5192 `Locked` event.
+
+### Minted data
+
+Each token stores a `supportId`, a `publicMetadataHash`, support status, and the following artwork data.
+
+| Field | Type | Constraint and meaning |
+|---|---|---|
+| `displayName` | `string` | Up to 72 UTF-8 bytes; anonymous is the recommended default |
+| `dedicationMessage` | `string` | Up to 180 UTF-8 bytes |
+| `assetLabel` | `string` | Up to 16 UTF-8 bytes; supplied by the Vault from ETH or an allowlisted ERC-20 |
+| `amount` | `uint256` | `msg.value` or the token quantity actually received by the Vault, never a user-entered display value |
+| `assetDecimals` | `uint8` | Up to 18, used for human-readable formatting |
+| `showAmount` | `bool` | Controls SVG display only; it does not hide the amount in support events |
+
+Control characters are rejected. Text is XML-escaped for SVG and JSON-escaped for metadata. The demo UI applies stricter limits of 20 characters for the name and 50 characters for the message.
+
+### Minting interface
+
+The image-enabled path uses:
+
+```solidity
+supportNativeWithMetadata(bytes32 supportId, bytes32 countryCode, address sbtRecipient,
+  bytes32 publicMetadataHash, ArtworkInput artwork)
+
+supportERC20WithMetadata(IERC20 token, uint256 amount, bytes32 supportId,
+  bytes32 countryCode, address sbtRecipient, bytes32 publicMetadataHash,
+  ArtworkInput artwork)
+
+mintWithMetadata(address to, bytes32 supportId, bytes32 publicMetadataHash,
+  Artwork artwork)
+```
+
+Legacy `supportNative`, `supportERC20`, and `mint` functions remain for backward compatibility. Tokens minted without artwork return the configured `baseURI`. Artwork is immutable after minting; `updatePublicMetadataHash` changes only the verification hash, not the SVG.
+
+### `tokenURI` and image
+
+An artwork token returns a `data:application/json;base64,...` URI. Its JSON contains a name, description, `data:image/svg+xml;base64,...` image, and Asset, Amount, and Soulbound attributes. The SVG combines the Tamagaki design, display name, actual received amount when enabled, dedication message, and token ID. It therefore remains reproducible from chain data without an external image server or IPFS.
+
+The UI derives `publicMetadataHash` from normalized JSON for comparing the pre-send preview with the minted result. Consent cannot be enforced by the contract itself, however, because a direct caller can bypass the UI. Production privacy must therefore not depend on the frontend alone, and adoption of metadata-enabled functions requires a separate decision under [ADR-0005](../adr/0005-privacy-and-public-data).
+
 ## On-chain aggregation on the home page
 
-The home page uses a read-only Viem Public Client to retrieve `SupportReceived` events from `RecoverySupportVault` every 30 seconds. Block timestamps and asset addresses are used to calculate cumulative ETH, cumulative JPYC, and the contribution count.
+The home page uses a read-only Viem Public Client to retrieve `SupportReceived` events from `RecoverySupportVault` every 30 seconds. Block timestamps and asset addresses are used to calculate cumulative ETH, cumulative JPYC, and the contribution count. Testnet totals and the SBT gallery are kept on the demo status page.
 
-For a GitHub Pages deployment, configure `RECOVERY_RPC_URL`, `RECOVERY_VAULT_ADDRESS`, `JPYC_ADDRESS`, `RECOVERY_DEPLOYMENT_BLOCK`, and `JPYC_DECIMALS` as repository Actions variables. No private key or write permission is used. When configuration is absent, the page shows an awaiting-connection state rather than fabricated data.
+For GitHub Pages, configure `MAINNET_RPC_URL`, `MAINNET_VAULT_ADDRESS`, `MAINNET_JPYC_ADDRESS`, and `MAINNET_DEPLOYMENT_BLOCK` for the production display; configure `RECOVERY_RPC_URL`, `RECOVERY_VAULT_ADDRESS`, `JPYC_ADDRESS`, `RECOVERY_DEPLOYMENT_BLOCK`, and `JPYC_DECIMALS` separately for the demo. Sending through the image-enabled demo is enabled only when `TAMAGAKI_METADATA_VERSION=2`. No private key or write permission is used. Missing configuration produces an awaiting-connection state rather than fabricated data.
