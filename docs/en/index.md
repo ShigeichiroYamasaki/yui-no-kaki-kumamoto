@@ -23,6 +23,7 @@ head:
     <a href="./vision">Whitepaper</a>
     <a href="./architecture">Architecture</a>
     <a href="./smart-contracts">Contracts</a>
+    <a href="./mainnet-status">Support status</a>
     <a href="https://github.com/ShigeichiroYamasaki/yui-no-kaki-kumamoto">GitHub</a>
   </div>
   <div class="home-nav__languages" aria-label="Display language">
@@ -47,7 +48,6 @@ head:
 </div>
 
 <main class="whitepaper-home">
-  <SupportTrend locale="en" />
   <p class="whitepaper-hero__eyebrow">EXECUTIVE SUMMARY</p>
   <h2>From receiving support to reporting recovery.</h2>
   <p>Kumamoto Relief DAO connects disaster recovery support in ETH and JPYC, non-transferable Tamagaki SBTs, transfer of funds to a destination designated by Kumamoto Prefecture, proof of receipt, and recovery project updates in one verifiable flow. It is not a tax-incentive scheme; it is intended solely to support infrastructure recovery.</p>
@@ -71,6 +71,8 @@ head:
     <a href="./risks"><b>09</b><span>Risks and disclaimer</span></a>
     <a href="./wallet-experience"><b>UX</b><span>Contribute from a wallet and receive a Tamagaki SBT</span></a>
     <a href="./smart-contracts"><b>CODE</b><span>Smart contracts and source code</span></a>
+    <a href="./mainnet-status"><b>MAINNET</b><span>Production fundraising status</span></a>
+    <a href="./demo-status"><b>SEPOLIA</b><span>Testnet contributions and SBTs</span></a>
   </section>
   <div class="scope-note"><strong>Current status</strong><br>This document is a proposal and technical prototype prepared before coordination with relevant parties. The demo is not connected to real funds, real JPYC, or any Kumamoto Prefecture system, and does not indicate endorsement by Kumamoto Prefecture.</div>
 </main>

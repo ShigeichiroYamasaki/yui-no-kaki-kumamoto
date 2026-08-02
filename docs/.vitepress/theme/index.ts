@@ -2,7 +2,6 @@ import { defineComponent, h, watchEffect } from "vue";
 import DefaultTheme from "vitepress/theme";
 import { useData } from "vitepress";
 import type { Theme } from "vitepress";
-import SupportTrend from "./components/SupportTrend.vue";
 import TestnetDemo from "./components/TestnetDemo.vue";
 import DemoStatus from "./components/DemoStatus.vue";
 import "./style.css";
@@ -19,7 +18,7 @@ const Layout = defineComponent({
         .replace(/\.md$/, "");
       const translatedPages = [
         "", "vision", "architecture", "fund-flow", "tamagaki-sbt", "transparency",
-        "governance", "environments", "roadmap", "risks", "wallet-experience", "smart-contracts", "demo-status",
+        "governance", "environments", "roadmap", "risks", "wallet-experience", "smart-contracts", "demo-status", "mainnet-status",
       ];
       const languageLink = isEnglish
         ? `/${pageSlug}`
@@ -36,7 +35,8 @@ const Layout = defineComponent({
         { text: "Architecture", link: "/en/architecture" },
         { text: "Contracts", link: "/en/smart-contracts" },
         { text: "Testnet Guide", link: "/en/wallet-experience" },
-        { text: "Live Demo Data", link: "/en/demo-status" },
+        { text: "Mainnet Status", link: "/en/mainnet-status" },
+        { text: "Sepolia Data", link: "/en/demo-status" },
         { text: "GitHub", link: "https://github.com/ShigeichiroYamasaki/yui-no-kaki-kumamoto" },
         { text: "日本語", link: languageLink },
       ] : [
@@ -44,7 +44,8 @@ const Layout = defineComponent({
         { text: "技術設計", link: "/architecture" },
         { text: "コントラクト", link: "/smart-contracts" },
         { text: "デモガイド", link: "/wallet-experience" },
-        { text: "デモ集計", link: "/demo-status" },
+        { text: "本番支援状況", link: "/mainnet-status" },
+        { text: "Sepolia集計", link: "/demo-status" },
         { text: "ADR", link: "/adr/" },
         { text: "GitHub", link: "https://github.com/ShigeichiroYamasaki/yui-no-kaki-kumamoto" },
         { text: "English", link: languageLink },
@@ -65,6 +66,7 @@ const Layout = defineComponent({
             { text: "9. Risks and Disclaimer", link: "/en/risks" },
             { text: "Wallet User Experience", link: "/en/wallet-experience" },
             { text: "Live Demo Data", link: "/en/demo-status" },
+            { text: "Mainnet Status", link: "/en/mainnet-status" },
           ],
         },
         { text: "Implementation", items: [{ text: "Smart Contracts", link: "/en/smart-contracts" }] },
@@ -85,6 +87,7 @@ const Layout = defineComponent({
             { text: "9. リスクと免責", link: "/risks" },
             { text: "ウォレット利用体験", link: "/wallet-experience" },
             { text: "デモ集計", link: "/demo-status" },
+            { text: "本番支援状況", link: "/mainnet-status" },
           ],
         },
         {
@@ -114,7 +117,6 @@ const KumamotoReliefDaoTheme: Theme = {
   ...DefaultTheme,
   Layout,
   enhanceApp({ app }) {
-    app.component("SupportTrend", SupportTrend);
     app.component("TestnetDemo", TestnetDemo);
     app.component("DemoStatus", DemoStatus);
   },

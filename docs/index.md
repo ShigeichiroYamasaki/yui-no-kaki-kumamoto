@@ -23,6 +23,7 @@ head:
     <a href="./vision">ホワイトペーパー</a>
     <a href="./architecture">技術設計</a>
     <a href="./smart-contracts">コントラクト</a>
+    <a href="./mainnet-status">支援状況</a>
     <a href="./adr/">ADR</a>
   </div>
   <div class="home-nav__languages" aria-label="表示言語">
@@ -48,7 +49,6 @@ head:
 </div>
 
 <main class="whitepaper-home">
-  <SupportTrend locale="ja" />
   <p class="whitepaper-hero__eyebrow">EXECUTIVE SUMMARY</p>
   <h2>支援の入口から、復興の報告まで。</h2>
   <p>熊本災害支援DAOは、ETH・JPYCによる災害復興支援、譲渡不能な玉垣SBT、熊本県指定先への資金移転、受領証跡、復興事業の進捗報告を一つの検証可能な流れとして接続する構想です。税制優遇を提供する仕組みではなく、インフラ復旧を目的とする純粋な復興支援を対象とします。</p>
@@ -72,6 +72,8 @@ head:
     <a href="./risks"><b>09</b><span>リスクと免責</span></a>
     <a href="./wallet-experience"><b>UX</b><span>ウォレットから支援し玉垣SBTを受け取る</span></a>
     <a href="./smart-contracts"><b>CODE</b><span>スマートコントラクトとソースコード</span></a>
+    <a href="./mainnet-status"><b>MAINNET</b><span>本番支援の受付状況</span></a>
+    <a href="./demo-status"><b>SEPOLIA</b><span>テストネットの支援・SBT集計</span></a>
     <a href="./adr/"><b>ADR</b><span>設計判断の一覧と原記録を確認</span></a>
   </section>
   <div class="scope-note"><strong>現在の位置づけ</strong><br>本書は関係者協議前の提案・技術検証版です。掲載されたデモは実資金、実JPYC、熊本県のシステムへ接続しておらず、熊本県による承認を示すものではありません。</div>

@@ -156,6 +156,14 @@
 .demo-status table th { white-space: nowrap; }
 .demo-status table td { vertical-align: middle; }
 .demo-status table code { white-space: nowrap; }
+.network-status-card { margin: 26px 0; padding: 26px; border: 1px solid var(--vp-c-divider); border-radius: 18px; background: var(--vp-c-bg-soft); }
+.network-status-card > span { display: block; color: var(--vp-c-text-3); font-size: 11px; font-weight: 900; letter-spacing: .16em; }
+.network-status-card > strong { display: block; margin: 7px 0 22px; font-size: clamp(28px, 5vw, 44px); }
+.network-status-card dl { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 0; }
+.network-status-card dl div { padding: 15px; border-radius: 10px; background: var(--vp-c-bg); }
+.network-status-card dt { color: var(--vp-c-text-3); font-size: 12px; font-weight: 700; }
+.network-status-card dd { margin: 5px 0 0; font-weight: 800; }
+.network-status-card--inactive { border-color: rgba(211, 163, 62, .45); }
 .principles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin: 34px 0 70px; }
 .principles article { padding: 26px; border: 1px solid var(--vp-c-divider); border-radius: 16px; background: var(--vp-c-bg-soft); }
 .principles b { display: block; margin-bottom: 10px; color: var(--vp-c-brand-1); font-size: 19px; }
@@ -192,6 +200,7 @@
   .contract-addresses a { grid-template-columns: 1fr auto; gap: 4px 10px; }
   .contract-addresses code { grid-column: 1 / -1; font-size: 11px; }
   .demo-status__totals { grid-template-columns: repeat(2, 1fr); }
+  .network-status-card dl { grid-template-columns: 1fr 1fr; }
   .home-nav__languages a { padding: 6px 10px; }
   .whitepaper-hero { min-height: 610px; padding-top: 130px; background-position: 63% center; }
   .principles, .flow-strip, .chapter-grid { grid-template-columns: 1fr; }
