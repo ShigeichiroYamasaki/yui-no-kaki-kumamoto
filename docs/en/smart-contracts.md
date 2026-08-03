@@ -22,6 +22,18 @@ The Kumamoto Relief DAO smart contracts are published and maintained in the same
 - [Example deployment parameters](https://github.com/ShigeichiroYamasaki/yui-no-kaki-kumamoto/tree/main/ignition/parameters)
 - [Supplementary deployment script](https://github.com/ShigeichiroYamasaki/yui-no-kaki-kumamoto/blob/main/scripts/deploy.ts)
 
+### Add the Base Sepolia demo
+
+Keep the Sepolia deployment and deploy the hardened contracts under a separate Ignition deployment ID:
+
+```bash
+npx hardhat keystore set BASE_SEPOLIA_RPC_URL
+npx hardhat keystore set DEPLOYER_PRIVATE_KEY
+npm run contracts:deploy:demo:base-sepolia:security-v3
+```
+
+Store a Base Sepolia HTTPS RPC URL in the first entry and the `0x`-prefixed private key of a testnet-only deployer in the second. Never expose that key to GitHub Pages. Map the five deployed addresses and first deployment block to `BASE_SEPOLIA_VAULT_ADDRESS`, `BASE_SEPOLIA_JPYC_ADDRESS`, `BASE_SEPOLIA_TAMAGAKI_SBT_ADDRESS`, `BASE_SEPOLIA_REGISTRY_ADDRESS`, `BASE_SEPOLIA_COUNCIL_ADDRESS`, and `BASE_SEPOLIA_DEPLOYMENT_BLOCK` under repository Actions Variables. Also set `BASE_SEPOLIA_PUBLIC_RPC_URL`, decimals `18`, and metadata version `2`. After the Pages workflow runs again, both testnets appear in the selector.
+
 ## Implementation boundaries
 
 - The `RecoverySupportVault` destination is restricted to the registered financial or payment provider contracted by the certified NPO. Under the initial candidate, the support asset belongs to the NPO and the converted bank remittance is the NPO's separate yen donation to Kumamoto Prefecture.
@@ -93,4 +105,4 @@ The UI derives `publicMetadataHash` from normalized JSON for comparing the pre-s
 
 The home page uses a read-only Viem Public Client to retrieve `SupportReceived` events from `RecoverySupportVault` every 30 seconds. Block timestamps and asset addresses are used to calculate cumulative ETH, cumulative JPYC, and the contribution count. Testnet totals and the SBT gallery are kept on the demo status page.
 
-For GitHub Pages, configure `MAINNET_RPC_URL`, `MAINNET_VAULT_ADDRESS`, `MAINNET_JPYC_ADDRESS`, and `MAINNET_DEPLOYMENT_BLOCK` for the production display; configure `RECOVERY_RPC_URL`, `RECOVERY_VAULT_ADDRESS`, `JPYC_ADDRESS`, `RECOVERY_DEPLOYMENT_BLOCK`, and `JPYC_DECIMALS` separately for the demo. Sending through the image-enabled demo is enabled only when `TAMAGAKI_METADATA_VERSION=2`. No private key or write permission is used. Missing configuration produces an awaiting-connection state rather than fabricated data.
+The existing `RECOVERY_*` GitHub Pages variables continue to configure Ethereum Sepolia. To enable Base Sepolia simultaneously, add `BASE_SEPOLIA_PUBLIC_RPC_URL`, the five `BASE_SEPOLIA_*_ADDRESS` values, `BASE_SEPOLIA_DEPLOYMENT_BLOCK`, `BASE_SEPOLIA_JPYC_DECIMALS`, and `BASE_SEPOLIA_TAMAGAKI_METADATA_VERSION=2` as GitHub Actions Variables. Base Sepolia appears only when its Vault, MockJPYC, and SBT addresses are all present, and totals remain separated by chain. Pages receives no private key or write authority.

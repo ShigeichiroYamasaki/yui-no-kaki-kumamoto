@@ -3,12 +3,12 @@
 This chapter defines the experience for a supporter using MetaMask or another EVM wallet, from opening the support site through verifying ownership of a Tamagaki SBT. The interface may evolve, but users must understand what they are connecting, authorizing, sending, and receiving before signing.
 
 ::: warning This is currently a testnet demo
-Sepolia ETH and MockJPYC have no monetary value, and production fundraising has not started. Never enter a private key or Secret Recovery Phrase into this site, a faucet, or a message to another person.
+Sepolia / Base Sepolia ETH and MockJPYC have no monetary value, and production fundraising has not started. Never enter a private key or Secret Recovery Phrase into this site, a faucet, or a message to another person.
 :::
 
 <div class="demo-launch-card">
   <div>
-    <span>DEMO IS LIVE ON SEPOLIA</span>
+    <span>SEPOLIA + OPTIONAL BASE SEPOLIA</span>
     <strong>The testnet prototype is available</strong>
     <p>Chain ID 11155111 · Deployment block 11395458</p>
   </div>
@@ -29,6 +29,18 @@ Before signing, confirm that the destination shown by MetaMask matches the relev
 | Tamagaki SBT | [`0xC2D1fAC9517544A839D35e67008c76A1839366aA`](https://sepolia.etherscan.io/address/0xC2D1fAC9517544A839D35e67008c76A1839366aA) |
 
 MockJPYC is not official JPYC; it is a valueless test token used only by this prototype. See the [demo data page](./demo-status.md) for all five deployed contracts.
+
+### Using Base Sepolia
+
+Base Sepolia uses chain ID `84532` (`0x14a34`) and [BaseScan](https://sepolia.basescan.org/). Once the Base Sepolia contract addresses are configured for the published demo, a network selector appears on the contribution and data pages.
+
+1. Select `Base Sepolia` on the contribution page.
+2. Connect the wallet; if necessary, approve the request containing the chain ID, RPC, and explorer.
+3. Obtain Base Sepolia ETH from the [official Base faucet guide](https://docs.base.org/base-chain/tools/network-faucets).
+4. Confirm receipt on BaseScan.
+5. Obtain the Base Sepolia MockJPYC and test the contribution and SBT mint.
+
+Ethereum Sepolia ETH, MockJPYC, SBTs, and contract addresses do not exist on Base Sepolia. Verify the chain name, chain ID, and Vault address before every signature.
 
 ## Beginner setup
 

@@ -2,7 +2,7 @@
 
 - 状態: Proposed
 - 日付: 2026-07-31
-- 更新日: 2026-08-02
+- 更新日: 2026-08-04
 
 ## 決定
 
@@ -11,7 +11,8 @@
 - 玉垣はERC-721とERC-5192を採用する。
 - チェーン間集計はインデクサーで統合し、支援IDにチェーンIDと受付コントラクトを含める。
 - 受領確認・復興報告は文書本体ではなくハッシュを`RecoveryAttestationRegistry`へ記録する。
-- Ethereum Sepoliaを標準統合デモネットワークとし、そこで発行する`MockJPYC`と玉垣SBTを本番資産・本番証明として扱わない。Base Sepoliaは代替検証先として設定を残す。
+- Ethereum Sepoliaを標準統合デモネットワーク、Base SepoliaをL2代替統合デモネットワークとする。両testnetの`MockJPYC`と玉垣SBTを本番資産・本番証明として扱わない。
+- L2のfinality、Data Availability、forced transaction、canonical bridge、proof、upgrade権限とL1エスケープハッチは[ADR-0009](./0009-l2-selection-and-escape-hatch.md)に従う。
 - 画像対応デモの玉垣SBTは、ERC-721 `tokenURI`からオンチェーンSVGを返す。氏名・メッセージは送金前に編集・プレビューし、明示的な公開同意を必須とする。
 - 玉垣は支援額による大小を設けず、すべて同一寸法とする。多数の玉垣を横方向へ連続させ、熊本城を取り囲む一つの垣根として可視化する。下部には家紋と区別できるデジタル証明印と`TAMAGAKI SBT`を表示する。
 - 画像の資産と金額は`SupportReceived`と同じ実際の送金値から生成し、利用者が金額表示を偽装できないようにする。

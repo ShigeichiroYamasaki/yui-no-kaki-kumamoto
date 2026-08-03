@@ -1,6 +1,6 @@
-# Sepolia demo data
+# Sepolia and Base Sepolia demo data
 
-This page shows the deployed demo contracts and the contribution events and Tamagaki SBTs recorded on Ethereum Sepolia. Data is read directly from a Sepolia RPC endpoint when the page is opened.
+This page shows contracts, contribution events, and Tamagaki SBTs on Ethereum Sepolia and, once configured, Base Sepolia. Data is read from the selected testnet RPC and values from different chains are never combined.
 
 [Try a contribution](../demo.md) · [Beginner wallet guide](./wallet-experience.md)
 

@@ -22,6 +22,29 @@
 - [デプロイ用パラメータ例](https://github.com/ShigeichiroYamasaki/yui-no-kaki-kumamoto/tree/main/ignition/parameters)
 - [補助デプロイスクリプト](https://github.com/ShigeichiroYamasaki/yui-no-kaki-kumamoto/blob/main/scripts/deploy.ts)
 
+### Base Sepoliaデモを追加する
+
+Sepolia版を残したまま、別のIgnition deployment IDでセキュリティ強化版をデプロイします。
+
+```bash
+npx hardhat keystore set BASE_SEPOLIA_RPC_URL
+npx hardhat keystore set DEPLOYER_PRIVATE_KEY
+npm run contracts:deploy:demo:base-sepolia:security-v3
+```
+
+最初の値にはBase Sepolia対応RPCのHTTPS URL、二つ目にはテストネット専用デプロイヤーの`0x`付き秘密鍵を保存します。GitHub Pagesには秘密鍵を設定しません。デプロイ結果の5アドレスと最初のblockを、GitHubリポジトリの`Settings → Secrets and variables → Actions → Variables`へ次のように対応付けます。
+
+| Ignitionの出力 | GitHub Actions Variable |
+|---|---|
+| `RecoverySupportVault` | `BASE_SEPOLIA_VAULT_ADDRESS` |
+| `MockJPYC` | `BASE_SEPOLIA_JPYC_ADDRESS` |
+| `TamagakiSBT` | `BASE_SEPOLIA_TAMAGAKI_SBT_ADDRESS` |
+| `RecoveryAttestationRegistry` | `BASE_SEPOLIA_REGISTRY_ADDRESS` |
+| `RecoverySupportCouncil` | `BASE_SEPOLIA_COUNCIL_ADDRESS` |
+| 最初のdeployment block | `BASE_SEPOLIA_DEPLOYMENT_BLOCK` |
+
+併せて`BASE_SEPOLIA_PUBLIC_RPC_URL`を読み取り専用の公開RPC、`BASE_SEPOLIA_JPYC_DECIMALS`を`18`、`BASE_SEPOLIA_TAMAGAKI_METADATA_VERSION`を`2`にします。Actionsを再実行すると、デモと集計ページにEthereum Sepolia / Base Sepoliaの切替が表示されます。
+
 ## 実装上の境界
 
 - `RecoverySupportVault`のオンチェーン送金先は、認定NPOが契約する登録金融・決済事業者の入金アドレスに限定します。初期本番候補では支援資産はNPOへ帰属し、円転後の銀行送金はNPOから熊本県への別個の円貨寄附です。
@@ -93,4 +116,4 @@ mintWithMetadata(address to, bytes32 supportId, bytes32 publicMetadataHash,
 
 トップページはViemの読み取り専用Public Clientを使用し、`RecoverySupportVault`の`SupportReceived`イベントを30秒ごとに取得します。各イベントのブロック時刻と資産アドレスから、ETH・JPYCの累計額と支援件数を算出します。テストネットの集計とSBT一覧はデモ状況ページへ分離します。
 
-GitHub Pagesのデプロイ時には、本番表示用の`MAINNET_RPC_URL`、`MAINNET_VAULT_ADDRESS`、`MAINNET_JPYC_ADDRESS`、`MAINNET_DEPLOYMENT_BLOCK`と、デモ表示用の`RECOVERY_RPC_URL`、`RECOVERY_VAULT_ADDRESS`、`JPYC_ADDRESS`、`RECOVERY_DEPLOYMENT_BLOCK`、`JPYC_DECIMALS`を環境別に設定します。画像付きデモの送信機能は`TAMAGAKI_METADATA_VERSION=2`の場合だけ有効です。秘密鍵や書き込み権限は使用しません。未設定時は仮データを表示せず、接続待ち状態になります。
+GitHub Pagesでは従来の`RECOVERY_*`変数をEthereum Sepoliaとして利用できます。Base Sepoliaを併用する場合は、`BASE_SEPOLIA_PUBLIC_RPC_URL`、`BASE_SEPOLIA_VAULT_ADDRESS`、`BASE_SEPOLIA_JPYC_ADDRESS`、`BASE_SEPOLIA_TAMAGAKI_SBT_ADDRESS`、`BASE_SEPOLIA_REGISTRY_ADDRESS`、`BASE_SEPOLIA_COUNCIL_ADDRESS`、`BASE_SEPOLIA_DEPLOYMENT_BLOCK`、`BASE_SEPOLIA_JPYC_DECIMALS`、`BASE_SEPOLIA_TAMAGAKI_METADATA_VERSION=2`をGitHub Actions Variablesへ追加します。三つの主要アドレスが揃った場合だけBase Sepoliaが選択欄へ現れ、ネットワーク間の集計は分離されます。秘密鍵や書き込み権限はPagesへ設定しません。

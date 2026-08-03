@@ -2,7 +2,7 @@
 
 ## Assessment basis
 
-This assessment covers the prototype code and proposed operations as of August 3, 2026. It does not replace an external audit, penetration test, or an end-to-end operational exercise with Kumamoto Prefecture and settlement providers.
+This assessment covers the prototype code and proposed operations as of August 4, 2026. It does not replace an external audit, penetration test, or an end-to-end operational exercise with Kumamoto Prefecture and settlement providers.
 
 | Severity | Criterion |
 |---|---|
@@ -22,6 +22,7 @@ The current implementation is suitable for a Sepolia technical demonstration, no
 5. pause, unpause, configuration, transfer, and reporting roles are separated;
 6. actual ERC-20 receipt is measured by balance delta and token code hash, decimals, and symbol are pinned at allowlisting;
 7. external audit, fork tests, incident exercises, and a small end-to-end settlement test are complete.
+8. the L1 emergency multisig, L2 Escape Controller, and L1 Recovery Vault are implemented and audited, and the full path from forced transaction through canonical withdrawal, L1 receipt, and double-payment prevention has been exercised.
 
 ## Adversarial scenarios
 
@@ -38,7 +39,7 @@ The current implementation is suitable for a Sepolia technical demonstration, no
 | A-09 | **Medium** | Unsolicited SBT is minted to another address for spam or eligibility manipulation | Non-transferability and `recipient == msg.sender` | If delegated receipt is later added, require EIP-712 recipient consent |
 | A-10 | **Medium** | Sybil voting through many wallets and micro-contributions | One wallet/one vote, no execution authority, proposal cutoff, valid-status check | Pre-acquired SBTs across multiple wallets remain a Sybil path |
 | A-11 | **Medium** | Event volume and RPC rate limits deny public data service | Input-length limits | Add rate limiting, caching, pagination, multiple RPCs, backfill queue, and read-only degraded mode |
-| A-12 | **Medium** | Sequencer, chain, gas, or settlement-provider outage | Pause and pending states | Define halt threshold, retention limit, alternate path, controlled restart, and public incident status |
+| A-12 | **High** | L2 sequencer outage or censorship, data-availability, proof, canonical-bridge, or malicious-upgrade failure | Pause, pending state, and multiple RPCs | Alternate RPCs cannot withdraw funds; require L1 forced transactions, canonical withdrawal, fixed Recovery Vault, L1 gas reserve, halt thresholds, and public challenge-period status |
 
 ## Human error and insider misuse
 
@@ -71,6 +72,7 @@ The current implementation is suitable for a Sepolia technical demonstration, no
 | SBT recipient | Self-recipient only | Add EIP-712 consent only if delegated receipt is required |
 | Voting | Proposal-time token-ID cutoff and valid status | Compare with block snapshots and continue Sybil-resistance review |
 | On-chain name | UI consent can be bypassed | Reconsider production use; require recipient consent if retained |
+| L2 escape | Not implemented; Base Sepolia support is connectivity and demo configuration only | L1 emergency multisig, Escape Controller, fixed L1 Recovery Vault, cross-domain authentication, and a complete withdrawal exercise |
 
 ## Operating principles
 
@@ -81,7 +83,7 @@ The current implementation is suitable for a Sepolia technical demonstration, no
 - **Correct through history:** use cancellation and successor records, never silent overwrite.
 - **Keep secrets out of public evidence:** no seed, private key, bank account number, or personal data in publicly hashed documents.
 
-See [NPO and Prefectural Operations](./prefecture-operations), [ADR-0006](../adr/0006-security-boundaries-and-verifiable-batches), [ADR-0007](../adr/0007-threat-model-and-human-error-controls), and [ADR-0008](../adr/0008-certified-npo-joint-operation).
+See [NPO and Prefectural Operations](./prefecture-operations), [ADR-0006](../adr/0006-security-boundaries-and-verifiable-batches), [ADR-0007](../adr/0007-threat-model-and-human-error-controls), [ADR-0008](../adr/0008-certified-npo-joint-operation), and [ADR-0009](../adr/0009-l2-selection-and-escape-hatch).
 
 ## Legal, governmental, and privacy risks
 

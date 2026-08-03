@@ -3,12 +3,12 @@
 この章では、MetaMaskなどのEVMウォレットを利用する支援者が、支援サイトを開いてから玉垣SBTを確認するまでのユーザー体験を定義します。画面の文言や配置は変更できますが、利用者が「何を許可し、何を送信し、何を受け取るか」を署名前に理解できることを必須とします。
 
 ::: warning 現在はテストネットデモです
-ここで使用するSepolia ETHとMockJPYCには金銭的価値がありません。本番の支援募集はまだ開始していません。秘密鍵やシークレットリカバリーフレーズを、このサイト、faucet、第三者へ入力しないでください。
+ここで使用するSepolia / Base Sepolia ETHとMockJPYCには金銭的価値がありません。本番の支援募集はまだ開始していません。秘密鍵やシークレットリカバリーフレーズを、このサイト、faucet、第三者へ入力しないでください。
 :::
 
 <div class="demo-launch-card">
   <div>
-    <span>DEMO IS LIVE ON SEPOLIA</span>
+    <span>SEPOLIA + OPTIONAL BASE SEPOLIA</span>
     <strong>テストネット版を利用できます</strong>
     <p>Chain ID 11155111 · デプロイ開始ブロック 11395458</p>
   </div>
@@ -29,6 +29,18 @@
 | 玉垣SBT | [`0xC2D1fAC9517544A839D35e67008c76A1839366aA`](https://sepolia.etherscan.io/address/0xC2D1fAC9517544A839D35e67008c76A1839366aA) |
 
 MockJPYCは公式JPYCではなく、このデモコントラクトだけで使用する無価値のテストトークンです。5コントラクトすべてのアドレスは[デモ集計ページ](./demo-status.md)で確認できます。
+
+### Base Sepoliaを選ぶ場合
+
+Base SepoliaのChain IDは`84532`（16進数`0x14a34`）、Explorerは[BaseScan](https://sepolia.basescan.org/)です。公開デモにBase Sepoliaのコントラクトアドレスが設定されると、支援画面と集計画面にネットワーク選択欄が表示されます。
+
+1. 支援画面で`Base Sepolia`を選ぶ。
+2. 「ウォレットを接続」を押す。未登録なら画面がChain ID、RPC、ExplorerをMetaMaskへ追加する。
+3. [Base公式のfaucet案内](https://docs.base.org/base-chain/tools/network-faucets)からBase Sepolia ETHを取得する。
+4. BaseScanで入金を確認する。
+5. Base Sepolia用MockJPYCを取得し、支援とSBT発行を試す。
+
+Ethereum SepoliaのETH、MockJPYC、SBT、コントラクトアドレスはBase Sepoliaでは利用できません。画面に表示されたchain名、Chain ID、Vaultアドレスを署名前に毎回確認してください。
 
 ## はじめての方：デモを始めるまで
 
@@ -107,7 +119,7 @@ MetaMaskでSepoliaを選択し、Sepolia ETHの受領を確認したら、次の
 
 1. 「ウォレットを接続」を押す。
 2. MetaMaskで接続するテスト用アカウントを選ぶ。
-3. 必要ならSepoliaへの切替を承認する。
+3. 必要なら画面で選んだEthereum SepoliaまたはBase Sepoliaへの切替を承認する。
 4. 「MockJPYCを100,000受け取る」を押し、faucetトランザクションを確認する。
 5. ETHまたはMockJPYCの支援額を入力する。
 6. MetaMaskに表示されたネットワーク、数量、ガス代、コントラクトを確認して署名する。

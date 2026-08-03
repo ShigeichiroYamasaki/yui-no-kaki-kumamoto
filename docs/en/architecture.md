@@ -140,3 +140,32 @@ Directly scanning all RPC history from the public site is limited to the demo. P
 ## Chain selection
 
 A low-cost EVM L2 is the primary candidate. The selected network must support official JPYC and be formally supported by the operating service providers. Unofficial bridged assets will not be accepted. The final network will be determined after consultation with JPYC, exchange or payment providers, and auditors.
+
+### Benefits of using an L2
+
+- Lower fees make small contributions, Tamagaki SBT issuance, and receipt or use-of-funds attestations sustainable.
+- Short block times reduce the delay between wallet payment and public Tamagaki display.
+- An EVM-compatible L2 preserves the Solidity, Hardhat 3, wallet, and audit toolchain.
+- A rollup that commits data or state roots to L1 can use Ethereum as its final-settlement foundation.
+
+“Accepted on L2” is not the same as “finalized on L1.” The public interface therefore distinguishes `pending`, `confirmed on L2`, and `finalized on L1`, and settlement batches apply the selected L2's finality rule.
+
+### L2-specific risk and escape hatch
+
+Sequencer outage or censorship, data-availability failure, delayed batch submission, canonical-bridge failure, proof-system defects, or compromised upgrade authority can stop ordinary L2 operations and withdrawals. Production therefore requires a **chain-native escape hatch** that can begin recovery from L1 without trusting the sequencer, ordinary RPC, or project UI.
+
+```mermaid
+flowchart LR
+  A["Pause the L2 Vault"] --> B["Reconcile the last safe block and balances"]
+  B --> C["Submit a forced transaction from L1"]
+  C --> D["Initiate withdrawal through the canonical bridge"]
+  D --> E["Wait for the challenge or proof period"]
+  E --> F["Receive in the L1 Recovery Vault"]
+  F --> G["Convert through a registered provider and remit to the Prefecture"]
+```
+
+Candidate L2s must provide L1-available transaction data, L1 forced transactions, canonical asset withdrawal, and transparent proof, challenge-period, and upgrade-authority rules. For an OP Stack L2 such as Base, the design assumes portal-based forced transactions, canonical withdrawals, fault proofs, and an approximately seven-day challenge period.
+
+Project controls include an L1 emergency multisig, an L2 Escape Controller, a fixed Ethereum L1 Recovery Vault, a double-payment prevention ledger, and an ETH reserve for L1 gas. OP Stack address aliasing and cross-domain authentication must be handled explicitly; an L1 call is not assumed to have the same sender as an L2 Safe. Adding an application-specific zk-STARK alone does not create an asset exit during sequencer failure, so the design uses the rollup's native proof, data-availability, and bridge mechanisms.
+
+The current prototype does not implement this recovery path. No real funds will be accepted until forced transaction, L1 receipt, reconciliation, and double-payment prevention have been exercised on a public testnet including Base Sepolia and independently audited. See [ADR-0009](../adr/0009-l2-selection-and-escape-hatch).

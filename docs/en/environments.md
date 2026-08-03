@@ -8,7 +8,7 @@ The demo uses the same conceptual model as production so stakeholders can experi
 |---|---|---|
 | Assets | Simulated values and MockJPYC | Approved ETH and official JPYC |
 | Wallet | No connection or signature | Supported wallets and signatures |
-| Network | Local Hardhat network | Audited EVM network |
+| Network | Local Hardhat, Sepolia, and Base Sepolia | Audited EVM L2 with an Ethereum L1 recovery path |
 | Prefectural receipt | Demo identifiers and simulated states | Official destination and evidence hashes |
 | Recovery reports | Simulated browser updates | Append-only updates by authorized reporters |
 | Presentation | Permanently labeled as a prototype | Displays the certified NPO, registered provider, terms, ownership model, and operational status |
@@ -32,3 +32,4 @@ Production intake will not begin until all of the following are complete:
 5. Multisignature, timelock, and key-management arrangements
 6. Independent security audit and operational exercises
 7. Responsibility allocation and a small end-to-end test under ADR-0008
+8. Implementation, independent audit, and complete withdrawal exercise of the L1 escape hatch under ADR-0009

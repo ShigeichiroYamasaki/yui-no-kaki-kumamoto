@@ -2,7 +2,7 @@
 
 ## 評価の前提
 
-この評価は2026年8月3日時点のプロトタイプコードと運用案を対象とします。外部監査、ペネトレーションテスト、熊本県・交換事業者との実運用試験に代わるものではありません。
+この評価は2026年8月4日時点のプロトタイプコードと運用案を対象とします。外部監査、ペネトレーションテスト、熊本県・交換事業者との実運用試験に代わるものではありません。
 
 重大度は次の基準です。
 
@@ -24,6 +24,7 @@
 5. pauseとunpause、設定変更、送金、受領報告を別ロールへ分離する。
 6. 許可ERC-20の実受領額を残高差分で計測し、token codehash・decimals・symbolを登録時に固定する。
 7. 外部監査、フォークテスト、障害訓練、少額の端から端までの送金試験を完了する。
+8. L1緊急マルチシグ、L2 Escape Controller、L1 Recovery Vaultを実装・監査し、forced transactionからcanonical withdrawal、L1受領、二重送金防止までの完全退出訓練を完了する。
 
 ## 攻撃者による主要シナリオ
 
@@ -40,7 +41,7 @@
 | A-09 | **Medium** | 第三者へ無断でSBTを発行し、ウォレットをspamまたは投票資格操作 | SBTは譲渡不能かつ`recipient == msg.sender` | 代理受領を将来追加する場合はEIP-712受領同意が必要 |
 | A-10 | **Medium** | 多数ウォレット・少額支援による参考投票Sybil攻撃 | 1 wallet 1 vote、資金移動権限なし、提案時cutoff、有効status検査 | cutoff後の追加発行は排除するが、複数walletによる事前取得は残る |
 | A-11 | **Medium** | 大量支援、巨大ログ、RPC rate limitで公開画面を停止 | 入力長制限 | rate limit、キャッシュ、ページング、複数RPC、バックフィルキュー、read-only degraded modeが必要 |
-| A-12 | **Medium** | L2 sequencer停止、chain reorg、gas急騰、事業者障害 | pause、処理中表示 | chainと事業者の停止基準、最大待機時間、代替経路、再開承認、支援者への状態公開が必要 |
+| A-12 | **High** | L2 sequencer停止・検閲、Data Availability・proof・canonical bridge障害、悪意あるupgrade | pause、処理中表示、複数RPC | 代替RPCだけでは資金を退出できない。L1 forced transaction、canonical withdrawal、固定Recovery Vault、L1 gas reserve、停止基準、challenge期間中の公開状態が必要 |
 
 ## 当事者の操作ミス・内部不正
 
@@ -75,6 +76,7 @@
 | SBT受領 | 支援者本人宛てだけを許可 | 代理受領が必要ならEIP-712同意を追加 |
 | 投票資格 | 提案作成時token ID cutoffと有効statusを検証 | block snapshot方式との比較、Sybil耐性の継続評価 |
 | オンチェーン表示名 | UI同意は回避可能 | 本番採否を再判断し、採用時は受領署名と明確な警告 |
+| L2エスケープ | 未実装。Base Sepolia対応は接続・デモ設定のみ | L1緊急マルチシグ、Escape Controller、固定L1 Recovery Vault、cross-domain認証、完全退出訓練 |
 
 ## 運用上の安全原則
 
@@ -85,7 +87,7 @@
 - **訂正を履歴化**: 上書きや削除ではなく、取消と後継記録で誤りを訂正する。
 - **秘密情報を公開証跡へ含めない**: seed、秘密鍵、銀行口座番号、個人情報をhash前の公開文書にも含めない。
 
-具体的な操作は[認定NPO・熊本県向け運用ビュー](./prefecture-operations)を参照してください。設計判断は[ADR-0006](./adr/0006-security-boundaries-and-verifiable-batches)、[ADR-0007](./adr/0007-threat-model-and-human-error-controls)、[ADR-0008](./adr/0008-certified-npo-joint-operation)に記録しています。
+具体的な操作は[認定NPO・熊本県向け運用ビュー](./prefecture-operations)を参照してください。設計判断は[ADR-0006](./adr/0006-security-boundaries-and-verifiable-batches)、[ADR-0007](./adr/0007-threat-model-and-human-error-controls)、[ADR-0008](./adr/0008-certified-npo-joint-operation)、[ADR-0009](./adr/0009-l2-selection-and-escape-hatch)に記録しています。
 
 ## 法務・行政・プライバシー
 

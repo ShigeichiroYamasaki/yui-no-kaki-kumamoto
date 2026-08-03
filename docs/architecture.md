@@ -140,3 +140,32 @@ flowchart TB
 ## チェーン選択
 
 低コストなEVM L2を基本候補とし、公式JPYCが利用できるネットワークと、運用事業者が正式対応するチェーンを採用します。非公式ブリッジ資産は許可しません。最終的なネットワークはJPYC、交換・決済事業者、監査者との協議後に確定します。
+
+### L2を利用する利点
+
+- L1より低い手数料により、少額支援、玉垣SBT発行、受領・使途アテステーションを継続しやすい。
+- 短いブロック間隔により、ウォレット送金から玉垣表示までの待ち時間を短縮できる。
+- EVM互換L2を選べば、Solidity、Hardhat 3、ウォレット、監査ツールを共通化できる。
+- L1へデータまたは状態根を確定するロールアップでは、独立したL1の安全性を最終決済の基礎として利用できる。
+
+一方、L2上の「受付済み」はL1で確定した「最終確定」と同義ではありません。公開画面は`処理中`、`L2確認済み`、`L1確定済み`を区別し、集計・送金バッチには採用L2のfinality条件を適用します。
+
+### L2固有リスクとエスケープハッチ
+
+sequencer停止・検閲、Data Availability障害、L1へのbatch投稿遅延、canonical bridge障害、Fault ProofまたはValidity Proofの不具合、アップグレード管理鍵の侵害により、通常のL2操作や出金が止まる可能性があります。そのため、単なる「代替RPC」ではなく、sequencerや通常UIを信頼せずにL1から資金回収を開始できる**チェーンネイティブなエスケープハッチ**を本番要件とします。
+
+```mermaid
+flowchart LR
+  A["L2 Vaultをpause"] --> B["最終安全blockと残高を照合"]
+  B --> C["L1からforced transactionを投入"]
+  C --> D["canonical bridgeでwithdrawalを開始"]
+  D --> E["challenge / proof期間を待つ"]
+  E --> F["L1 Recovery Vaultで受領"]
+  F --> G["登録事業者を介して円転・県口座へ送金"]
+```
+
+採用するL2は、(1) transaction dataをL1で取得できること、(2) L1から強制transactionを投入できること、(3) canonical bridgeによる資産退出が可能なこと、(4) proof、challenge期間、upgrade権限が公開されていることを必須評価項目とします。BaseのようなOP Stack系L2を採用する場合は、L1のportalからのforced transaction、canonical withdrawal、Fault Proof、概ね7日間のchallenge期間を前提に手順と流動性を設計します。
+
+プロジェクト側には、L1緊急マルチシグ、L2 Escape Controller、Ethereum L1上の固定Recovery Vault、二重送金防止台帳、L1 gas用ETHを用意します。OP Stackのaddress aliasingとcross-domain認証を考慮し、L1からの呼出しがL2 Safeと同じ送信者になるとは仮定しません。独自のzk-STARKをアプリへ追加するだけではsequencer停止時の資産退出にならないため、ロールアップ本体のproof・Data Availability・bridgeを利用します。
+
+現行プロトタイプにはこの回収経路が未実装です。Base Sepoliaを含む公開テストネットでforced transactionからL1受領、残高照合、通常経路との二重送金防止まで訓練し、外部監査を完了するまで実資金を受け付けません。詳細は[ADR-0009](./adr/0009-l2-selection-and-escape-hatch)を参照してください。

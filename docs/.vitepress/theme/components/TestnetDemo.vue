@@ -1,18 +1,16 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import { sepolia } from "viem/chains";
 import {
-  createPublicClient, createWalletClient, custom, decodeEventLog, formatEther, http,
+  createPublicClient, createWalletClient, custom, decodeEventLog, formatUnits, http,
   keccak256, parseEther, parseUnits, stringToHex, zeroHash,
   type Address, type EIP1193Provider, type Hash,
 } from "viem";
+import { availableDemoNetworks, demoNetworks, type DemoNetworkKey } from "../testnetNetworks";
 
-const vault = (import.meta.env.VITE_RECOVERY_VAULT_ADDRESS || "0x6B8BE5103712368fe276499393B53DC26e805c1C") as Address;
-const jpyc = (import.meta.env.VITE_JPYC_ADDRESS || "0x2d61d67cBe34208b524980F815358184858ba80f") as Address;
-const sbt = (import.meta.env.VITE_TAMAGAKI_SBT_ADDRESS || "0xC2D1fAC9517544A839D35e67008c76A1839366aA") as Address;
-const rpc = (import.meta.env.VITE_RECOVERY_RPC_URL as string | undefined) || "https://ethereum-sepolia-rpc.publicnode.com";
-const metadataVersion = import.meta.env.VITE_TAMAGAKI_METADATA_VERSION as string | undefined;
-const metadataReady = metadataVersion === "2";
+const preferredNetwork = import.meta.env.VITE_RECOVERY_DEFAULT_NETWORK as DemoNetworkKey | undefined;
+const networkKey = ref<DemoNetworkKey>(preferredNetwork && demoNetworks[preferredNetwork]?.configured ? preferredNetwork : "sepolia");
+const network = computed(() => demoNetworks[networkKey.value]);
+const metadataReady = computed(() => network.value.metadataVersion === "2");
 
 const account = ref<Address>();
 const assetType = ref<"ETH" | "MockJPYC">("ETH");
@@ -27,7 +25,7 @@ const message = ref("");
 const lastTx = ref<Hash>();
 const tokenId = ref<bigint>();
 const balance = ref("0");
-const publicClient = createPublicClient({ chain: sepolia, transport: http(rpc) });
+const publicClient = () => createPublicClient({ chain: network.value.chain, transport: http(network.value.rpcUrl) });
 
 const vaultAbi = [
   { type:"function", name:"supportNativeWithMetadata", stateMutability:"payable", inputs:[
@@ -50,7 +48,7 @@ const shortAccount = computed(() => account.value ? `${account.value.slice(0,6)}
 const previewAmount = computed(() => assetType.value === "ETH" ? ethAmount.value : jpycAmount.value);
 const previewAsset = computed(() => assetType.value === "ETH" ? "ETH" : "MockJPYC");
 const canSubmit = computed(() => Boolean(
-  metadataReady && account.value && publicationConsent.value && displayName.value.trim()
+  metadataReady.value && network.value.configured && account.value && publicationConsent.value && displayName.value.trim()
   && dedicationMessage.value.trim() && !busy.value,
 ));
 
@@ -61,12 +59,16 @@ function provider(): EIP1193Provider {
 }
 async function wallet() {
   const p = provider();
+  const selected = network.value;
   try {
-    await p.request({method:"wallet_switchEthereumChain",params:[{chainId:"0xaa36a7"}]});
+    await p.request({method:"wallet_switchEthereumChain",params:[{chainId:`0x${selected.chain.id.toString(16)}`}]});
   } catch {
-    await p.request({method:"wallet_addEthereumChain",params:[{chainId:"0xaa36a7",chainName:"Sepolia",nativeCurrency:{name:"Sepolia Ether",symbol:"ETH",decimals:18},rpcUrls:[rpc],blockExplorerUrls:["https://sepolia.etherscan.io"]}]});
+    await p.request({method:"wallet_addEthereumChain",params:[{
+      chainId:`0x${selected.chain.id.toString(16)}`,chainName:selected.label,
+      nativeCurrency:selected.chain.nativeCurrency,rpcUrls:[selected.rpcUrl],blockExplorerUrls:[selected.explorerUrl],
+    }]});
   }
-  return createWalletClient({account:account.value,chain:sepolia,transport:custom(p)});
+  return createWalletClient({account:account.value,chain:selected.chain,transport:custom(p)});
 }
 async function connect() {
   try {
@@ -74,13 +76,13 @@ async function connect() {
     account.value = addresses[0];
     await wallet();
     await refreshBalance();
-    message.value = "Ethereum Sepoliaに接続しました";
+    message.value = `${network.value.label}に接続しました`;
   } catch (cause) { message.value = cause instanceof Error ? cause.message : String(cause); }
 }
 async function refreshBalance() {
   if (!account.value) return;
-  const value = await publicClient.readContract({address:jpyc,abi:tokenAbi,functionName:"balanceOf",args:[account.value]});
-  balance.value = Number(formatEther(value)).toLocaleString();
+  const value = await publicClient().readContract({address:network.value.jpycAddress,abi:tokenAbi,functionName:"balanceOf",args:[account.value]});
+  balance.value = Number(formatUnits(value, network.value.jpycDecimals)).toLocaleString();
 }
 async function run(label:string, action:()=>Promise<Hash>) {
   busy.value = label;
@@ -89,7 +91,7 @@ async function run(label:string, action:()=>Promise<Hash>) {
     const hash = await action();
     lastTx.value = hash;
     message.value = "トランザクション確認中…";
-    const receipt = await publicClient.waitForTransactionReceipt({hash});
+    const receipt = await publicClient().waitForTransactionReceipt({hash});
     for (const log of receipt.logs) {
       try {
         const decoded = decodeEventLog({abi:vaultAbi,data:log.data,topics:log.topics});
@@ -104,7 +106,7 @@ async function run(label:string, action:()=>Promise<Hash>) {
 async function faucet() {
   if (!account.value) return;
   const w = await wallet();
-  await run("faucet", () => w.writeContract({address:jpyc,abi:tokenAbi,functionName:"faucet"}));
+  await run("faucet", () => w.writeContract({address:network.value.jpycAddress,abi:tokenAbi,functionName:"faucet"}));
 }
 function artworkInput() {
   return { displayName: displayName.value.trim(), dedicationMessage: dedicationMessage.value.trim(), showAmount: showAmount.value } as const;
@@ -125,32 +127,40 @@ async function submitSupport() {
   const w = await wallet();
   if (assetType.value === "ETH") {
     await run("support", () => w.writeContract({
-      address:vault, abi:vaultAbi, functionName:"supportNativeWithMetadata",
+      address:network.value.vaultAddress, abi:vaultAbi, functionName:"supportNativeWithMetadata",
       args:common(), value:parseEther(ethAmount.value),
     }));
     return;
   }
-  const amount = parseUnits(jpycAmount.value, 18);
+  const amount = parseUnits(jpycAmount.value, network.value.jpycDecimals);
   busy.value = "support";
   try {
     message.value = "まず今回の支援額だけMockJPYCの利用を承認します";
-    const approval = await w.writeContract({address:jpyc,abi:tokenAbi,functionName:"approve",args:[vault,amount]});
-    await publicClient.waitForTransactionReceipt({hash:approval});
+    const approval = await w.writeContract({address:network.value.jpycAddress,abi:tokenAbi,functionName:"approve",args:[network.value.vaultAddress,amount]});
+    await publicClient().waitForTransactionReceipt({hash:approval});
     await run("support", () => w.writeContract({
-      address:vault, abi:vaultAbi, functionName:"supportERC20WithMetadata",
-      args:[jpyc, amount, ...common()],
+      address:network.value.vaultAddress, abi:vaultAbi, functionName:"supportERC20WithMetadata",
+      args:[network.value.jpycAddress, amount, ...common()],
     }));
   } finally { busy.value = ""; }
+}
+function changeNetwork() {
+  account.value = undefined;
+  balance.value = "0";
+  lastTx.value = undefined;
+  tokenId.value = undefined;
+  message.value = `${network.value.label}を選択しました。ウォレットを接続してください`;
 }
 </script>
 
 <template>
   <section class="testnet-demo">
-    <div class="demo-warning"><b>ETHEREUM SEPOLIA TESTNET</b>実資産ではありません。入力した氏名とメッセージは、送金後に公開ブロックチェーンへ記録されます。</div>
+    <div class="demo-warning"><b>{{network.label.toUpperCase()}} TESTNET</b>実資産ではありません。入力した氏名とメッセージは、送金後に公開ブロックチェーンへ記録されます。</div>
+    <label v-if="availableDemoNetworks.length > 1" class="editor-field"><span>テストネット</span><select v-model="networkKey" @change="changeNetwork"><option v-for="item in availableDemoNetworks" :key="item.key" :value="item.key">{{item.label}} · {{item.chain.id}}</option></select></label>
     <div v-if="!metadataReady" class="metadata-upgrade-notice"><strong>画像メタデータ対応版の再デプロイ待ちです</strong><span>編集とプレビューは利用できますが、新しいコントラクトアドレスを設定するまで送金ボタンは無効です。</span></div>
 
     <button class="demo-primary" @click="connect">{{ account ? shortAccount : "ウォレットを接続" }}</button>
-    <div class="demo-faucets"><a href="https://ethereum.org/developers/docs/networks/#sepolia" target="_blank" rel="noreferrer">Sepolia ETH Faucet一覧 ↗</a><button :disabled="!account||!!busy" @click="faucet">MockJPYCを100,000受け取る</button><span>残高 {{balance}} mJPYC</span></div>
+    <div class="demo-faucets"><a :href="network.faucetUrl" target="_blank" rel="noreferrer">{{network.label}} ETH Faucet一覧 ↗</a><button :disabled="!account||!!busy" @click="faucet">MockJPYCを100,000受け取る</button><span>残高 {{balance}} mJPYC</span></div>
 
     <div class="tamagaki-editor">
       <form class="tamagaki-editor__form" @submit.prevent="submitSupport">
@@ -184,6 +194,6 @@ async function submitSupport() {
         </div>
       </div>
     </div>
-    <p class="demo-result">{{message}} <a v-if="lastTx" :href="`https://sepolia.etherscan.io/tx/${lastTx}`" target="_blank" rel="noreferrer">Explorerで確認 ↗</a><strong v-if="tokenId"> 玉垣SBT #{{tokenId.toString()}}</strong></p>
+    <p class="demo-result">{{message}} <a v-if="lastTx" :href="`${network.explorerUrl}/tx/${lastTx}`" target="_blank" rel="noreferrer">Explorerで確認 ↗</a><strong v-if="tokenId"> 玉垣SBT #{{tokenId.toString()}}</strong></p>
   </section>
 </template>
