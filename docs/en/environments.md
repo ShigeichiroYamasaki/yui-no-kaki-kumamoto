@@ -11,7 +11,7 @@ The demo uses the same conceptual model as production so stakeholders can experi
 | Network | Local Hardhat network | Audited EVM network |
 | Prefectural receipt | Demo identifiers and simulated states | Official destination and evidence hashes |
 | Recovery reports | Simulated browser updates | Append-only updates by authorized reporters |
-| Presentation | Permanently labeled as a prototype | Displays operator, terms, and operational status |
+| Presentation | Permanently labeled as a prototype | Displays the certified NPO, registered provider, terms, ownership model, and operational status |
 
 ## Demo acceptance criteria
 
@@ -26,8 +26,9 @@ The demo uses the same conceptual model as production so stakeholders can experi
 Production intake will not begin until all of the following are complete:
 
 1. Formal consultation with Kumamoto Prefecture and agreement on the receipt process
-2. Final operating entity, accounting treatment, terms, and privacy policy
+2. Board approval by the selected certified NPO and confirmation of accounting, ownership, terms, and privacy policy
 3. Confirmation of the official JPYC network and contract
-4. Agreements with exchange or payment providers
+4. Agreement with a registered financial or payment provider covering the service, chain, and official JPYC
 5. Multisignature, timelock, and key-management arrangements
 6. Independent security audit and operational exercises
+7. Responsibility allocation and a small end-to-end test under ADR-0008

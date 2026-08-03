@@ -38,20 +38,20 @@ describe("RecoverySupportCouncil", async function () {
     ]);
 
     const councilAsSupporter = await viem.getContractAt("RecoverySupportCouncil", council.address, { client: { wallet: supporter } });
-    await councilAsSupporter.write.vote([1n, true, 7]);
+    await councilAsSupporter.write.vote([1n, 1n, true, 7]);
     const proposal = await council.read.proposals([1n]);
     assert.equal(proposal[3], 7n);
     assert.equal(await council.read.voiceCreditsSpent([1n, supporter.account.address]), 49);
 
     await viem.assertions.revertWithCustomError(
-      councilAsSupporter.write.vote([1n, true, 1]),
+      councilAsSupporter.write.vote([1n, 1n, true, 1]),
       council,
       "AlreadyVoted",
     );
 
     const councilAsOutsider = await viem.getContractAt("RecoverySupportCouncil", council.address, { client: { wallet: outsider } });
     await viem.assertions.revertWithCustomError(
-      councilAsOutsider.write.vote([1n, true, 1]),
+      councilAsOutsider.write.vote([1n, 1n, true, 1]),
       council,
       "NoTamagaki",
     );
@@ -64,6 +64,21 @@ describe("RecoverySupportCouncil", async function () {
     await sbt.write.mint([admin.account.address, keccak256(stringToHex("support")), keccak256(stringToHex("metadata"))]);
     const now = (await publicClient.getBlock()).timestamp;
     await council.write.createProposal([keccak256(stringToHex("proposal")), now, now + 3_600n]);
-    await viem.assertions.revertWithCustomError(council.write.vote([1n, true, 11]), council, "InvalidVoteWeight");
+    await viem.assertions.revertWithCustomError(council.write.vote([1n, 1n, true, 11]), council, "InvalidVoteWeight");
+  });
+
+  it("uses the proposal cutoff and rejects SBTs minted after voting is announced", async () => {
+    const sbt = await viem.deployContract("TamagakiSBT", [admin.account.address, "ipfs://demo/"]);
+    const council = await viem.deployContract("RecoverySupportCouncil", [admin.account.address, sbt.address]);
+    await sbt.write.grantRole([MINTER_ROLE, admin.account.address]);
+    const now = (await publicClient.getBlock()).timestamp;
+    await council.write.createProposal([keccak256(stringToHex("proposal")), now, now + 3_600n]);
+    await sbt.write.mint([supporter.account.address, keccak256(stringToHex("late-support")), keccak256(stringToHex("metadata"))]);
+    const councilAsSupporter = await viem.getContractAt("RecoverySupportCouncil", council.address, { client: { wallet: supporter } });
+    await viem.assertions.revertWithCustomError(
+      councilAsSupporter.write.vote([1n, 1n, true, 1]),
+      council,
+      "NoTamagaki",
+    );
   });
 });

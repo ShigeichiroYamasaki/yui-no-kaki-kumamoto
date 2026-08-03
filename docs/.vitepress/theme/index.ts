@@ -19,7 +19,7 @@ const Layout = defineComponent({
         .replace(/\.md$/, "");
       const translatedPages = [
         "", "vision", "architecture", "fund-flow", "tamagaki-sbt", "transparency",
-        "governance", "environments", "roadmap", "risks", "wallet-experience", "smart-contracts", "demo-status", "mainnet-status",
+        "governance", "environments", "roadmap", "risks", "wallet-experience", "prefecture-operations", "smart-contracts", "demo-status", "mainnet-status",
       ];
       const languageLink = isEnglish
         ? `/${pageSlug}`
@@ -35,6 +35,7 @@ const Layout = defineComponent({
         { text: "Whitepaper", link: "/en/vision" },
         { text: "Architecture", link: "/en/architecture" },
         { text: "Contracts", link: "/en/smart-contracts" },
+        { text: "Operations", link: "/en/prefecture-operations" },
         { text: "Testnet Guide", link: "/en/wallet-experience" },
         { text: "Mainnet Status", link: "/en/mainnet-status" },
         { text: "Sepolia Data", link: "/en/demo-status" },
@@ -44,6 +45,7 @@ const Layout = defineComponent({
         { text: "ホワイトペーパー", link: "/vision" },
         { text: "技術設計", link: "/architecture" },
         { text: "コントラクト", link: "/smart-contracts" },
+        { text: "NPO・県運用", link: "/prefecture-operations" },
         { text: "デモガイド", link: "/wallet-experience" },
         { text: "本番支援状況", link: "/mainnet-status" },
         { text: "Sepolia集計", link: "/demo-status" },
@@ -66,6 +68,7 @@ const Layout = defineComponent({
             { text: "8. Roadmap", link: "/en/roadmap" },
             { text: "9. Risks and Disclaimer", link: "/en/risks" },
             { text: "Wallet User Experience", link: "/en/wallet-experience" },
+            { text: "NPO and Prefectural Operations", link: "/en/prefecture-operations" },
             { text: "Live Demo Data", link: "/en/demo-status" },
             { text: "Mainnet Status", link: "/en/mainnet-status" },
           ],
@@ -87,6 +90,7 @@ const Layout = defineComponent({
             { text: "8. ロードマップ", link: "/roadmap" },
             { text: "9. リスクと免責", link: "/risks" },
             { text: "ウォレット利用体験", link: "/wallet-experience" },
+            { text: "認定NPO・熊本県向け運用", link: "/prefecture-operations" },
             { text: "デモ集計", link: "/demo-status" },
             { text: "本番支援状況", link: "/mainnet-status" },
           ],

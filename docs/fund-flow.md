@@ -12,19 +12,19 @@
 sequenceDiagram
   participant S as 支援者
   participant V as Vault
-  participant O as 運営マルチシグ
-  participant E as 交換・決済事業者
-  participant K as 熊本県指定先
+  participant O as 認定NPO財務マルチシグ
+  participant E as 登録金融・決済事業者
+  participant K as 熊本県災害支援口座
   participant R as Registry
-  S->>V: ETH / JPYCを支援
+  S->>V: 認定NPOへETH / JPYCを支援
   V-->>S: 支援イベント + 玉垣SBT
   O->>V: 一意なバッチIDで集約送金
   V->>E: 対象資産を移転
-  E->>K: 円転後の資金を送金
-  K-->>R: 受領額・証憑ハッシュを登録
+  E->>K: NPOの別個の円貨寄附を送金
+  K-->>R: 県受領・復興証憑ハッシュを登録
 ```
 
-コントラクトは交換業務を行いません。ETH・JPYCの円転や銀行送金は、必要な登録・管理態勢を備えた事業者が担当する前提です。
+コントラクトは交換業務を行いません。支援成立時に資産は認定NPOへ確定的に帰属し、支援者別残高、交換、振替を提供しません。NPOは必要な登録・管理態勢を備えた事業者を介して自己資産を円転し、熊本県へ別個の円貨寄附を行います。県への直接JPYC寄附とは表示しません。
 
 ## 会計上の表示
 

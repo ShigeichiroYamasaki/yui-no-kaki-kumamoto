@@ -189,7 +189,7 @@ The site and wallet let the user cross-check the official domain, chain and chai
 | Assets | Test ETH and valueless MockJPYC | Approved ETH and official JPYC |
 | Purpose | Validate signing, transfer, and SBT minting | Formal recovery support intake |
 | SBT | Test Tamagaki SBT | Production Tamagaki SBT |
-| Recipient | Demo address | Kumamoto-designated recipient |
+| Recipient | Demo address | Kumamoto Disaster Support Account through a registered provider |
 | Tax treatment | No benefit | No benefit under this project |
 
 Do not send real assets before the production campaign is formally announced, regardless of wallet choice.

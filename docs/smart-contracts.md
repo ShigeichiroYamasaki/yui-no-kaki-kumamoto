@@ -8,7 +8,7 @@
 
 | コントラクト | 役割 | ソースコード |
 |---|---|---|
-| RecoverySupportVault | ETHと許可されたERC-20による支援を受け付け、指定受領先への資金移転を記録します。 | [RecoverySupportVault.sol](https://github.com/ShigeichiroYamasaki/yui-no-kaki-kumamoto/blob/main/contracts/RecoverySupportVault.sol) |
+| RecoverySupportVault | ETHと許可されたERC-20による支援を受け付け、登録済み交換・決済事業者入金先への資金移転を記録します。 | [RecoverySupportVault.sol](https://github.com/ShigeichiroYamasaki/yui-no-kaki-kumamoto/blob/main/contracts/RecoverySupportVault.sol) |
 | TamagakiSBT | 支援参加の証しとなる、ERC-721およびERC-5192型の譲渡不能な玉垣SBTを発行します。 | [TamagakiSBT.sol](https://github.com/ShigeichiroYamasaki/yui-no-kaki-kumamoto/blob/main/contracts/TamagakiSBT.sol) |
 | RecoveryAttestationRegistry | 熊本県側の受領確認や復興事業報告について、文書ハッシュと参照情報を記録します。 | [RecoveryAttestationRegistry.sol](https://github.com/ShigeichiroYamasaki/yui-no-kaki-kumamoto/blob/main/contracts/RecoveryAttestationRegistry.sol) |
 | RecoverySupportCouncil | SBT保有者による非拘束のクアドラティック参考投票を提供します。資金移動権限は持ちません。 | [RecoverySupportCouncil.sol](https://github.com/ShigeichiroYamasaki/yui-no-kaki-kumamoto/blob/main/contracts/RecoverySupportCouncil.sol) |
@@ -24,11 +24,20 @@
 
 ## 実装上の境界
 
-- `RecoverySupportVault`の受領先は、管理権限によって指定されたアドレスに限定します。
+- `RecoverySupportVault`のオンチェーン送金先は、認定NPOが契約する登録金融・決済事業者の入金アドレスに限定します。初期本番候補では支援資産はNPOへ帰属し、円転後の銀行送金はNPOから熊本県への別個の円貨寄附です。
 - 玉垣SBTは通常のウォレット間移転を禁止し、支援参加の証しとして扱います。
 - 本番系では氏名、住所、正確な位置情報などの個人情報をオンチェーンへ保存しません。Sepoliaの画像付きSBTデモだけは、明示的に同意した任意表示名とメッセージをオンチェーンへ記録できます。
 - Councilの投票は参考情報であり、熊本県の予算や公共事業を拘束しません。
 - 本番導入には、外部監査、マルチシグ、タイムロック、正式な受領合意、利用チェーン上の公式JPYCアドレス確認が必要です。
+
+## セキュリティ強化版の仕様
+
+- ERC-20は許可時のcodehash、symbol、decimalsを固定し、入金前後のVault残高差分を実受領額として記録します。
+- 資産ごとにVault残高、1 batch、1日の送付上限を設定します。デモの既定値は動作確認用であり、本番では有限値が必須です。
+- `transferBatch`は`supportRoot`、`instructionHash`、`validUntil`を必須とし、同じ`batchId`の再利用と期限切れを拒否します。
+- `beneficiary`変更は提案後2日待って実行し、pauseとunpauseは別ロールです。初期adminから組織マルチシグへロールを移す作業はデプロイ後に必要です。
+- SBTは支援者本人にだけ発行でき、参考投票は提案作成時のtoken ID cutoff以前かつInvalidatedでないSBTを検証します。
+- Registryの誤記は削除・上書きせず、後継attestationへの参照で訂正履歴を残します。
 
 関連する設計判断は、[ADR一覧](./adr/)と[システム構造](./architecture)で確認できます。
 
@@ -61,11 +70,11 @@
 画像付き発行では次の関数を使用します。
 
 ```solidity
-supportNativeWithMetadata(bytes32 supportId, bytes32 countryCode, address sbtRecipient,
+supportNativeWithMetadata(bytes32 countryCodeHash, bytes32 messageHash, address sbtRecipient,
   bytes32 publicMetadataHash, ArtworkInput artwork)
 
-supportERC20WithMetadata(IERC20 token, uint256 amount, bytes32 supportId,
-  bytes32 countryCode, address sbtRecipient, bytes32 publicMetadataHash,
+supportERC20WithMetadata(IERC20 token, uint256 amount, bytes32 countryCodeHash,
+  bytes32 messageHash, address sbtRecipient, bytes32 publicMetadataHash,
   ArtworkInput artwork)
 
 mintWithMetadata(address to, bytes32 supportId, bytes32 publicMetadataHash,

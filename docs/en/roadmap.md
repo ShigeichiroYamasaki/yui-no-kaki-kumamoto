@@ -11,7 +11,8 @@
 
 - Discuss purpose, recipient destination, and reporting fields with Kumamoto Prefecture
 - Confirm supported networks with JPYC and exchange or payment providers
-- Design the operating entity, accounting, terms, and personal-data controls
+- Select and consult an existing certified NPO; design accounting, ownership, terms, and personal-data controls
+- Define contracts and responsibility boundaries for the registered provider and technical contractor
 - Conduct threat modeling and external review
 
 ## Phase 2 — Public testnet
@@ -25,6 +26,7 @@
 
 - Obtain an independent smart-contract audit
 - Confirm legal, accounting, payment-services, and AML requirements
+- Run a small end-to-end test from JPYC support to conversion and a separate yen donation to the Prefecture
 - Operate and reconcile within limited amounts and periods
 - Gather feedback from supporters, Kumamoto Prefecture, and providers
 

@@ -54,4 +54,22 @@ describe("RecoveryAttestationRegistry", async function () {
       "InvalidProgress",
     );
   });
+
+  it("preserves corrections as linked successor attestations", async () => {
+    const registry = await viem.deployContract("RecoveryAttestationRegistry", [
+      admin.account.address,
+      reporter.account.address,
+    ]);
+    const registryAsReporter = await viem.getContractAt("RecoveryAttestationRegistry", registry.address, { client: { wallet: reporter } });
+    const first = keccak256(stringToHex("batch-original"));
+    const successor = keccak256(stringToHex("batch-correction"));
+    await registryAsReporter.write.confirmDelivery([
+      first, 100n, keccak256(stringToHex("wrong-receipt")),
+    ]);
+    await registryAsReporter.write.supersedeDelivery([
+      first, successor, 90n, keccak256(stringToHex("correct-receipt")),
+    ]);
+    assert.equal(await registry.read.deliverySuccessor([first]), successor);
+    assert.equal((await registry.read.deliveries([successor]))[0], 90n);
+  });
 });

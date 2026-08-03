@@ -12,19 +12,19 @@ Country, public name, and message are optional. Country is never inferred from a
 sequenceDiagram
   participant S as Supporter
   participant V as Vault
-  participant O as Operator multisig
-  participant E as Exchange or payment provider
-  participant K as Kumamoto-designated recipient
+  participant O as Certified NPO treasury multisig
+  participant E as Registered financial or payment provider
+  participant K as Kumamoto Disaster Support Account
   participant R as Registry
-  S->>V: Support in ETH or JPYC
+  S->>V: Support the certified NPO in ETH or JPYC
   V-->>S: Receipt event and Tamagaki SBT
   O->>V: Consolidate using a unique batch ID
   V->>E: Transfer the relevant asset
-  E->>K: Remit converted yen
-  K-->>R: Record amount and evidence hash
+  E->>K: Remit the NPO's separate yen donation
+  K-->>R: Record prefectural receipt and recovery evidence
 ```
 
-The contract does not perform exchange services. Conversion of ETH or JPYC to yen and bank remittance are assumed to be handled by providers with the required registration and controls.
+The contract does not perform exchange services. The asset becomes the certified NPO's property when support completes, without supporter balances, exchange, or transfer services. A provider with the required registration and controls converts the NPO's own asset, and the NPO makes a separate yen donation to Kumamoto Prefecture. This is not presented as a direct JPYC donation to the Prefecture.
 
 ## Accounting presentation
 

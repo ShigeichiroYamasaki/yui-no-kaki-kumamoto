@@ -23,6 +23,7 @@ head:
     <a href="./vision">Whitepaper</a>
     <a href="./architecture">Architecture</a>
     <a href="./smart-contracts">Contracts</a>
+    <a href="./prefecture-operations">Operations</a>
     <a href="./mainnet-status">Support status</a>
     <a href="https://github.com/ShigeichiroYamasaki/yui-no-kaki-kumamoto">GitHub</a>
   </div>
@@ -51,14 +52,14 @@ head:
   <MainnetSupportTrend locale="en" />
   <p class="whitepaper-hero__eyebrow">EXECUTIVE SUMMARY</p>
   <h2>From receiving support to reporting recovery.</h2>
-  <p>Kumamoto Relief DAO connects disaster recovery support in ETH and JPYC, non-transferable Tamagaki SBTs, transfer of funds to a destination designated by Kumamoto Prefecture, proof of receipt, and recovery project updates in one verifiable flow. It is not a tax-incentive scheme; it is intended solely to support infrastructure recovery.</p>
+  <p>Kumamoto Relief DAO proposes a certified NPO as legal operator and connects disaster recovery support in ETH and JPYC, non-transferable Tamagaki SBTs, conversion by a registered provider, a separate yen donation to the Kumamoto Disaster Support Account, proof of receipt, and recovery updates in one verifiable flow. It is not a tax-incentive scheme.</p>
   <section class="principles">
     <article><b>Verifiability</b><span>Key evidence for receipt, consolidated transfer, prefectural receipt, and recovery reporting is publicly linked and independently verifiable.</span></article>
     <article><b>Public mandate</b><span>DAO-style participation provides a channel for views. Supporter votes do not bind Kumamoto Prefecture's budgets or public works.</span></article>
     <article><b>Privacy</b><span>Production does not put personal data on-chain. An optional name in the image-enabled testnet demo is recorded only after explicit consent to permanent publication.</span></article>
   </section>
   <h2>End-to-end flow</h2>
-  <div class="flow-strip"><span>Global support</span><span>Tamagaki SBT</span><span>Conversion and settlement</span><span>Prefectural receipt</span><span>Recovery reporting</span></div>
+  <div class="flow-strip"><span>Support the certified NPO</span><span>Tamagaki SBT</span><span>Registered conversion</span><span>NPO yen donation</span><span>Recovery reporting</span></div>
   <h2>Whitepaper chapters</h2>
   <section class="chapter-grid">
     <a href="./vision"><b>01</b><span>Vision and design principles</span></a>
@@ -71,6 +72,7 @@ head:
     <a href="./roadmap"><b>08</b><span>Roadmap</span></a>
     <a href="./risks"><b>09</b><span>Risks and disclaimer</span></a>
     <a href="./wallet-experience"><b>UX</b><span>Contribute from a wallet and receive a Tamagaki SBT</span></a>
+    <a href="./prefecture-operations"><b>OPS</b><span>NPO and prefectural key and settlement operations</span></a>
     <a href="./smart-contracts"><b>CODE</b><span>Smart contracts and source code</span></a>
     <a href="./mainnet-status"><b>MAINNET</b><span>Production fundraising status</span></a>
     <a href="./demo-status"><b>SEPOLIA</b><span>Testnet contributions and SBTs</span></a>

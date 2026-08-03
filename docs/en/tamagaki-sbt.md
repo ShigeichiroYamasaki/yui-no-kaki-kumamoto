@@ -10,7 +10,7 @@ Because every tamagaki represents a distinct contribution, it is based on ERC-72
 |---|---|
 | `Received` | Support transaction received |
 | `Included` | Included in a transfer batch |
-| `Delivered` | Receipt by the Kumamoto-designated destination confirmed |
+| `Delivered` | Credit to the Kumamoto Disaster Support Account confirmed |
 | `Reported` | Related recovery report published |
 | `Invalidated` | Invalidated through exception handling |
 

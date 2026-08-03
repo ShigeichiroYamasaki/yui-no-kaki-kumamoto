@@ -6,9 +6,10 @@
 flowchart LR
   S[Supporters worldwide] --> W[Support web app]
   W --> V[RecoverySupportVault]
+  N["Certified NPO・legal operator"] --> V
   V --> T[Tamagaki SBT]
   V --> X[Registered exchange or payment provider]
-  X --> K[Kumamoto-designated recipient]
+  X --> K[Kumamoto Disaster Support Account]
   K --> A[Receipt and recovery reports]
   A --> R[Attestation Registry]
   V --> I[Event indexer]
@@ -18,11 +19,42 @@ flowchart LR
   T --> C[Advisory voting Council]
 ```
 
+## Joint operation led by a certified NPO
+
+The production candidate appoints an **existing certified NPO** whose charter covers disaster relief and recovery, and which has suitable disclosure and audit controls, as the legally accountable operator. The NPO does not perform every function itself: regulated financial services, technical operations, public administration, and supporter participation remain with separate actors. This is a proposal and does not imply endorsement or partnership by any NPO, Kumamoto Prefecture, JPYC, or financial provider.
+
+```mermaid
+flowchart TB
+  D["Supporters and DAO participants"] -->|"Support and non-binding advice"| N["Certified NPO<br/>legally accountable operator"]
+  D -->|"JPYC / ETH"| V["RecoverySupportVault"]
+  N -->|"Terms, accounting, board approval, reconciliation"| V
+  V -->|"Transfer to registered deposit address"| F["Registered financial or payment provider<br/>AML, conversion, records"]
+  F -->|"Yen bank remittance"| P["Kumamoto Prefecture<br/>Disaster Support Account"]
+  P -->|"Receipt and recovery reports"| N
+  K["Corporate technical contractor"] -->|"Development, maintenance, monitoring"| N
+  C["DAO Council"] -->|"Advisory result only"| N
+  N -->|"Verifiable reporting"| R["Registry and public dashboard"]
+  F -->|"Settlement evidence"| R
+  P -->|"Receipt and project evidence"| R
+```
+
+Terms, accounting, and contract behavior must agree on legal ownership. At completion of support, the asset becomes the NPO's property without creating supporter balances or services for exchange, onward transfer, or discretionary refunds. The NPO converts its own asset through a registered provider and makes a separate yen donation to Kumamoto Prefecture. The service must not claim that a supporter sends JPYC directly to the Prefecture. If the Prefecture later adopts an official collection arrangement, the ADR must be revised for direct collection through the registered provider.
+
+| Actor | Legal and operational responsibility | Authority it must not receive |
+|---|---|---|
+| Certified NPO | Terms, completion of donation, accounting, board decisions, contracts, reconciliation, support, disclosure | Customer exchange services, unilateral treasury control, prefectural budget decisions |
+| Registered financial or payment provider | JPYC handling and conversion within its registrations, AML/CFT, sanctions controls, bank remittance, transaction evidence | Recovery priorities, DAO voting, NPO programme decisions |
+| Corporate technical contractor | Development and maintenance of contracts, indexer, UI, and monitoring | Ownership of support funds, unilateral Vault control, arbitrary fee deductions |
+| Kumamoto Prefecture | Acceptance of yen, receipt confirmation, recovery work and expenditure reporting | Unapproved NPO/DAO operations or Council control of administrative decisions |
+| DAO Council | Non-binding voting, improvement proposals, public verification | Transfers, conversion, or statutory corporate and administrative decisions |
+
+Certified-NPO status alone does not remove Payment Services Act requirements. The parties must obtain legal and regulatory confirmation that the model is not managing or intermediating electronic payment instruments for others, and assign any regulated function to an appropriately registered provider.
+
 ## On-chain components
 
 | Contract | Responsibility | Authority to move funds |
 |---|---|---|
-| `RecoverySupportVault` | Receives ETH and approved ERC-20 assets and consolidates transfers | Only to a Kumamoto-designated destination |
+| `RecoverySupportVault` | Receives ETH and approved ERC-20 assets and consolidates transfers | Only to a registered exchange or payment-provider deposit address |
 | `TamagakiSBT` | Non-transferable ERC-721 and ERC-5192 participation proof | None |
 | `RecoveryAttestationRegistry` | Records hashes of prefectural receipt evidence and recovery reports | None |
 | `RecoverySupportCouncil` | Non-binding voting by SBT holders | None |
@@ -39,7 +71,7 @@ This is the production principle. The image-enabled Sepolia demo also evaluates 
 
 ## Permission model
 
-Production administration will not rely on a single wallet. Administration, treasury transfers, and reporting are separated and protected through multisignature approval, timelocks, and emergency pausing. The destination is restricted in the contract to an address designated by Kumamoto Prefecture and cannot be changed by DAO voting.
+Production administration will not rely on a single wallet. Administration, treasury transfers, and reporting are separated and protected through multisignature approval, timelocks, and emergency pausing. The destination is restricted to the registered provider address contractually linked to a yen donation into the Kumamoto Disaster Support Account and cannot be changed by DAO voting.
 
 ## Security boundaries and critical improvements
 
@@ -51,7 +83,8 @@ flowchart TB
   subgraph M["Money plane・highest security"]
     V["Intake Vault・limited retained balance"]
     MS["Treasury multisig"]
-    K["Kumamoto-designated recipient"]
+    X["Registered provider deposit address"]
+    K["Kumamoto Disaster Support Account"]
   end
   subgraph E["Evidence plane"]
     B["Transfer batch・Merkle root"]
@@ -68,7 +101,8 @@ flowchart TB
   end
   U --> V
   MS --> V
-  V --> K
+  V --> X
+  X --> K
   V --> B
   K --> A
   B --> A
@@ -85,7 +119,7 @@ flowchart TB
 
 ### 1. Minimize retained funds
 
-The intake Vault is not a long-term store of value. Consolidated transfers are triggered by balance or elapsed-time thresholds, limiting the maximum value exposed in the Vault. Operating expenses use separate accounts and accounting and cannot be deducted arbitrarily from recovery support.
+The intake Vault is not a long-term store of value. Consolidated transfers are triggered by balance or elapsed-time thresholds; after registered conversion, the remittance is treated as the NPO's separate yen donation to Kumamoto Prefecture. Operating expenses use separate accounts and accounting and cannot be deducted arbitrarily from recovery support.
 
 ### 2. Separate authority and keys
 

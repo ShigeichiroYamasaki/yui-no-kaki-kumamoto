@@ -23,6 +23,7 @@ head:
     <a href="./vision">ホワイトペーパー</a>
     <a href="./architecture">技術設計</a>
     <a href="./smart-contracts">コントラクト</a>
+    <a href="./prefecture-operations">NPO・県運用</a>
     <a href="./mainnet-status">支援状況</a>
     <a href="./adr/">ADR</a>
   </div>
@@ -52,14 +53,14 @@ head:
   <MainnetSupportTrend locale="ja" />
   <p class="whitepaper-hero__eyebrow">EXECUTIVE SUMMARY</p>
   <h2>支援の入口から、復興の報告まで。</h2>
-  <p>熊本災害支援DAOは、ETH・JPYCによる災害復興支援、譲渡不能な玉垣SBT、熊本県指定先への資金移転、受領証跡、復興事業の進捗報告を一つの検証可能な流れとして接続する構想です。税制優遇を提供する仕組みではなく、インフラ復旧を目的とする純粋な復興支援を対象とします。</p>
+  <p>熊本災害支援DAOは、認定NPOを法的運営主体とし、ETH・JPYCによる災害復興支援、譲渡不能な玉垣SBT、登録金融・決済事業者を介した円転と熊本県災害支援口座への円貨寄附、受領証跡、復興事業の進捗報告を一つの検証可能な流れとして接続する構想です。税制優遇を提供する仕組みではなく、インフラ復旧を目的とする純粋な復興支援を対象とします。</p>
   <section class="principles">
     <article><b>検証可能性</b><span>支援受付、集約送金、県受領、復興報告の重要な証跡を公開検証できる形で結びます。</span></article>
     <article><b>公共性の尊重</b><span>DAOは意見表明の場です。支援者投票が熊本県の予算や公共事業を拘束することはありません。</span></article>
     <article><b>プライバシー</b><span>本番では個人情報をオンチェーンへ保存しません。画像付きテストネットデモの任意表示名は、永続公開への明示同意がある場合だけ記録します。</span></article>
   </section>
   <h2>全体の流れ</h2>
-  <div class="flow-strip"><span>世界から支援</span><span>玉垣SBT発行</span><span>資金を集約・円転</span><span>熊本県が受領</span><span>復興状況を報告</span></div>
+  <div class="flow-strip"><span>認定NPOへ支援</span><span>玉垣SBT発行</span><span>登録事業者が円転</span><span>NPOが県へ円貨寄附</span><span>復興状況を報告</span></div>
   <h2>Whitepaper chapters</h2>
   <section class="chapter-grid">
     <a href="./vision"><b>01</b><span>ビジョンと設計原則</span></a>
@@ -72,6 +73,7 @@ head:
     <a href="./roadmap"><b>08</b><span>ロードマップ</span></a>
     <a href="./risks"><b>09</b><span>リスクと免責</span></a>
     <a href="./wallet-experience"><b>UX</b><span>ウォレットから支援し玉垣SBTを受け取る</span></a>
+    <a href="./prefecture-operations"><b>OPS</b><span>認定NPOと熊本県の資金移転・鍵管理手順</span></a>
     <a href="./smart-contracts"><b>CODE</b><span>スマートコントラクトとソースコード</span></a>
     <a href="./mainnet-status"><b>MAINNET</b><span>本番支援の受付状況</span></a>
     <a href="./demo-status"><b>SEPOLIA</b><span>テストネットの支援・SBT集計</span></a>

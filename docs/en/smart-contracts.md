@@ -8,7 +8,7 @@ The Kumamoto Relief DAO smart contracts are published and maintained in the same
 
 | Contract | Role | Source code |
 |---|---|---|
-| RecoverySupportVault | Receives ETH and approved ERC-20 support and records transfers to the designated destination. | [RecoverySupportVault.sol](https://github.com/ShigeichiroYamasaki/yui-no-kaki-kumamoto/blob/main/contracts/RecoverySupportVault.sol) |
+| RecoverySupportVault | Receives ETH and approved ERC-20 support and records transfers to a registered exchange or payment-provider deposit address. | [RecoverySupportVault.sol](https://github.com/ShigeichiroYamasaki/yui-no-kaki-kumamoto/blob/main/contracts/RecoverySupportVault.sol) |
 | TamagakiSBT | Issues non-transferable ERC-721 and ERC-5192 Tamagaki SBTs as proof of participation. | [TamagakiSBT.sol](https://github.com/ShigeichiroYamasaki/yui-no-kaki-kumamoto/blob/main/contracts/TamagakiSBT.sol) |
 | RecoveryAttestationRegistry | Records document hashes and references for prefectural receipt confirmation and recovery reporting. | [RecoveryAttestationRegistry.sol](https://github.com/ShigeichiroYamasaki/yui-no-kaki-kumamoto/blob/main/contracts/RecoveryAttestationRegistry.sol) |
 | RecoverySupportCouncil | Provides non-binding quadratic advisory voting for SBT holders and has no authority to move funds. | [RecoverySupportCouncil.sol](https://github.com/ShigeichiroYamasaki/yui-no-kaki-kumamoto/blob/main/contracts/RecoverySupportCouncil.sol) |
@@ -24,11 +24,20 @@ The Kumamoto Relief DAO smart contracts are published and maintained in the same
 
 ## Implementation boundaries
 
-- The `RecoverySupportVault` destination is restricted to the address designated through administrative authority.
+- The `RecoverySupportVault` destination is restricted to the registered financial or payment provider contracted by the certified NPO. Under the initial candidate, the support asset belongs to the NPO and the converted bank remittance is the NPO's separate yen donation to Kumamoto Prefecture.
 - The Tamagaki SBT rejects normal wallet-to-wallet transfers and serves only as proof of participation.
 - Production does not store personal data such as names, addresses, or precise locations on-chain. Only the image-enabled Sepolia demo can record a consented optional display name and message on-chain.
 - Council voting is advisory and does not bind Kumamoto Prefecture's budget or public works.
 - Production requires an external audit, multisignature control, timelocks, a formal receipt agreement, and confirmation of the official JPYC address on the selected network.
+
+## Hardened-contract specification
+
+- ERC-20 admission pins code hash, symbol, and decimals; the Vault records the pre/post balance delta as the actual receipt.
+- Each asset has Vault-balance, per-batch, and daily outflow caps. Demo defaults are for testing; production requires finite values.
+- `transferBatch` requires a `supportRoot`, `instructionHash`, and `validUntil`, and rejects duplicate batch IDs and expired instructions.
+- Beneficiary changes require a proposal and two-day delay; pause and unpause have separate roles. Post-deployment role transfer to organisational multisigs is still required.
+- SBTs can be minted only to the supporter. Council voting validates a proposal-time token-ID cutoff and rejects Invalidated SBTs.
+- Registry mistakes are not overwritten; linked successor attestations preserve the correction history.
 
 See the [system architecture](./architecture) for the wider technical design. The original [ADR records](../adr/) are currently maintained in Japanese.
 
@@ -61,11 +70,11 @@ Control characters are rejected. Text is XML-escaped for SVG and JSON-escaped fo
 The image-enabled path uses:
 
 ```solidity
-supportNativeWithMetadata(bytes32 supportId, bytes32 countryCode, address sbtRecipient,
+supportNativeWithMetadata(bytes32 countryCodeHash, bytes32 messageHash, address sbtRecipient,
   bytes32 publicMetadataHash, ArtworkInput artwork)
 
-supportERC20WithMetadata(IERC20 token, uint256 amount, bytes32 supportId,
-  bytes32 countryCode, address sbtRecipient, bytes32 publicMetadataHash,
+supportERC20WithMetadata(IERC20 token, uint256 amount, bytes32 countryCodeHash,
+  bytes32 messageHash, address sbtRecipient, bytes32 publicMetadataHash,
   ArtworkInput artwork)
 
 mintWithMetadata(address to, bytes32 supportId, bytes32 publicMetadataHash,

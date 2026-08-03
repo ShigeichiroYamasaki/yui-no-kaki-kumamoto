@@ -24,6 +24,8 @@ contract RecoveryAttestationRegistry is AccessControl {
 
     mapping(bytes32 batchId => Delivery) public deliveries;
     mapping(bytes32 reportId => ProjectReport) public reports;
+    mapping(bytes32 batchId => bytes32 successorBatchId) public deliverySuccessor;
+    mapping(bytes32 reportId => bytes32 successorReportId) public reportSuccessor;
 
     error AlreadyRecorded(bytes32 id);
     error InvalidProgress(uint16 progressBps);
@@ -39,6 +41,8 @@ contract RecoveryAttestationRegistry is AccessControl {
         bytes32 documentHash,
         uint64 publishedAt
     );
+    event DeliverySuperseded(bytes32 indexed previousBatchId, bytes32 indexed successorBatchId);
+    event ProjectReportSuperseded(bytes32 indexed previousReportId, bytes32 indexed successorReportId);
 
     constructor(address admin, address reporter) {
         _grantRole(DEFAULT_ADMIN_ROLE, admin);
@@ -68,6 +72,47 @@ contract RecoveryAttestationRegistry is AccessControl {
         reports[reportId] = ProjectReport(projectId, progressBps, allocatedYen, documentHash, publishedAt);
         emit ProjectReportPublished(
             reportId, projectId, progressBps, allocatedYen, documentHash, publishedAt
+        );
+    }
+
+    function supersedeDelivery(
+        bytes32 previousBatchId,
+        bytes32 successorBatchId,
+        uint256 yenAmount,
+        bytes32 receiptHash
+    ) external onlyRole(REPORTER_ROLE) {
+        if (deliveries[previousBatchId].confirmedAt == 0) revert AlreadyRecorded(previousBatchId);
+        if (deliverySuccessor[previousBatchId] != bytes32(0) || deliveries[successorBatchId].confirmedAt != 0) {
+            revert AlreadyRecorded(successorBatchId);
+        }
+        deliverySuccessor[previousBatchId] = successorBatchId;
+        uint64 confirmedAt = uint64(block.timestamp);
+        deliveries[successorBatchId] = Delivery(yenAmount, receiptHash, confirmedAt);
+        emit DeliverySuperseded(previousBatchId, successorBatchId);
+        emit DeliveryConfirmed(successorBatchId, yenAmount, receiptHash, confirmedAt);
+    }
+
+    function supersedeProjectReport(
+        bytes32 previousReportId,
+        bytes32 successorReportId,
+        bytes32 projectId,
+        uint16 progressBps,
+        uint256 allocatedYen,
+        bytes32 documentHash
+    ) external onlyRole(REPORTER_ROLE) {
+        if (reports[previousReportId].publishedAt == 0) revert AlreadyRecorded(previousReportId);
+        if (reportSuccessor[previousReportId] != bytes32(0) || reports[successorReportId].publishedAt != 0) {
+            revert AlreadyRecorded(successorReportId);
+        }
+        if (progressBps > 10_000) revert InvalidProgress(progressBps);
+        reportSuccessor[previousReportId] = successorReportId;
+        uint64 publishedAt = uint64(block.timestamp);
+        reports[successorReportId] = ProjectReport(
+            projectId, progressBps, allocatedYen, documentHash, publishedAt
+        );
+        emit ProjectReportSuperseded(previousReportId, successorReportId);
+        emit ProjectReportPublished(
+            successorReportId, projectId, progressBps, allocatedYen, documentHash, publishedAt
         );
     }
 }

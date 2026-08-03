@@ -11,7 +11,7 @@ For supporters, especially those overseas, it is difficult to continuously verif
 Kumamoto Relief DAO seeks to achieve three goals simultaneously:
 
 1. Enable people in Japan and abroad to participate in recovery support with minimal friction.
-2. Make the path of support to a destination designated by Kumamoto Prefecture publicly verifiable.
+2. Make the path from support to the certified NPO, through registered conversion, to the NPO's separate yen donation into the Kumamoto Disaster Support Account publicly verifiable.
 3. Continuously communicate recovery progress back to supporters.
 
 ## The tamagaki metaphor

@@ -4,6 +4,8 @@
 
 Kumamoto Relief DAO does not replace a legal entity or administrative authority. It is a public community through which supporters can share views on recovery areas and participate in improving the project.
 
+The production candidate appoints an existing certified NPO whose charter covers disaster relief and recovery as the legally accountable operator. Statutory decisions remain with the NPO's members' meeting, board, directors, and auditor; wallet voting does not replace them. The [system architecture](./architecture#joint-operation-led-by-a-certified-npo) defines the shared responsibilities.
+
 ## Advisory voting
 
 Wallets holding a Tamagaki SBT can participate in non-binding quadratic advisory voting on themes such as roads and bridges, water and sewer systems, and disaster-response facilities.
@@ -20,13 +22,15 @@ This lets every eligible wallet express intensity from the same budget while mak
 
 | Role | Primary responsibilities |
 |---|---|
-| Operating entity | Terms, accounting, inquiries, and provider agreements |
-| Treasury signers | Multi-party approval for consolidated transfers and emergency pauses |
+| Certified NPO | Terms, completion of donation, accounting, board decisions, inquiries, and agreements with providers and the Prefecture |
+| NPO treasury multisig signers | Execute transfers approved through corporate procedures, with proposal, reconciliation, and signing separated |
 | Kumamoto Prefecture or delegated reporter | Receipt confirmation and recovery reporting |
-| Exchange or payment provider | Yen conversion, regulatory compliance, and bank remittance |
-| Technical operator | Contracts, indexer, and public interface |
+| Registered financial or payment provider | JPYC handling and conversion within its registrations, AML/CFT, sanctions controls, and bank remittance |
+| Corporate technical contractor | Contracts, indexer, public interface, and monitoring, without ownership or unilateral control of support funds |
 | Supporter community | Advisory voting, improvement proposals, and public verification |
 
 ## Change management
 
 Changes to production administration, addition of assets, and changes to the recipient require multisignature approval and a timelock. Emergency pauses are separated from routine changes, and every operation is recorded in an audit log.
+
+On-chain voting, multisig execution, and board resolutions have different meanings. Council results advise the board; multisig transactions technically execute an already approved decision; board resolutions constitute the NPO's legal decision. They are never treated as interchangeable.

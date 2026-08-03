@@ -17,6 +17,7 @@ contract RecoverySupportCouncil is AccessControl {
         uint64 votingEnds;
         uint64 forVotes;
         uint64 againstVotes;
+        uint256 eligibilityCutoffTokenId;
     }
 
     TamagakiSBT public immutable tamagakiSBT;
@@ -51,16 +52,20 @@ contract RecoverySupportCouncil is AccessControl {
     {
         if (votingStarts >= votingEnds) revert InvalidVotingWindow();
         proposalId = ++proposalCount;
-        proposals[proposalId] = Proposal(metadataHash, votingStarts, votingEnds, 0, 0);
+        proposals[proposalId] = Proposal(
+            metadataHash, votingStarts, votingEnds, 0, 0, tamagakiSBT.lastMintedTokenId()
+        );
         emit AdvisoryProposalCreated(proposalId, metadataHash, votingStarts, votingEnds);
     }
 
     /// @notice Casts 1-10 weighted votes. The voice-credit cost is votes squared.
-    function vote(uint256 proposalId, bool support, uint8 votes) external {
+    function vote(uint256 proposalId, uint256 eligibilityTokenId, bool support, uint8 votes) external {
         Proposal storage proposal = proposals[proposalId];
         if (block.timestamp < proposal.votingStarts || block.timestamp > proposal.votingEnds) revert VotingClosed();
         if (hasVoted[proposalId][msg.sender]) revert AlreadyVoted();
-        if (tamagakiSBT.balanceOf(msg.sender) == 0) revert NoTamagaki();
+        if (!tamagakiSBT.isValidVotingToken(msg.sender, eligibilityTokenId, proposal.eligibilityCutoffTokenId)) {
+            revert NoTamagaki();
+        }
         if (votes == 0 || votes > MAX_VOTES) revert InvalidVoteWeight();
         uint16 credits = uint16(votes) * uint16(votes);
         if (credits > VOICE_CREDITS_PER_PROPOSAL) revert InvalidVoteWeight();

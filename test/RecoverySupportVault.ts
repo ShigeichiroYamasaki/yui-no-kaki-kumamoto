@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { beforeEach, describe, it } from "node:test";
-import { keccak256, parseEther, stringToHex, zeroAddress } from "viem";
+import { keccak256, maxUint256, parseEther, stringToHex, zeroAddress } from "viem";
 import { network } from "hardhat";
 
 describe("RecoverySupportVault", async function () {
@@ -120,7 +120,7 @@ describe("RecoverySupportVault", async function () {
       "AssetNotAllowed",
     );
 
-    await fixture.vault.write.setAllowedAsset([jpyc.address, true]);
+    await fixture.vault.write.configureAsset([jpyc.address, true, maxUint256, maxUint256, maxUint256]);
     await vaultAsSupporter.write.supportERC20([
       jpyc.address,
       30_000n,
@@ -131,7 +131,15 @@ describe("RecoverySupportVault", async function () {
     ]);
 
     const batchId = keccak256(stringToHex("batch-001"));
-    await fixture.vault.write.transferBatch([batchId, jpyc.address, 30_000n]);
+    const now = (await publicClient.getBlock()).timestamp;
+    await fixture.vault.write.transferBatch([
+      batchId,
+      jpyc.address,
+      30_000n,
+      keccak256(stringToHex("support-root-001")),
+      keccak256(stringToHex("settlement-instruction-001")),
+      now + 3_600n,
+    ]);
     assert.equal(await jpyc.read.balanceOf([beneficiary.account.address]), 30_000n);
     assert.equal(await jpyc.read.balanceOf([fixture.vault.address]), 0n);
   });
@@ -157,9 +165,16 @@ describe("RecoverySupportVault", async function () {
     );
 
     const batchId = keccak256(stringToHex("batch-002"));
-    await fixture.vault.write.transferBatch([batchId, zeroAddress, parseEther("0.02")]);
+    const now = (await publicClient.getBlock()).timestamp;
+    const root = keccak256(stringToHex("support-root-002"));
+    const instruction = keccak256(stringToHex("settlement-instruction-002"));
+    await fixture.vault.write.transferBatch([
+      batchId, zeroAddress, parseEther("0.02"), root, instruction, now + 3_600n,
+    ]);
     await viem.assertions.revertWithCustomError(
-      fixture.vault.write.transferBatch([batchId, zeroAddress, parseEther("0.01")]),
+      fixture.vault.write.transferBatch([
+        batchId, zeroAddress, parseEther("0.01"), root, instruction, now + 3_600n,
+      ]),
       fixture.vault,
       "DuplicateBatch",
     );
@@ -170,7 +185,97 @@ describe("RecoverySupportVault", async function () {
         keccak256(stringToHex("batch-003")),
         zeroAddress,
         parseEther("0.01"),
+        keccak256(stringToHex("support-root-003")),
+        keccak256(stringToHex("settlement-instruction-003")),
+        now + 3_600n,
       ]),
+    );
+  });
+
+  it("records the actual received amount for fee-on-transfer assets", async () => {
+    const token = await viem.deployContract("FeeOnTransferToken");
+    await token.write.faucet([supporter.account.address, 10_000n]);
+    await fixture.vault.write.configureAsset([
+      token.address, true, maxUint256, maxUint256, maxUint256,
+    ]);
+    const tokenAsSupporter = await viem.getContractAt("FeeOnTransferToken", token.address, { client: { wallet: supporter } });
+    const vaultAsSupporter = await viem.getContractAt("RecoverySupportVault", fixture.vault.address, { client: { wallet: supporter } });
+    await tokenAsSupporter.write.approve([fixture.vault.address, 10_000n]);
+    await vaultAsSupporter.write.supportERC20([
+      token.address,
+      10_000n,
+      keccak256(stringToHex("JP")),
+      keccak256(stringToHex("message")),
+      supporter.account.address,
+      keccak256(stringToHex("metadata")),
+    ]);
+    assert.equal(await token.read.balanceOf([fixture.vault.address]), 9_900n);
+    assert.equal(await fixture.vault.read.totalReceived([token.address]), 9_900n);
+  });
+
+  it("requires self-recipient SBTs and delayed beneficiary changes", async () => {
+    const vaultAsSupporter = await viem.getContractAt("RecoverySupportVault", fixture.vault.address, { client: { wallet: supporter } });
+    await viem.assertions.revertWithCustomError(
+      vaultAsSupporter.write.supportNative([
+        keccak256(stringToHex("JP")),
+        keccak256(stringToHex("message")),
+        outsider.account.address,
+        keccak256(stringToHex("metadata")),
+      ], { value: 1n }),
+      fixture.vault,
+      "InvalidRecipient",
+    );
+
+    await fixture.vault.write.proposeBeneficiary([outsider.account.address]);
+    await viem.assertions.revertWithCustomError(
+      fixture.vault.write.executeBeneficiaryChange(),
+      fixture.vault,
+      "BeneficiaryDelayActive",
+    );
+  });
+
+  it("enforces asset caps, batch manifests, and settlement expiry", async () => {
+    const vaultAsSupporter = await viem.getContractAt("RecoverySupportVault", fixture.vault.address, { client: { wallet: supporter } });
+    await fixture.vault.write.configureAsset([zeroAddress, true, 100n, 60n, 80n]);
+    await vaultAsSupporter.write.supportNative(
+      [
+        keccak256(stringToHex("JP")),
+        keccak256(stringToHex("message")),
+        supporter.account.address,
+        keccak256(stringToHex("metadata")),
+      ],
+      { value: 100n },
+    );
+    await viem.assertions.revertWithCustomError(
+      vaultAsSupporter.write.supportNative(
+        [
+          keccak256(stringToHex("JP")),
+          keccak256(stringToHex("message-2")),
+          supporter.account.address,
+          keccak256(stringToHex("metadata-2")),
+        ],
+        { value: 1n },
+      ),
+      fixture.vault,
+      "BalanceCapExceeded",
+    );
+
+    const now = (await publicClient.getBlock()).timestamp;
+    const root = keccak256(stringToHex("support-root-capped"));
+    const instruction = keccak256(stringToHex("instruction-capped"));
+    await viem.assertions.revertWithCustomError(
+      fixture.vault.write.transferBatch([
+        keccak256(stringToHex("expired")), zeroAddress, 1n, root, instruction, now - 1n,
+      ]),
+      fixture.vault,
+      "ExpiredBatch",
+    );
+    await viem.assertions.revertWithCustomError(
+      fixture.vault.write.transferBatch([
+        keccak256(stringToHex("over-batch-cap")), zeroAddress, 61n, root, instruction, now + 3_600n,
+      ]),
+      fixture.vault,
+      "BatchCapExceeded",
     );
   });
 

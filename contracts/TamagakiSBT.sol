@@ -51,6 +51,7 @@ contract TamagakiSBT is ERC721, AccessControl {
     error TextTooLong();
     error InvalidText();
     error InvalidDecimals();
+    error EmptyText();
 
     event Locked(uint256 tokenId);
     event SupportStatusUpdated(uint256 indexed tokenId, SupportStatus previousStatus, SupportStatus newStatus);
@@ -86,6 +87,7 @@ contract TamagakiSBT is ERC721, AccessControl {
         uint8 assetDecimals,
         bool showAmount
     ) external onlyRole(MINTER_ROLE) returns (uint256 tokenId) {
+        if (bytes(displayName).length == 0 || bytes(dedicationMessage).length == 0) revert EmptyText();
         _validateText(displayName, 72);
         _validateText(dedicationMessage, 180);
         _validateText(assetLabel, 16);
@@ -134,6 +136,19 @@ contract TamagakiSBT is ERC721, AccessControl {
     function locked(uint256 tokenId) external view returns (bool) {
         if (_ownerOf(tokenId) == address(0)) revert UnknownToken(tokenId);
         return true;
+    }
+
+    function lastMintedTokenId() external view returns (uint256) {
+        return _nextTokenId - 1;
+    }
+
+    function isValidVotingToken(address voter, uint256 tokenId, uint256 cutoffTokenId)
+        external
+        view
+        returns (bool)
+    {
+        return tokenId != 0 && tokenId <= cutoffTokenId && _ownerOf(tokenId) == voter
+            && _tamagaki[tokenId].status != SupportStatus.Invalidated;
     }
 
     function tokenURI(uint256 tokenId) public view override returns (string memory) {
