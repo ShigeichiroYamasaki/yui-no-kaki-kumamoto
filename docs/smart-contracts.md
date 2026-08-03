@@ -47,7 +47,7 @@
 
 | フィールド | 型 | 制限・意味 |
 |---|---|---|
-| `displayName` | `string` | 最大72 UTF-8 bytes。初期値は匿名を推奨 |
+| `displayName` | `string` | 最大72 UTF-8 bytes。UIでは空欄から実名または本人が決めたニックネームを入力 |
 | `dedicationMessage` | `string` | 最大180 UTF-8 bytes |
 | `assetLabel` | `string` | 最大16 UTF-8 bytes。VaultがETHまたは許可済みERC-20から設定 |
 | `amount` | `uint256` | `msg.value`またはVaultが実際に受領したtoken量。利用者入力を採用しない |
@@ -76,7 +76,7 @@ mintWithMetadata(address to, bytes32 supportId, bytes32 publicMetadataHash,
 
 ### `tokenURI`と画像
 
-画像付きtokenの`tokenURI`は`data:application/json;base64,...`です。JSONには名称、説明、`data:image/svg+xml;base64,...`形式の画像、資産・金額・Soulbound属性を含みます。SVGには玉垣の意匠、表示名、表示を選択した場合の実受領額、奉納メッセージ、token IDを合成します。したがって外部画像サーバーやIPFSが停止しても、チェーンデータだけで画像を再現できます。
+画像付きtokenの`tokenURI`は`data:application/json;base64,...`です。JSONには名称、説明、`data:image/svg+xml;base64,...`形式の画像、資産・金額・Soulbound属性を含みます。SVGは支援額にかかわらず同寸法の朱塗りの縦板とし、黒い見出し、token ID、縦書き表示名、表示を選択した場合の実受領額、奉納メッセージ、SBT証明印を合成します。多数の画像は横方向へ連続させ、熊本城を取り囲む垣根として表示します。外部画像サーバーやIPFSが停止しても、チェーンデータだけで各画像を再現できます。
 
 `publicMetadataHash`はUIが編集値から作る正規化JSONのhashで、支援前プレビューと発行結果の照合に使います。ただし同意はコントラクトだけでは検証できず、コントラクトを直接呼ぶ利用者はUIを経由しません。個人情報保護をフロントエンドだけに依存できないため、本番では画像付き関数を採用するかを別途判断します。詳細は[ADR-0005](./adr/0005-privacy-and-public-data)を参照してください。
 

@@ -170,21 +170,20 @@ contract TamagakiSBT is ERC721, AccessControl {
             ? string.concat(_formatAmount(art.amount, art.assetDecimals), " ", _escapeXml(art.assetLabel))
             : unicode"金額非公開";
         return string.concat(
-            '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 900">',
-            '<defs><linearGradient id="w" x2="1" y2="1"><stop stop-color="#f8e8bd"/><stop offset="1" stop-color="#d8b66b"/></linearGradient></defs>',
-            '<rect width="600" height="900" rx="22" fill="url(#w)"/>',
-            '<path d="M35 30H565V870H35Z" fill="none" stroke="#74551f" stroke-width="8"/>',
-            '<path d="M65 62H535V838H65Z" fill="none" stroke="#9b7938" stroke-width="2"/>',
-            unicode'<text x="300" y="120" text-anchor="middle" font-family="serif" font-size="28" fill="#272015">熊本災害支援DAO</text>',
-            unicode'<text x="300" y="180" text-anchor="middle" font-family="serif" font-size="34" fill="#272015">復興支援 玉垣</text>',
-            '<line x1="105" y1="215" x2="495" y2="215" stroke="#74551f"/>',
-            '<text x="300" y="310" text-anchor="middle" font-family="serif" font-size="52" font-weight="700" fill="#18130c">', _escapeXml(art.displayName), '</text>',
-            '<text x="300" y="405" text-anchor="middle" font-family="serif" font-size="38" fill="#18130c">', amountLine, '</text>',
-            '<line x1="105" y1="445" x2="495" y2="445" stroke="#74551f"/>',
-            '<text x="300" y="520" text-anchor="middle" font-family="serif" font-size="24" fill="#272015">', _escapeXml(art.dedicationMessage), '</text>',
-            unicode'<path d="M115 715L175 650L225 692L285 612L330 670L390 575L485 715Z" fill="none" stroke="#8c6429" stroke-width="5"/>',
-            unicode'<text x="300" y="760" text-anchor="middle" font-family="serif" font-size="22" fill="#74551f">熊本城とともに、復興の歩みを</text>',
-            '<text x="300" y="825" text-anchor="middle" font-family="serif" font-size="25" fill="#272015">Tamagaki SBT #', tokenId.toString(), '</text>',
+            '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 1000">',
+            '<defs><linearGradient id="r" x2="1"><stop stop-color="#861b13"/><stop offset=".45" stop-color="#c83c27"/><stop offset="1" stop-color="#8f1e15"/></linearGradient></defs>',
+            '<rect x="12" y="10" width="336" height="980" rx="8" fill="#68140e"/>',
+            '<rect x="20" y="18" width="320" height="964" rx="5" fill="url(#r)"/>',
+            '<path d="M34 22V978M326 22V978" stroke="#f09b75" stroke-opacity=".25" stroke-width="5"/>',
+            '<rect x="20" y="18" width="320" height="158" rx="5" fill="#151311"/>',
+            unicode'<text x="180" y="111" text-anchor="middle" font-family="serif" font-size="32" font-weight="700" letter-spacing="2" fill="#fff5dc">熊本災害支援</text>',
+            '<text x="180" y="218" text-anchor="middle" font-family="sans-serif" font-size="18" letter-spacing="3" fill="#ffd1b5">No. ', tokenId.toString(), '</text>',
+            '<text x="180" y="290" text-anchor="start" writing-mode="vertical-rl" style="text-orientation:upright" font-family="serif" font-size="34" font-weight="700" letter-spacing="4" fill="#fff7e6">', _escapeXml(art.displayName), '</text>',
+            '<line x1="48" y1="825" x2="312" y2="825" stroke="#f5b49a" stroke-opacity=".55"/>',
+            '<text x="180" y="868" text-anchor="middle" font-family="serif" font-size="19" fill="#ffe2ce">', amountLine, '</text>',
+            '<text x="180" y="914" text-anchor="middle" font-family="serif" font-size="13" fill="#ffe2ce">', _escapeXml(art.dedicationMessage), '</text>',
+            '<g fill="none" stroke="#ffd1b5" stroke-width="3"><rect x="64" y="940" width="29" height="17" rx="8" transform="rotate(-28 78 948)"/><rect x="82" y="940" width="29" height="17" rx="8" transform="rotate(28 96 948)"/></g>',
+            unicode'<text x="213" y="956" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="700" letter-spacing="2" fill="#ffd1b5">TAMAGAKI SBT</text>',
             '</svg>'
         );
     }

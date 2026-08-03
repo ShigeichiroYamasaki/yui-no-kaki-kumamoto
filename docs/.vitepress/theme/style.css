@@ -130,26 +130,27 @@
 .tamagaki-editor__form h2,.tamagaki-editor__form p { margin: 0; }
 .tamagaki-editor__form fieldset { display: flex; gap: 18px; padding: 12px; border: 1px solid var(--vp-c-divider); border-radius: 10px; }
 .tamagaki-editor__form legend,.editor-field span { font-size: 12px; font-weight: 800; }
-.editor-field { display: grid; grid-template-columns: 1fr auto; gap: 7px 10px; }
-.editor-field span { grid-column: 1 / -1; }
-.editor-field input { min-width: 0; padding: 11px; border: 1px solid var(--vp-c-divider); border-radius: 8px; color: var(--vp-c-text-1); background: var(--vp-c-bg); }
-.editor-field small { align-self: center; color: var(--vp-c-text-3); }
+.editor-field { display: grid; grid-template-columns: minmax(0,1fr); gap: 7px; }
+.editor-field input { box-sizing: border-box; width: 100%; min-width: 0; padding: 11px; border: 1px solid var(--vp-c-divider); border-radius: 8px; color: var(--vp-c-text-1); background: var(--vp-c-bg); }
+.editor-field small { display: block; color: var(--vp-c-text-3); font-size: 11px; line-height: 1.5; }
 .editor-check { display: flex; align-items: flex-start; gap: 9px; font-size: 13px; }
 .editor-consent { padding: 12px; border-radius: 9px; background: rgba(211,163,62,.12); }
 .tamagaki-editor .demo-primary { width: 100%; }
-.tamagaki-preview { position: relative; display: grid; place-items: center; min-height: 650px; overflow: hidden; padding: 26px 70px; border-radius: 18px; background: linear-gradient(#e8dec7,#c8b78f); }
-.tamagaki-preview article,.tamagaki-preview__neighbor { border: 7px solid #8d672b; outline: 2px solid #e7ca85; background: linear-gradient(145deg,#f8e9bd,#d8b66b); box-shadow: 0 18px 34px rgba(46,34,12,.2), inset 0 0 0 3px rgba(255,255,255,.3); }
-.tamagaki-preview article { z-index: 2; display: grid; width: min(100%,390px); aspect-ratio: 2 / 3; place-items: center; align-content: space-around; padding: 30px 24px; color: #251b0b; text-align: center; }
-.tamagaki-preview article header { font-family: serif; font-size: 19px; }
-.tamagaki-preview article h3 { margin: 0; font-family: serif; font-size: 25px; }
-.tamagaki-preview article strong { font-family: serif; font-size: clamp(30px,5vw,46px); }
-.tamagaki-preview article b { font-family: serif; font-size: 27px; }
-.tamagaki-preview article p { margin: 0; font-family: serif; font-size: 18px; }
-.tamagaki-preview article footer { font-family: serif; font-weight: 800; }
-.tamagaki-preview__castle { width: 100%; padding: 30px 0 12px; border-bottom: 1px solid #8d672b; font-family: serif; font-size: 23px; }
-.tamagaki-preview__neighbor { position: absolute; width: 240px; height: 520px; opacity: .58; }
-.tamagaki-preview__neighbor.left { left: -180px; transform: perspective(600px) rotateY(14deg); }
-.tamagaki-preview__neighbor.right { right: -180px; transform: perspective(600px) rotateY(-14deg); }
+.tamagaki-preview { display: grid; place-items: center; min-height: 650px; overflow: hidden; padding: 28px 0; border-radius: 18px; background: linear-gradient(#e9dfca 0 72%,#988365 72% 76%,#66523d 76%); }
+.tamagaki-preview__row { display: flex; width: max-content; align-items: flex-end; gap: 7px; padding: 0 18px 24px; border-bottom: 12px solid #30271f; transform: perspective(900px) rotateX(2deg); }
+.tamagaki-preview article,.tamagaki-preview__neighbor { position: relative; display: grid; grid-template-rows: 84px auto 1fr auto; width: 142px; height: 570px; overflow: hidden; border: 3px solid #68170f; border-radius: 5px 5px 2px 2px; color: #fff3dc; background: linear-gradient(90deg,#8f1f16,#c63d27 42%,#a6261b); box-shadow: 0 10px 18px rgba(35,20,13,.3), inset 3px 0 rgba(255,186,145,.16), inset -4px 0 rgba(67,5,4,.22); text-align: center; }
+.tamagaki-preview article { z-index: 2; }
+.tamagaki-preview article header,.tamagaki-preview__neighbor header { display: grid; place-items: center; padding: 8px 5px; color: #fff8df; background: #151311; font-family: serif; font-size: 16px; font-weight: 800; letter-spacing: .04em; }
+.tamagaki-preview__serial { padding-top: 12px; color: #ffd3b5; font-size: 10px; letter-spacing: .12em; }
+.tamagaki-preview article strong,.tamagaki-preview__neighbor strong { justify-self: center; min-height: 0; padding: 12px 0; color: #fff8e8; font-family: serif; font-size: 28px; font-weight: 700; letter-spacing: .08em; line-height: 1.05; text-orientation: upright; writing-mode: vertical-rl; }
+.tamagaki-preview__neighbor { opacity: .82; }
+.tamagaki-preview__neighbor strong { grid-row: 2 / 4; font-size: 21px; }
+.tamagaki-preview__details { display: grid; gap: 5px; padding: 10px 7px 13px; border-top: 1px solid rgba(255,235,210,.35); background: rgba(71,6,4,.18); }
+.tamagaki-preview__details b { font-family: serif; font-size: 12px; }
+.tamagaki-preview__details p { display: -webkit-box; margin: 0; overflow: hidden; color: #ffe4cf; font-family: serif; font-size: 10px; line-height: 1.4; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.tamagaki-sbt-mark { display: flex; justify-content: center; align-items: center; gap: 4px; color: #ffd7bf; font-family: sans-serif; font-size: 8px; font-weight: 700; letter-spacing: .06em; }
+.tamagaki-sbt-mark::before { content: "∞"; display: grid; width: 15px; height: 15px; place-items: center; border: 1px solid currentcolor; border-radius: 4px; font-size: 11px; line-height: 1; }
+.tamagaki-preview__neighbor .tamagaki-sbt-mark { align-self: end; padding: 10px 4px 13px; }
 .demo-launch-card { display: flex; justify-content: space-between; align-items: center; gap: 24px; margin: 26px 0 34px; padding: 22px 24px; border: 1px solid rgba(46, 189, 133, .45); border-radius: 16px; background: linear-gradient(135deg, rgba(46,189,133,.15), var(--vp-c-bg-soft)); }
 .demo-launch-card span { display: block; margin-bottom: 4px; color: var(--vp-c-brand-1); font-size: 11px; font-weight: 900; letter-spacing: .16em; }
 .demo-launch-card strong { display: block; font-size: 20px; }
@@ -222,7 +223,8 @@
   .support-trend__totals { grid-template-columns: 1fr; }
   .demo-support-grid { grid-template-columns:1fr; }
   .tamagaki-editor { grid-template-columns: 1fr; }
-  .tamagaki-preview { min-height: 560px; padding: 24px 42px; }
+  .tamagaki-preview { min-height: 560px; }
+  .tamagaki-preview article,.tamagaki-preview__neighbor { width: 122px; height: 520px; }
   .demo-launch-card { align-items: flex-start; flex-direction: column; }
   .demo-launch-card__actions { justify-content: flex-start; }
   .demo-status__section { padding: 18px 14px; }

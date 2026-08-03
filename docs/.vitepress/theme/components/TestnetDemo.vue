@@ -18,7 +18,7 @@ const account = ref<Address>();
 const assetType = ref<"ETH" | "MockJPYC">("ETH");
 const ethAmount = ref("0.001");
 const jpycAmount = ref("1000");
-const displayName = ref("匿名支援者");
+const displayName = ref("");
 const dedicationMessage = ref("熊本の復興を応援します");
 const showAmount = ref(true);
 const publicationConsent = ref(false);
@@ -158,7 +158,7 @@ async function submitSupport() {
         <p>送金前なら何度でも変更できます。送金額は実際のトランザクションからSBTへ記録されます。</p>
         <fieldset><legend>支援資産</legend><label><input v-model="assetType" type="radio" value="ETH"> ETH</label><label><input v-model="assetType" type="radio" value="MockJPYC"> MockJPYC</label></fieldset>
         <label class="editor-field"><span>支援額</span><input v-if="assetType==='ETH'" v-model="ethAmount" inputmode="decimal"><input v-else v-model="jpycAmount" inputmode="decimal"><small>{{previewAsset}}</small></label>
-        <label class="editor-field"><span>玉垣に表示する氏名</span><input v-model="displayName" maxlength="20"><small>匿名の場合は「匿名支援者」などを入力</small></label>
+        <label class="editor-field"><span>玉垣に表示する名前（ニックネーム可）</span><input v-model="displayName" maxlength="20" placeholder="例：くまもと応援団"><small>実名を公開したくない場合は、自分で決めたニックネームを入力してください。</small></label>
         <label class="editor-field"><span>メッセージ</span><input v-model="dedicationMessage" maxlength="50"><small>50文字以内</small></label>
         <label class="editor-check"><input v-model="showAmount" type="checkbox"> 玉垣に支援金額を表示する</label>
         <label class="editor-check editor-consent"><input v-model="publicationConsent" type="checkbox"> 氏名・メッセージが公開され、完全には削除できないことを理解しました</label>
@@ -166,13 +166,22 @@ async function submitSupport() {
       </form>
 
       <div class="tamagaki-preview" aria-label="玉垣SBTのプレビュー">
-        <div class="tamagaki-preview__neighbor left"></div>
-        <article>
-          <header>熊本災害支援DAO</header><h3>復興支援 玉垣</h3><strong>{{displayName || "匿名支援者"}}</strong>
-          <b>{{showAmount ? `${previewAmount} ${previewAsset}` : "金額非公開"}}</b><p>{{dedicationMessage}}</p>
-          <div class="tamagaki-preview__castle">⌁ 熊本城 ⌁</div><footer>Tamagaki SBT</footer>
-        </article>
-        <div class="tamagaki-preview__neighbor right"></div>
+        <div class="tamagaki-preview__row">
+          <div class="tamagaki-preview__neighbor"><header>熊本災害支援</header><strong>復興を願う人</strong><footer class="tamagaki-sbt-mark">TAMAGAKI SBT</footer></div>
+          <div class="tamagaki-preview__neighbor"><header>熊本災害支援</header><strong>KUMAMOTO</strong><footer class="tamagaki-sbt-mark">TAMAGAKI SBT</footer></div>
+          <article>
+            <header>熊本災害支援</header>
+            <small class="tamagaki-preview__serial">No. —</small>
+            <strong>{{displayName || "ニックネーム"}}</strong>
+            <div class="tamagaki-preview__details">
+              <b>{{showAmount ? `${previewAmount} ${previewAsset}` : "金額非公開"}}</b>
+              <p>{{dedicationMessage}}</p>
+              <footer class="tamagaki-sbt-mark">TAMAGAKI SBT</footer>
+            </div>
+          </article>
+          <div class="tamagaki-preview__neighbor"><header>熊本災害支援</header><strong>肥後の風</strong><footer class="tamagaki-sbt-mark">TAMAGAKI SBT</footer></div>
+          <div class="tamagaki-preview__neighbor"><header>熊本災害支援</header><strong>RELIEF</strong><footer class="tamagaki-sbt-mark">TAMAGAKI SBT</footer></div>
+        </div>
       </div>
     </div>
     <p class="demo-result">{{message}} <a v-if="lastTx" :href="`https://sepolia.etherscan.io/tx/${lastTx}`" target="_blank" rel="noreferrer">Explorerで確認 ↗</a><strong v-if="tokenId"> 玉垣SBT #{{tokenId.toString()}}</strong></p>

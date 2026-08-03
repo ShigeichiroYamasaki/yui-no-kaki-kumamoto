@@ -47,7 +47,7 @@ Each token stores a `supportId`, a `publicMetadataHash`, support status, and the
 
 | Field | Type | Constraint and meaning |
 |---|---|---|
-| `displayName` | `string` | Up to 72 UTF-8 bytes; anonymous is the recommended default |
+| `displayName` | `string` | Up to 72 UTF-8 bytes; the UI starts blank and requires a real name or supporter-chosen nickname |
 | `dedicationMessage` | `string` | Up to 180 UTF-8 bytes |
 | `assetLabel` | `string` | Up to 16 UTF-8 bytes; supplied by the Vault from ETH or an allowlisted ERC-20 |
 | `amount` | `uint256` | `msg.value` or the token quantity actually received by the Vault, never a user-entered display value |
@@ -76,7 +76,7 @@ Legacy `supportNative`, `supportERC20`, and `mint` functions remain for backward
 
 ### `tokenURI` and image
 
-An artwork token returns a `data:application/json;base64,...` URI. Its JSON contains a name, description, `data:image/svg+xml;base64,...` image, and Asset, Amount, and Soulbound attributes. The SVG combines the Tamagaki design, display name, actual received amount when enabled, dedication message, and token ID. It therefore remains reproducible from chain data without an external image server or IPFS.
+An artwork token returns a `data:application/json;base64,...` URI. Its JSON contains a name, description, `data:image/svg+xml;base64,...` image, and Asset, Amount, and Soulbound attributes. Every SVG uses the same tall vermilion-board dimensions regardless of amount, with a black header, token ID, vertically written display name, actual received amount when enabled, dedication message, and a small SBT attestation mark. Many tokens are presented side by side as one fence surrounding Kumamoto Castle. Each image remains reproducible from chain data without an external image server or IPFS.
 
 The UI derives `publicMetadataHash` from normalized JSON for comparing the pre-send preview with the minted result. Consent cannot be enforced by the contract itself, however, because a direct caller can bypass the UI. Production privacy must therefore not depend on the frontend alone, and adoption of metadata-enabled functions requires a separate decision under [ADR-0005](../adr/0005-privacy-and-public-data).
 
