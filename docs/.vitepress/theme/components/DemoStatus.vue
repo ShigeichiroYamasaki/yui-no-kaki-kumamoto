@@ -97,16 +97,30 @@ async function refresh() {
     const selected = network.value;
     const client = createPublicClient({ chain: selected.chain, transport: http(selected.rpcUrl) });
     const toBlock = await client.getBlockNumber();
-    const [supportLogs, mintLogs] = await Promise.all([
-      client.getLogs({ address: selected.vaultAddress, event: supportEvent, fromBlock: selected.deploymentBlock, toBlock }),
-      client.getLogs({
-        address: selected.sbtAddress,
-        event: transferEvent,
-        args: { from: zeroAddress },
-        fromBlock: selected.deploymentBlock,
-        toBlock,
-      }),
-    ]);
+    // Public RPCs commonly cap eth_getLogs block ranges. Fetch bounded chunks
+    // so a successful on-chain contribution cannot disappear from the UI as
+    // the distance from the deployment block grows.
+    const ranges: Array<{ fromBlock: bigint; toBlock: bigint }> = [];
+    const blockSpan = 2_000n;
+    for (let fromBlock = selected.deploymentBlock; fromBlock <= toBlock; fromBlock += blockSpan) {
+      const chunkEnd = fromBlock + blockSpan - 1n;
+      ranges.push({ fromBlock, toBlock: chunkEnd < toBlock ? chunkEnd : toBlock });
+    }
+    const logChunks = await Promise.all(ranges.map(async ({ fromBlock, toBlock: chunkToBlock }) => {
+      const [support, mint] = await Promise.all([
+        client.getLogs({ address: selected.vaultAddress, event: supportEvent, fromBlock, toBlock: chunkToBlock }),
+        client.getLogs({
+          address: selected.sbtAddress,
+          event: transferEvent,
+          args: { from: zeroAddress },
+          fromBlock,
+          toBlock: chunkToBlock,
+        }),
+      ]);
+      return { support, mint };
+    }));
+    const supportLogs = logChunks.flatMap((chunk) => chunk.support);
+    const mintLogs = logChunks.flatMap((chunk) => chunk.mint);
     const blockNumbers = [...new Set(supportLogs.map((log) => log.blockNumber))];
     const blocks = await Promise.all(blockNumbers.map((blockNumber) => client.getBlock({ blockNumber })));
     const timestamps = new Map(blocks.map((block) => [block.number, Number(block.timestamp)]));
