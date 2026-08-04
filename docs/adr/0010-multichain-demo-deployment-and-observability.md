@@ -66,7 +66,8 @@ addressだけをchainから切り離して識別しない。contractは`chainId:
 
 ### 5. マルチチェーン集計UI
 
-- 集計ページではEthereum SepoliaとBase Sepoliaを切り替えず同時表示する。本番もBase ETHとPolygon JPYCを同時表示する。
+- 集計ページは独立したchainカードを並べず、Ethereum SepoliaとBase Sepoliaを単一表の2行として同時表示する。本番もBase ETHとPolygon JPYCを単一表の2行として表示する。
+- 玉垣SBTはchain別ギャラリーに分割せず、全chain共通の一つのギャラリーへ統合する。各項目にchain名とglobal IDを表示する。
 - chain別の金額、件数、最終同期block、同期時刻、エラー、finalityを明示する。
 - ETHとJPYCを根拠のない為替レートで単一金額へ合算しない。必要な場合は数量を別々に表示し、合計参加件数にはchain横断重複の定義を明記する。
 - 送金フォームでは誤chain送信を防ぐため、対象chainを明示選択し、wallet署名前にchain名とchain IDを再表示する。
@@ -93,7 +94,7 @@ addressだけをchainから切り離して識別しない。contractは`chainId:
 
 ## 結果
 
-デモは公開RPCだけでも動作確認できるが、Faucet、RPC、Pages cache、外部providerの可用性を保証しない。RPC分割取得はデモの縮退策であり、本番Indexerの代替ではない。複数chainを同時表示することで全体像は分かりやすくなる一方、RPC呼出数と障害面は増えるため、chain別の独立したエラー表示と最終同期点が必要になる。
+デモは公開RPCだけでも動作確認できるが、Faucet、RPC、Pages cache、外部providerの可用性を保証しない。RPC分割取得はデモの縮退策であり、本番Indexerの代替ではない。単一表と統合ギャラリーで全体像は分かりやすくなる一方、データの出所が見えにくくなるため、各行・玉垣・履歴にchain名とglobal IDを残し、chain別の独立したエラー表示と最終同期点を提供する。
 
 ## 関連ADR
 

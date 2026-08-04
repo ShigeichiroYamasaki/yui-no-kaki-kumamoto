@@ -49,8 +49,7 @@ head:
 </div>
 
 <main class="whitepaper-home">
-  <MainnetSupportTrend locale="en" network="base" />
-  <MainnetSupportTrend locale="en" network="polygon" />
+  <MainnetSupportTrend locale="en" />
   <p class="whitepaper-hero__eyebrow">EXECUTIVE SUMMARY</p>
   <h2>From receiving support to reporting recovery.</h2>
   <p>Kumamoto Relief DAO proposes a certified NPO as legal operator and connects disaster recovery support in ETH and JPYC, non-transferable Tamagaki SBTs, conversion by a registered provider, a separate yen donation to the Kumamoto Disaster Support Account, proof of receipt, and recovery updates in one verifiable flow. It is not a tax-incentive scheme.</p>

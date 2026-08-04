@@ -11,7 +11,7 @@
 - 玉垣はERC-721とERC-5192を採用する。
 - 玉垣SBTは支援を受けたチェーンのVaultが同一transaction内で発行する。ETH支援はBase版SBT、JPYC支援はPolygon版SBTとし、単一chainへのcross-chain mintを行わない。
 - チェーン間集計はインデクサーで統合し、支援IDにチェーンIDと受付コントラクトを含める。
-- 公開画面はchainを切り替えて一方だけを見せるのではなく、chain別パネルを同時表示する。address単体ではなく`chainId:address`でcontractを識別し、別chainに同一addressが存在しても混同しない。
+- 公開画面はchainを切り替えて一方だけを見せず、単一集計表へchain別の行を並べる。玉垣SBTは全chain共通の一つのギャラリーへ統合する。address単体ではなく`chainId:address`でcontractを識別し、別chainに同一addressが存在しても混同しない。
 - SBTのglobal IDは`chainId:sbtContract:tokenId`とし、同じtoken IDが複数chainに存在しても衝突させない。
 - 受領確認・復興報告は文書本体ではなくハッシュを`RecoveryAttestationRegistry`へ記録する。
 - Ethereum Sepoliaを標準統合デモネットワーク、Base SepoliaをL2代替統合デモネットワークとする。両testnetの`MockJPYC`と玉垣SBTを本番資産・本番証明として扱わない。
@@ -27,7 +27,7 @@
 
 ## 実装状況
 
-`RecoverySupportVault`は期待chain IDと`AssetMode`をconstructorで固定する。`BaseEthRecoverySupportModule`は`8453 / NativeOnly`、`PolygonJpycRecoverySupportModule`は`137 / ERC20Only`と公式JPYCアドレスをコードで固定した。各Vaultは同じchainの`TamagakiSBT`だけへmintし、フロントエンドhelperは`chainId:sbtContract:tokenId`をglobal IDとして生成する。デモ集計はEthereum SepoliaとBase Sepoliaを同時表示する。本番デプロイ、統合Indexer、chain別finality運用は未完了である。デプロイmanifestとRPC縮退は[ADR-0010](./0010-multichain-demo-deployment-and-observability.md)に従う。
+`RecoverySupportVault`は期待chain IDと`AssetMode`をconstructorで固定する。`BaseEthRecoverySupportModule`は`8453 / NativeOnly`、`PolygonJpycRecoverySupportModule`は`137 / ERC20Only`と公式JPYCアドレスをコードで固定した。各Vaultは同じchainの`TamagakiSBT`だけへmintし、フロントエンドhelperは`chainId:sbtContract:tokenId`をglobal IDとして生成する。デモ集計は両Sepoliaを一つの表と一つのSBTギャラリーへ統合する。本番デプロイ、統合Indexer、chain別finality運用は未完了である。デプロイmanifestとRPC縮退は[ADR-0010](./0010-multichain-demo-deployment-and-observability.md)に従う。
 
 ## トレードオフ
 

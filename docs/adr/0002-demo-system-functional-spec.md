@@ -34,7 +34,9 @@
 ### D-03 ダッシュボード
 
 - UI説明デモでは、累計支援額、支援ウォレット、支援件数、国・地域数、国別分布、ランキング、14日間推移をサンプルデータで表示する。
-- 統合デモでは、Ethereum SepoliaとBase Sepoliaの`SupportReceived`イベント、玉垣SBT、支援件数をchain別パネルとして同時表示する。送金フォームだけは誤chain送信を防ぐため対象chainを明示選択する。
+- 統合デモでは、Ethereum SepoliaとBase Sepoliaの支援額・件数を単一集計表のchain別2行として表示する。chainごとの独立カードや集計画面の切替を採用しない。
+- 両chainの玉垣SBTを一つのギャラリーへ時系列統合し、各SBTへchain名とglobal IDを表示する。支援履歴も一つの表へ統合する。
+- 送金フォームだけは誤chain送信を防ぐため対象chainを明示選択する。
 - 公開RPCの`eth_getLogs`範囲上限に合わせて分割取得し、取得失敗を0件と表示しない。詳細は[ADR-0010](./0010-multichain-demo-deployment-and-observability.md)に従う。
 - テストネット集計は実際の募金額と合算せず、テストデータであることを明示する。
 - 円換算値を表示する場合は説明用参考値であり、受領額ではないことを明示する。

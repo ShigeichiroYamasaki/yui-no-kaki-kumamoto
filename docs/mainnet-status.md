@@ -17,11 +17,9 @@
 
 ## チェーン別の本番集計
 
-本番開始後は切替操作を必要とせず、BaseのETHとPolygonのJPYCを同じページに常時表示します。異なる資産を恣意的な換算レートで合算せず、資産額と支援件数をチェーン別に検証できます。
+本番開始後は切替操作を必要とせず、BaseのETHとPolygonのJPYCを一つの表の2行として常時表示します。異なる資産を恣意的な換算レートで合算せず、資産額と支援件数をチェーン別に検証できます。
 
-<MainnetSupportTrend locale="ja" network="base" />
-
-<MainnetSupportTrend locale="ja" network="polygon" />
+<MainnetSupportTrend locale="ja" />
 
 ## テストネットとは分離して表示します
 

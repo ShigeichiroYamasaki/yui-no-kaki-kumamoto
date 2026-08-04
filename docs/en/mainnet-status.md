@@ -17,11 +17,9 @@ The production contracts have not been deployed to mainnet, and operating agreem
 
 ## Production totals by chain
 
-After launch, Base ETH and Polygon JPYC will remain visible together without a network switch. Amounts are reported separately instead of being combined through an arbitrary exchange rate, while contribution counts remain independently verifiable per chain.
+After launch, Base ETH and Polygon JPYC will appear as two rows of one table without a network switch. Amounts are reported separately instead of being combined through an arbitrary exchange rate, while contribution counts remain independently verifiable per chain.
 
-<MainnetSupportTrend locale="en" network="base" />
-
-<MainnetSupportTrend locale="en" network="polygon" />
+<MainnetSupportTrend locale="en" />
 
 ## Mainnet and testnet totals are separate
 
