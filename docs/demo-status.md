@@ -1,7 +1,9 @@
 # Sepolia / Base Sepolia デモ集計
 
-Ethereum Sepoliaと、設定済みの場合はBase Sepoliaのデモコントラクト、支援イベント、玉垣SBTをネットワーク別に表示します。表示データは選択したテストネットのRPCから直接取得し、異なるchainの金額やSBTを合算しません。
+Ethereum SepoliaとBase Sepoliaのデモコントラクト、支援イベント、玉垣SBTを同じページに常時表示します。各パネルは対応するRPCから直接取得し、異なるchainの金額やSBTを混同しません。
 
 [支援を試す](./demo.md) · [初心者向けウォレットガイド](./wallet-experience.md)
 
-<DemoStatus locale="ja" />
+<DemoStatus locale="ja" network-key="sepolia" />
+
+<DemoStatus locale="ja" network-key="baseSepolia" />

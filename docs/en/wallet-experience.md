@@ -32,7 +32,7 @@ MockJPYC is not official JPYC; it is a valueless test token used only by this pr
 
 ### Using Base Sepolia
 
-Base Sepolia uses chain ID `84532` (`0x14a34`) and [BaseScan](https://sepolia.basescan.org/). Once the Base Sepolia contract addresses are configured for the published demo, a network selector appears on the contribution and data pages.
+Base Sepolia uses chain ID `84532` (`0x14a34`) and [BaseScan](https://sepolia.basescan.org/). Once the Base Sepolia contract addresses are configured, the contribution page provides an explicit network selector while the data page shows Ethereum Sepolia and Base Sepolia together.
 
 1. Select `Base Sepolia` on the contribution page.
 2. Connect the wallet; if necessary, approve the request containing the chain ID, RPC, and explorer.

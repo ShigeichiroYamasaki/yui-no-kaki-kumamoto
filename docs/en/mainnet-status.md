@@ -15,8 +15,16 @@ The production contracts have not been deployed to mainnet, and operating agreem
   </dl>
 </div>
 
+## Production totals by chain
+
+After launch, Base ETH and Polygon JPYC will remain visible together without a network switch. Amounts are reported separately instead of being combined through an arbitrary exchange rate, while contribution counts remain independently verifiable per chain.
+
+<MainnetSupportTrend locale="en" network="base" />
+
+<MainnetSupportTrend locale="en" network="polygon" />
+
 ## Mainnet and testnet totals are separate
 
-Sepolia ETH, MockJPYC, and Tamagaki SBTs are only for technical validation and are never included in the production total. See [Sepolia demo data](./demo-status.md) for test transactions.
+Sepolia ETH, MockJPYC, and Tamagaki SBTs are only for technical validation and are never included in the production total. See [Ethereum and Base Sepolia demo data](./demo-status.md) for test transactions.
 
 Before production begins, the network, official Vault, accepted assets, receiving entity, and deployment block will be published through multiple official channels. This page will then become the canonical production totals view.

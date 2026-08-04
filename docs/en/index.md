@@ -49,7 +49,8 @@ head:
 </div>
 
 <main class="whitepaper-home">
-  <MainnetSupportTrend locale="en" />
+  <MainnetSupportTrend locale="en" network="base" />
+  <MainnetSupportTrend locale="en" network="polygon" />
   <p class="whitepaper-hero__eyebrow">EXECUTIVE SUMMARY</p>
   <h2>From receiving support to reporting recovery.</h2>
   <p>Kumamoto Relief DAO proposes a certified NPO as legal operator and connects disaster recovery support in ETH and JPYC, non-transferable Tamagaki SBTs, conversion by a registered provider, a separate yen donation to the Kumamoto Disaster Support Account, proof of receipt, and recovery updates in one verifiable flow. It is not a tax-incentive scheme.</p>
@@ -75,7 +76,7 @@ head:
     <a href="./prefecture-operations"><b>OPS</b><span>NPO and prefectural key and settlement operations</span></a>
     <a href="./smart-contracts"><b>CODE</b><span>Smart contracts and source code</span></a>
     <a href="./mainnet-status"><b>MAINNET</b><span>Production fundraising status</span></a>
-    <a href="./demo-status"><b>TESTNETS</b><span>Switch between Ethereum and Base Sepolia data</span></a>
+    <a href="./demo-status"><b>TESTNETS</b><span>View Ethereum and Base Sepolia data together</span></a>
   </section>
   <div class="scope-note"><strong>Current status</strong><br>This document is a proposal and technical prototype prepared before coordination with relevant parties. The demo is not connected to real funds, real JPYC, or any Kumamoto Prefecture system, and does not indicate endorsement by Kumamoto Prefecture.</div>
 </main>

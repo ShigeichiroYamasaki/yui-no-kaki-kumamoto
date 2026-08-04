@@ -50,7 +50,8 @@ head:
 </div>
 
 <main class="whitepaper-home">
-  <MainnetSupportTrend locale="ja" />
+  <MainnetSupportTrend locale="ja" network="base" />
+  <MainnetSupportTrend locale="ja" network="polygon" />
   <p class="whitepaper-hero__eyebrow">EXECUTIVE SUMMARY</p>
   <h2>支援の入口から、復興の報告まで。</h2>
   <p>熊本災害支援DAOは、認定NPOを法的運営主体とし、ETH・JPYCによる災害復興支援、譲渡不能な玉垣SBT、登録金融・決済事業者を介した円転と熊本県災害支援口座への円貨寄附、受領証跡、復興事業の進捗報告を一つの検証可能な流れとして接続する構想です。税制優遇を提供する仕組みではなく、インフラ復旧を目的とする純粋な復興支援を対象とします。</p>
@@ -76,7 +77,7 @@ head:
     <a href="./prefecture-operations"><b>OPS</b><span>認定NPOと熊本県の資金移転・鍵管理手順</span></a>
     <a href="./smart-contracts"><b>CODE</b><span>スマートコントラクトとソースコード</span></a>
     <a href="./mainnet-status"><b>MAINNET</b><span>本番支援の受付状況</span></a>
-    <a href="./demo-status"><b>TESTNETS</b><span>Ethereum / Base Sepoliaを切り替えて支援・SBTを確認</span></a>
+    <a href="./demo-status"><b>TESTNETS</b><span>Ethereum / Base Sepoliaの支援・SBTを同時表示</span></a>
     <a href="./adr/"><b>ADR</b><span>設計判断の一覧と原記録を確認</span></a>
   </section>
   <div class="scope-note"><strong>現在の位置づけ</strong><br>本書は関係者協議前の提案・技術検証版です。掲載されたデモは実資金、実JPYC、熊本県のシステムへ接続しておらず、熊本県による承認を示すものではありません。</div>

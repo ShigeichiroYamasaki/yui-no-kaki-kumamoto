@@ -9,15 +9,11 @@ import {
   type Address,
   type Hash,
 } from "viem";
-import { availableDemoNetworks, demoNetworks, type DemoNetworkKey } from "../testnetNetworks";
+import { demoNetworks, type DemoNetworkKey } from "../testnetNetworks";
 import { tamagakiGlobalId } from "../multichainIdentity";
 
-const props = defineProps<{ locale: "ja" | "en" }>();
-const preferredNetwork = import.meta.env.VITE_RECOVERY_DEFAULT_NETWORK as DemoNetworkKey | undefined;
-const defaultNetwork: DemoNetworkKey = preferredNetwork && demoNetworks[preferredNetwork]?.configured
-  ? preferredNetwork
-  : demoNetworks.baseSepolia.configured ? "baseSepolia" : "sepolia";
-const networkKey = ref<DemoNetworkKey>(defaultNetwork);
+const props = defineProps<{ locale: "ja" | "en"; networkKey: DemoNetworkKey }>();
+const networkKey = ref<DemoNetworkKey>(props.networkKey);
 const network = computed(() => demoNetworks[networkKey.value]);
 const addresses = computed(() => [
   ["RecoverySupportVault", network.value.vaultAddress],
@@ -49,7 +45,7 @@ type SupportRow = {
 };
 type SbtRow = { tokenId: bigint; owner: Address; txHash: Hash; blockNumber: bigint; globalId: string; image?: string };
 
-const loading = ref(true);
+const loading = ref(network.value.configured);
 const error = ref("");
 const supports = ref<SupportRow[]>([]);
 const sbts = ref<SbtRow[]>([]);
@@ -65,11 +61,6 @@ const supporterCount = computed(() => new Set(supports.value.map((row) => row.su
 
 function short(value: string) {
   return `${value.slice(0, 8)}…${value.slice(-6)}`;
-}
-function selectNetwork(key: DemoNetworkKey) {
-  if (networkKey.value === key) return;
-  networkKey.value = key;
-  void refresh();
 }
 function amount(row: SupportRow) {
   const decimals = row.asset === "ETH" ? 18 : network.value.jpycDecimals;
@@ -89,6 +80,7 @@ const explorer = (kind: "address" | "tx" | "token", value: string, tokenId?: big
 };
 
 async function refresh() {
+  if (!network.value.configured) return;
   loading.value = true;
   error.value = "";
   supports.value = [];
@@ -173,21 +165,9 @@ onMounted(() => void refresh());
 
 <template>
   <div class="demo-status">
-    <nav v-if="availableDemoNetworks.length > 1" class="testnet-switcher" :aria-label="locale === 'ja' ? '表示するテストネット' : 'Test network to display'">
-      <span class="testnet-switcher__label">{{ locale === "ja" ? "表示ネットワーク" : "Network" }}</span>
-      <div class="testnet-switcher__options">
-        <button
-          v-for="item in availableDemoNetworks"
-          :key="item.key"
-          type="button"
-          :class="{ 'is-active': networkKey === item.key }"
-          :aria-pressed="networkKey === item.key"
-          @click="selectNetwork(item.key)"
-        >
-          <span>{{ networkKey === item.key ? "✓ " : "" }}{{ item.label }}</span>
-        </button>
-      </div>
-    </nav>
+    <h2 class="demo-chain-title">{{network.label}} · Chain ID {{network.chain.id}}</h2>
+    <div v-if="!network.configured" class="support-trend__empty"><strong>{{ locale === "ja" ? "このテストネットは未設定です" : "This testnet is not configured" }}</strong></div>
+    <template v-else>
     <div class="demo-warning">
       <b>{{network.label.toUpperCase()}} TESTNET</b>
       {{ locale === "ja" ? "表示されるETH・MockJPYC・SBTに実資産としての価値はありません。" : "The displayed ETH, MockJPYC, and SBTs have no real-world asset value." }}
@@ -255,5 +235,6 @@ onMounted(() => void refresh());
       </div>
       <div v-if="!supports.length && !loading" class="support-trend__empty">{{ locale === "ja" ? "支援イベントはまだありません。デモページから最初の支援を送信できます。" : "No contribution events yet. Submit the first test contribution from the demo page." }}</div>
     </section>
+    </template>
   </div>
 </template>

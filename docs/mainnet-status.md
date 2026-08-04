@@ -15,8 +15,16 @@
   </dl>
 </div>
 
+## チェーン別の本番集計
+
+本番開始後は切替操作を必要とせず、BaseのETHとPolygonのJPYCを同じページに常時表示します。異なる資産を恣意的な換算レートで合算せず、資産額と支援件数をチェーン別に検証できます。
+
+<MainnetSupportTrend locale="ja" network="base" />
+
+<MainnetSupportTrend locale="ja" network="polygon" />
+
 ## テストネットとは分離して表示します
 
-Sepolia上のETH、MockJPYC、玉垣SBTは技術検証専用であり、この本番支援総額には含めません。テスト取引は[Sepoliaデモ集計](./demo-status.md)で確認できます。
+Sepolia上のETH、MockJPYC、玉垣SBTは技術検証専用であり、この本番支援総額には含めません。テスト取引は[Ethereum / Base Sepoliaデモ集計](./demo-status.md)で確認できます。
 
 本番受付を開始する際は、ネットワーク、公式Vault、利用可能資産、受領主体、開始ブロックを複数の公式経路で公表し、このページだけを本番集計の基準画面とします。
