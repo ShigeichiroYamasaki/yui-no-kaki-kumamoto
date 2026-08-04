@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref } from "vue";
 import {
   createPublicClient, createWalletClient, custom, decodeEventLog, formatUnits, http,
   keccak256, parseEther, parseUnits, stringToHex, zeroHash,
@@ -28,6 +28,9 @@ const message = ref("");
 const lastTx = ref<Hash>();
 const tokenId = ref<bigint>();
 const balance = ref("0");
+const nextFaucetAt = ref(0n);
+const currentTimestamp = ref(Math.floor(Date.now() / 1000));
+let clock: number | undefined;
 const publicClient = () => createPublicClient({ chain: network.value.chain, transport: http(network.value.rpcUrl) });
 
 const vaultAbi = [
@@ -45,6 +48,7 @@ const tokenAbi = [
   {type:"function",name:"faucet",stateMutability:"nonpayable",inputs:[],outputs:[]},
   {type:"function",name:"approve",stateMutability:"nonpayable",inputs:[{name:"spender",type:"address"},{name:"amount",type:"uint256"}],outputs:[{type:"bool"}]},
   {type:"function",name:"balanceOf",stateMutability:"view",inputs:[{name:"account",type:"address"}],outputs:[{type:"uint256"}]},
+  {type:"function",name:"nextFaucetAt",stateMutability:"view",inputs:[{name:"account",type:"address"}],outputs:[{type:"uint256"}]},
 ] as const;
 
 const shortAccount = computed(() => account.value ? `${account.value.slice(0,6)}…${account.value.slice(-4)}` : "");
@@ -54,6 +58,16 @@ const canSubmit = computed(() => Boolean(
   metadataReady.value && network.value.configured && account.value && publicationConsent.value && displayName.value.trim()
   && dedicationMessage.value.trim() && !busy.value,
 ));
+const canUseFaucet = computed(() => Boolean(
+  account.value && !busy.value && BigInt(currentTimestamp.value) >= nextFaucetAt.value,
+));
+const faucetLabel = computed(() => {
+  if (!account.value) return "ウォレット接続後に受け取れます";
+  if (BigInt(currentTimestamp.value) < nextFaucetAt.value) {
+    return `次回 ${new Date(Number(nextFaucetAt.value) * 1000).toLocaleString("ja-JP")}`;
+  }
+  return "MockJPYCを100,000受け取る";
+});
 
 function provider(): EIP1193Provider {
   const p = (window as typeof window & {ethereum?:EIP1193Provider}).ethereum;
@@ -84,8 +98,12 @@ async function connect() {
 }
 async function refreshBalance() {
   if (!account.value) return;
-  const value = await publicClient().readContract({address:network.value.jpycAddress,abi:tokenAbi,functionName:"balanceOf",args:[account.value]});
+  const [value, availableAt] = await Promise.all([
+    publicClient().readContract({address:network.value.jpycAddress,abi:tokenAbi,functionName:"balanceOf",args:[account.value]}),
+    publicClient().readContract({address:network.value.jpycAddress,abi:tokenAbi,functionName:"nextFaucetAt",args:[account.value]}),
+  ]);
   balance.value = Number(formatUnits(value, network.value.jpycDecimals)).toLocaleString();
+  nextFaucetAt.value = availableAt;
 }
 async function run(label:string, action:()=>Promise<Hash>) {
   busy.value = label;
@@ -101,7 +119,7 @@ async function run(label:string, action:()=>Promise<Hash>) {
         if (decoded.eventName === "SupportReceived") tokenId.value = decoded.args.tokenId;
       } catch { /* unrelated log */ }
     }
-    message.value = "支援と玉垣SBTの発行が完了しました";
+    message.value = label === "faucet" ? "MockJPYCを受け取りました" : "支援と玉垣SBTの発行が完了しました";
     await refreshBalance();
   } catch (cause) { message.value = cause instanceof Error ? cause.message : String(cause); }
   finally { busy.value = ""; }
@@ -152,6 +170,7 @@ function changeNetwork() {
   balance.value = "0";
   lastTx.value = undefined;
   tokenId.value = undefined;
+  nextFaucetAt.value = 0n;
   message.value = `${network.value.label}を選択しました。ウォレットを接続してください`;
 }
 function selectNetwork(key: DemoNetworkKey) {
@@ -159,6 +178,10 @@ function selectNetwork(key: DemoNetworkKey) {
   networkKey.value = key;
   changeNetwork();
 }
+onMounted(() => {
+  clock = window.setInterval(() => { currentTimestamp.value = Math.floor(Date.now() / 1000); }, 1_000);
+});
+onUnmounted(() => { if (clock !== undefined) window.clearInterval(clock); });
 </script>
 
 <template>
@@ -175,7 +198,7 @@ function selectNetwork(key: DemoNetworkKey) {
     <div v-if="!metadataReady" class="metadata-upgrade-notice"><strong>画像メタデータ対応版の再デプロイ待ちです</strong><span>編集とプレビューは利用できますが、新しいコントラクトアドレスを設定するまで送金ボタンは無効です。</span></div>
 
     <button class="demo-primary" @click="connect">{{ account ? shortAccount : "ウォレットを接続" }}</button>
-    <div class="demo-faucets"><a :href="network.faucetUrl" target="_blank" rel="noreferrer">{{network.label}} ETH Faucet一覧 ↗</a><button :disabled="!account||!!busy" @click="faucet">MockJPYCを100,000受け取る</button><span>残高 {{balance}} mJPYC</span></div>
+    <div class="demo-faucets"><a :href="network.faucetUrl" target="_blank" rel="noreferrer">{{network.label}} ETH Faucet一覧 ↗</a><button :disabled="!canUseFaucet" @click="faucet">{{faucetLabel}}</button><span>残高 {{balance}} mJPYC</span></div>
 
     <div class="tamagaki-editor">
       <form class="tamagaki-editor__form" @submit.prevent="submitSupport">
@@ -192,8 +215,6 @@ function selectNetwork(key: DemoNetworkKey) {
 
       <div class="tamagaki-preview" aria-label="玉垣SBTのプレビュー">
         <div class="tamagaki-preview__row">
-          <div class="tamagaki-preview__neighbor"><header>熊本災害支援</header><strong>復興を願う人</strong><footer class="tamagaki-sbt-mark">TAMAGAKI SBT</footer></div>
-          <div class="tamagaki-preview__neighbor"><header>熊本災害支援</header><strong>KUMAMOTO</strong><footer class="tamagaki-sbt-mark">TAMAGAKI SBT</footer></div>
           <article>
             <header>熊本災害支援</header>
             <small class="tamagaki-preview__serial">No. —</small>
@@ -204,8 +225,6 @@ function selectNetwork(key: DemoNetworkKey) {
               <footer class="tamagaki-sbt-mark">TAMAGAKI SBT</footer>
             </div>
           </article>
-          <div class="tamagaki-preview__neighbor"><header>熊本災害支援</header><strong>肥後の風</strong><footer class="tamagaki-sbt-mark">TAMAGAKI SBT</footer></div>
-          <div class="tamagaki-preview__neighbor"><header>熊本災害支援</header><strong>RELIEF</strong><footer class="tamagaki-sbt-mark">TAMAGAKI SBT</footer></div>
         </div>
       </div>
     </div>

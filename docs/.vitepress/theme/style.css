@@ -137,7 +137,7 @@
 .editor-consent { padding: 12px; border-radius: 9px; background: rgba(211,163,62,.12); }
 .tamagaki-editor .demo-primary { width: 100%; }
 .tamagaki-preview { display: grid; place-items: center; min-height: 650px; overflow: hidden; padding: 28px 0; border-radius: 18px; background: linear-gradient(#e9dfca 0 72%,#988365 72% 76%,#66523d 76%); }
-.tamagaki-preview__row { display: flex; width: max-content; align-items: flex-end; gap: 7px; padding: 0 18px 24px; border-bottom: 12px solid #30271f; transform: perspective(900px) rotateX(2deg); }
+.tamagaki-preview__row { display: flex; width: 100%; justify-content: center; align-items: flex-end; padding: 0 18px 24px; border-bottom: 12px solid #30271f; transform: perspective(900px) rotateX(2deg); }
 .tamagaki-preview article,.tamagaki-preview__neighbor { position: relative; display: grid; grid-template-rows: 84px auto 1fr auto; width: 142px; height: 570px; overflow: hidden; border: 3px solid #68170f; border-radius: 5px 5px 2px 2px; color: #fff3dc; background: linear-gradient(90deg,#8f1f16,#c63d27 42%,#a6261b); box-shadow: 0 10px 18px rgba(35,20,13,.3), inset 3px 0 rgba(255,186,145,.16), inset -4px 0 rgba(67,5,4,.22); text-align: center; }
 .tamagaki-preview article { z-index: 2; }
 .tamagaki-preview article header,.tamagaki-preview__neighbor header { display: grid; place-items: center; padding: 8px 5px; color: #fff8df; background: #151311; font-family: serif; font-size: 16px; font-weight: 800; letter-spacing: .04em; }
