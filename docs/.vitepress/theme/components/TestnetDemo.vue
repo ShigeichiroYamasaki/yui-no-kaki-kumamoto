@@ -66,7 +66,7 @@ const faucetLabel = computed(() => {
   if (BigInt(currentTimestamp.value) < nextFaucetAt.value) {
     return `次回 ${new Date(Number(nextFaucetAt.value) * 1000).toLocaleString("ja-JP")}`;
   }
-  return "MockJPYCを100,000受け取る";
+  return "JPYC Faucetから入金する";
 });
 
 function provider(): EIP1193Provider {
