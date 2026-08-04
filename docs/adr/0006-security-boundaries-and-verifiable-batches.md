@@ -36,6 +36,7 @@
 - 本番画面はチェーン全履歴をブラウザから直接集計しない。
 - 複数RPC、再編成対応インデクサー、検証可能な集計DB、読み取り専用APIを使用する。
 - 確認中と確定済み、最終同期ブロック、最終同期時刻、障害状態を公開する。
+- デモで採用するRPC上限以下の分割`eth_getLogs`は縮退策であり、本番Indexerの代替にしない。chain別RPC、manifest、障害表示は[ADR-0010](./0010-multichain-demo-deployment-and-observability.md)に従う。
 
 ### 参考投票の隔離
 

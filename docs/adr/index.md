@@ -13,6 +13,7 @@
 | [ADR-0007](./0007-threat-model-and-human-error-controls.md) | Proposed | 攻撃、操作ミス、内部不正を共通制御で抑止する脅威モデル |
 | [ADR-0008](./0008-certified-npo-joint-operation.md) | Proposed | 認定NPOを法的主体とする共同運営、資金帰属、規制金融機能の分離 |
 | [ADR-0009](./0009-l2-selection-and-escape-hatch.md) | Proposed | L2の選定基準、finality表示、L1からの資金退出と訓練 |
+| [ADR-0010](./0010-multichain-demo-deployment-and-observability.md) | Accepted | マルチチェーンデモのデプロイ、RPC、Faucet、Pages、集計UIの再発防止 |
 
 ## 状態の意味
 
