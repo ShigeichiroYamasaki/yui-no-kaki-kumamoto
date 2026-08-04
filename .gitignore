@@ -48,3 +48,20 @@ next-env.d.ts
 /ignition/parameters/polygon-mainnet.json
 /docs/.vitepress/cache/
 /docs/.vitepress/dist/
+
+# Local deployment parameters
+/ignition/parameters/production.json
+
+# Local secrets
+.env
+.env.local
+.env.production
+.env.*.local
+
+# Hardhat deployment outputs
+/ignition/deployments/
+
+# Editor and OS files
+.DS_Store
+.vscode/
+.idea/
