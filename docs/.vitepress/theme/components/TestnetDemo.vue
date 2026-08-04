@@ -8,7 +8,10 @@ import {
 import { availableDemoNetworks, demoNetworks, type DemoNetworkKey } from "../testnetNetworks";
 
 const preferredNetwork = import.meta.env.VITE_RECOVERY_DEFAULT_NETWORK as DemoNetworkKey | undefined;
-const networkKey = ref<DemoNetworkKey>(preferredNetwork && demoNetworks[preferredNetwork]?.configured ? preferredNetwork : "sepolia");
+const defaultNetwork: DemoNetworkKey = preferredNetwork && demoNetworks[preferredNetwork]?.configured
+  ? preferredNetwork
+  : demoNetworks.baseSepolia.configured ? "baseSepolia" : "sepolia";
+const networkKey = ref<DemoNetworkKey>(defaultNetwork);
 const network = computed(() => demoNetworks[networkKey.value]);
 const metadataReady = computed(() => network.value.metadataVersion === "2");
 
@@ -161,10 +164,10 @@ function selectNetwork(key: DemoNetworkKey) {
 <template>
   <section class="testnet-demo">
     <nav v-if="availableDemoNetworks.length > 1" class="testnet-switcher" aria-label="支援に使用するテストネット">
-      <div class="testnet-switcher__intro"><b>支援に使用するテストネットを選択</b><span>各ネットワークのテスト資産とSBTは別々に管理されます</span></div>
+      <span class="testnet-switcher__label">支援ネットワーク</span>
       <div class="testnet-switcher__options">
         <button v-for="item in availableDemoNetworks" :key="item.key" type="button" :class="{ 'is-active': networkKey === item.key }" :aria-pressed="networkKey === item.key" @click="selectNetwork(item.key)">
-          <span>{{item.label}}</span><small>Chain ID {{item.chain.id}}</small><b>{{networkKey === item.key ? "選択中" : "選択する"}}</b>
+          <span>{{networkKey === item.key ? "✓ " : ""}}{{item.label}}</span>
         </button>
       </div>
     </nav>

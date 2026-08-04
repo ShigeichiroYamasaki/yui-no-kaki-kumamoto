@@ -14,7 +14,10 @@ import { tamagakiGlobalId } from "../multichainIdentity";
 
 const props = defineProps<{ locale: "ja" | "en" }>();
 const preferredNetwork = import.meta.env.VITE_RECOVERY_DEFAULT_NETWORK as DemoNetworkKey | undefined;
-const networkKey = ref<DemoNetworkKey>(preferredNetwork && demoNetworks[preferredNetwork]?.configured ? preferredNetwork : "sepolia");
+const defaultNetwork: DemoNetworkKey = preferredNetwork && demoNetworks[preferredNetwork]?.configured
+  ? preferredNetwork
+  : demoNetworks.baseSepolia.configured ? "baseSepolia" : "sepolia";
+const networkKey = ref<DemoNetworkKey>(defaultNetwork);
 const network = computed(() => demoNetworks[networkKey.value]);
 const addresses = computed(() => [
   ["RecoverySupportVault", network.value.vaultAddress],
@@ -157,10 +160,7 @@ onMounted(() => void refresh());
 <template>
   <div class="demo-status">
     <nav v-if="availableDemoNetworks.length > 1" class="testnet-switcher" :aria-label="locale === 'ja' ? '表示するテストネット' : 'Test network to display'">
-      <div class="testnet-switcher__intro">
-        <b>{{ locale === "ja" ? "表示するテストネットを選択" : "Choose a test network" }}</b>
-        <span>{{ locale === "ja" ? "ネットワークごとに支援額とSBTを個別表示します" : "Contributions and SBTs are shown separately for each network" }}</span>
-      </div>
+      <span class="testnet-switcher__label">{{ locale === "ja" ? "表示ネットワーク" : "Network" }}</span>
       <div class="testnet-switcher__options">
         <button
           v-for="item in availableDemoNetworks"
@@ -170,9 +170,7 @@ onMounted(() => void refresh());
           :aria-pressed="networkKey === item.key"
           @click="selectNetwork(item.key)"
         >
-          <span>{{ item.label }}</span>
-          <small>Chain ID {{ item.chain.id }}</small>
-          <b>{{ networkKey === item.key ? (locale === "ja" ? "表示中" : "Selected") : (locale === "ja" ? "表示する" : "View") }}</b>
+          <span>{{ networkKey === item.key ? "✓ " : "" }}{{ item.label }}</span>
         </button>
       </div>
     </nav>
