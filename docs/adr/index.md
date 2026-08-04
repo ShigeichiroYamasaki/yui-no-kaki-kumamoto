@@ -7,7 +7,7 @@
 | [ADR-0001](./0001-production-system-functional-spec.md) | Proposed | 本番系の機能仕様 |
 | [ADR-0002](./0002-demo-system-functional-spec.md) | Accepted | UI説明デモとEthereum Sepolia統合デモの機能仕様 |
 | [ADR-0003](./0003-fund-governance-and-custody.md) | Proposed | 資金管理とDAOガバナンスの分離 |
-| [ADR-0004](./0004-chain-sbt-and-attestation.md) | Proposed | チェーン、SBT、アテステーション |
+| [ADR-0004](./0004-chain-sbt-and-attestation.md) | Proposed | Base ETH、Polygon JPYC、マルチチェーンSBT、アテステーション |
 | [ADR-0005](./0005-privacy-and-public-data.md) | Accepted | 個人情報と公開データ |
 | [ADR-0006](./0006-security-boundaries-and-verifiable-batches.md) | Proposed | セキュリティ境界、資金滞留、検証可能な送金バッチ |
 | [ADR-0007](./0007-threat-model-and-human-error-controls.md) | Proposed | 攻撃、操作ミス、内部不正を共通制御で抑止する脅威モデル |

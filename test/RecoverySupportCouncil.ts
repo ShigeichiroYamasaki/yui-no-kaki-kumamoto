@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { keccak256, parseEther, stringToHex } from "viem";
+import { keccak256, maxUint256, parseEther, stringToHex } from "viem";
 import { network } from "hardhat";
 
 describe("RecoverySupportCouncil", async function () {
@@ -15,6 +15,12 @@ describe("RecoverySupportCouncil", async function () {
       admin.account.address,
       beneficiary.account.address,
       sbt.address,
+      0,
+      0n,
+      true,
+      maxUint256,
+      maxUint256,
+      maxUint256,
     ]);
     const council = await viem.deployContract("RecoverySupportCouncil", [admin.account.address, sbt.address]);
     await sbt.write.grantRole([MINTER_ROLE, vault.address]);

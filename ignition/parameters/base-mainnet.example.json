@@ -1,12 +1,9 @@
 {
-  "RecoverySupportModule": {
+  "BaseEthRecoverySupportModule": {
     "admin": "0x0000000000000000000000000000000000000001",
     "beneficiary": "0x0000000000000000000000000000000000000002",
     "reporter": "0x0000000000000000000000000000000000000003",
-    "baseTokenURI": "ipfs://REPLACE_WITH_PRODUCTION_CID/",
-    "assetMode": 0,
-    "expectedChainId": 0,
-    "nativeAssetAllowed": true,
+    "baseTokenURI": "ipfs://REPLACE_WITH_BASE_METADATA_CID/",
     "nativeBalanceCap": "10000000000000000000",
     "nativeBatchCap": "2000000000000000000",
     "nativeDailyCap": "5000000000000000000"

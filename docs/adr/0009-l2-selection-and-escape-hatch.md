@@ -5,11 +5,11 @@
 
 ## 背景
 
-少額支援とSBT発行の手数料を抑えるためEVM L2が有力である。一方、sequencer、Data Availability、proof system、canonical bridge、upgrade authorityはL1直接利用にはない障害・信頼境界を増やす。通常のRPC切替や運営者のpauseだけでは、sequencerが停止・検閲した場合にVault資金をL1へ戻せない。
+ETHの少額支援とSBT発行の手数料を抑えるためBase Mainnetを本番候補とする。一方、sequencer、Data Availability、proof system、canonical bridge、upgrade authorityはL1直接利用にはない障害・信頼境界を増やす。通常のRPC切替や運営者のpauseだけでは、sequencerが停止・検閲した場合にVault資金をL1へ戻せない。本ADRはBase上のETH経路を対象とし、Polygon上のJPYCには適用しない。
 
 ## 決定
 
-1. 本番チェーンは未確定とし、公式JPYCと登録交換・決済事業者が正式対応するEVM L2から選定する。非公式ブリッジ資産は受け付けない。
+1. ETH受付の本番候補をBase Mainnetとし、JPYCはADR-0004に基づきPolygon PoSの別Vaultで受け付ける。
 2. 選定時に、L1 Data Availability、forced transaction、canonical withdrawal、proof/challenge期間、upgrade権限、障害履歴、監視APIを評価する。
 3. UIと会計は`pending`、`L2 confirmed`、`L1 finalized`を区別し、再編成可能なeventを確定残高や送金batchへ含めない。
 4. 本番ではL1緊急マルチシグ、L2 Escape Controller、固定L1 Recovery Vault、L1 gas reserve、二重送金防止台帳を実装する。
@@ -28,7 +28,7 @@
 
 ## 本番移行条件
 
-- 公式JPYCと事業者がcanonical bridge後の資産を受け付けることを確認する。
+- ETHのcanonical withdrawal後にL1 Recovery Vaultと登録事業者が資産を受け付けることを確認する。
 - L2とL1のコントラクト、マルチシグ、timelock、aliasing処理を外部監査する。
 - testnetで完全退出訓練を行い、最大所要時間とL1 gas必要額を計測する。
 - 通常送金と緊急退出の二重計上・二重送金が不変条件で排除されることを試験する。

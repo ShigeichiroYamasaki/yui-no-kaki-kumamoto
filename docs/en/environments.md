@@ -8,7 +8,7 @@ The demo uses the same conceptual model as production so stakeholders can experi
 |---|---|---|
 | Assets | Simulated values and MockJPYC | Approved ETH and official JPYC |
 | Wallet | No connection or signature | Supported wallets and signatures |
-| Network | Local Hardhat, Sepolia, and Base Sepolia | Audited EVM L2 with an Ethereum L1 recovery path |
+| Network | Local Hardhat, Sepolia, and Base Sepolia | ETH on Base, JPYC on Polygon, an SBT on each receiving chain, and an Ethereum L1 recovery path for Base ETH |
 | Prefectural receipt | Demo identifiers and simulated states | Official destination and evidence hashes |
 | Recovery reports | Simulated browser updates | Append-only updates by authorized reporters |
 | Presentation | Permanently labeled as a prototype | Displays the certified NPO, registered provider, terms, ownership model, and operational status |
@@ -27,9 +27,10 @@ Production intake will not begin until all of the following are complete:
 
 1. Formal consultation with Kumamoto Prefecture and agreement on the receipt process
 2. Board approval by the selected certified NPO and confirmation of accounting, ownership, terms, and privacy policy
-3. Confirmation of the official JPYC network and contract
+3. Confirmation of the funds-transfer-service JPYC contract on Polygon (chain ID `137`) and its JPYC EX redemption path
 4. Agreement with a registered financial or payment provider covering the service, chain, and official JPYC
 5. Multisignature, timelock, and key-management arrangements
 6. Independent security audit and operational exercises
 7. Responsibility allocation and a small end-to-end test under ADR-0008
 8. Implementation, independent audit, and complete withdrawal exercise of the L1 escape hatch under ADR-0009
+9. End-to-end testing of both Base and Polygon Vault/SBT deployments, global IDs, per-chain finality, unified aggregation, and Polygon halt/recovery operations

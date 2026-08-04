@@ -10,8 +10,8 @@
 ## Phase 1 — Stakeholder consultation
 
 - Discuss purpose, recipient destination, and reporting fields with Kumamoto Prefecture
-- Confirm supported networks with JPYC and exchange or payment providers
-- Select an L2 using data availability, forced transactions, canonical bridge, proofs, and upgrade authority as explicit criteria
+- Confirm Base ETH acceptance and Polygon official-JPYC acceptance and JPYC EX redemption with providers
+- Evaluate Base data availability, forced transactions, canonical bridge, proofs, and upgrade authority separately from Polygon milestones, checkpoints, and PoS Bridge
 - Select and consult an existing certified NPO; design accounting, ownership, terms, and personal-data controls
 - Define contracts and responsibility boundaries for the registered provider and technical contractor
 - Conduct threat modeling and external review
@@ -24,6 +24,7 @@
 - Exercise outage, chain reorganization, key loss, and emergency-pause scenarios
 - Implement the L1 emergency multisig, L2 Escape Controller, and L1 Recovery Vault
 - Exercise the complete path from a forced transaction through canonical withdrawal, L1 receipt, and double-payment prevention on Base Sepolia or an equivalent testnet
+- Exercise JPYC-like tokens, Polygon SBTs, chain-qualified global IDs, halt/recovery, and unified aggregation on a Polygon testnet
 
 ## Phase 3 — Audit and limited operation
 
@@ -31,6 +32,7 @@
 - Audit the L2/L1 escape hatch, cross-domain authentication, and address-aliasing controls
 - Confirm legal, accounting, payment-services, and AML requirements
 - Run a small end-to-end test from JPYC support to conversion and a separate yen donation to the Prefecture
+- Verify that Base ETH and Polygon JPYC remain separately reconciled rather than being mixed into one on-chain accounting batch
 - Operate and reconcile within limited amounts and periods
 - Gather feedback from supporters, Kumamoto Prefecture, and providers
 

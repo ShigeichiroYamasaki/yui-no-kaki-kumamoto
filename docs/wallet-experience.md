@@ -173,12 +173,12 @@ flowchart TD
 
 - 対応するEVMウォレット
 - 正式なサイトURL
-- 使用ネットワークとチェーンID
+- 使用ネットワークとチェーンID（本番候補はETHがBase `8453`、JPYCがPolygon `137`）
 - ETH支援では、支援額とガス代に必要なETH
-- JPYC支援では、JPYC残高とガス代に必要なネットワーク通貨
+- JPYC支援では、Polygon上の公式JPYC残高とガス代に必要なPOL
 - 本番受付中か、価値を持たないテストネットデモか
 
-デモではEthereum Sepolia、テストETH、MockJPYCであることを画面上部と署名直前に表示します。本番では公式に合意されたネットワーク、Vault、JPYCコントラクトのアドレスを、サイト以外の公式経路からも確認できるようにします。
+デモではEthereum Sepolia、Base Sepolia、テストETH、MockJPYCであることを画面上部と署名直前に表示します。本番候補ではETHを選ぶとBase、JPYCを選ぶとPolygonへ切り替え、各chainのVaultとSBTを表示します。Polygonの公式JPYCコントラクトはサイト以外のJPYC公式経路からも確認できるようにします。
 
 ## 1. ウォレット接続
 
@@ -199,7 +199,7 @@ flowchart TD
 
 ## 3-A. ETHで支援する場合
 
-ETHでは原則として1回のトランザクション確認です。
+本番候補のETH支援はBase上で行い、原則として1回のトランザクション確認です。発行される玉垣SBTもBase上にあります。
 
 1. サイトが支援額、推定ガス代、Vaultアドレスを表示する。
 2. MetaMaskがコントラクト呼び出しと送信額を表示する。
@@ -210,7 +210,7 @@ ETHでは原則として1回のトランザクション確認です。
 
 ## 3-B. JPYCで支援する場合
 
-ERC-20であるJPYCは、通常2回のトランザクション確認が必要です。
+本番候補のJPYC支援はPolygon上の公式JPYCで行い、ガス代にはPOLが必要です。ERC-20であるJPYCは通常2回のトランザクション確認が必要で、発行される玉垣SBTもPolygon上にあります。
 
 1. **利用承認**：Vaultが今回の支援額だけを取得できるよう`approve`する。
 2. **支援送信**：画像付きデモでは`supportERC20WithMetadata`を実行し、JPYCをVaultへ移動してSBTを発行する。従来版では`supportERC20`を使用する。

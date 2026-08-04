@@ -10,8 +10,8 @@
 ## Phase 1 — 関係者協議
 
 - 熊本県との目的、受領先、報告項目の協議
-- JPYCおよび交換・決済事業者との対応チェーン確認
-- Data Availability、forced transaction、canonical bridge、proof、upgrade権限を含むL2選定
+- BaseでのETH受付と、Polygonでの公式JPYC受付・JPYC EX償還について事業者確認
+- BaseのData Availability、forced transaction、canonical bridge、proof、upgrade権限と、Polygonのmilestone、checkpoint、PoS Bridgeを別々に評価
 - 既存認定NPOの選定、理事会協議、会計、資金帰属、規約、個人情報管理の設計
 - 登録金融・決済事業者と技術受託者の責任分界・契約設計
 - 脅威モデリングと外部レビュー
@@ -24,6 +24,7 @@
 - 障害、再編成、鍵紛失、緊急停止の訓練
 - L1緊急マルチシグ、L2 Escape Controller、L1 Recovery Vaultの実装
 - Base Sepolia等でforced transactionからcanonical withdrawal、L1受領、二重送金防止までの完全退出訓練
+- Polygon testnetでJPYC相当token、Polygon版SBT、chain別global ID、停止・回収・統合集計を訓練
 
 ## Phase 3 — 監査と限定運用
 
@@ -31,6 +32,7 @@
 - L2/L1エスケープハッチ、cross-domain認証、address aliasingの第三者監査
 - 法務、会計、資金決済、AML等の確認
 - NPOへのJPYC支援から円転、熊本県への円貨寄附までの少額端間試験
+- Base ETHとPolygon JPYCを同一会計batchへ統合しないchain別照合試験
 - 金額・期間を限定した運用と照合
 - 支援者・熊本県・事業者からのフィードバック
 

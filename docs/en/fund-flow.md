@@ -2,7 +2,7 @@
 
 ## Receiving support
 
-Supporters send ETH or official JPYC on an approved network. The contract rejects zero-value transactions, unapproved assets, and contributions while paused, then issues a support ID and receipt event.
+Supporters send ETH to the Base Mainnet ETH Vault and official JPYC to the Polygon PoS JPYC Vault. Each Vault mints a Tamagaki SBT on the same chain. Contracts reject zero value, unapproved assets, wrong-chain requests, and contributions while paused, then issue a chain-qualified support ID and event.
 
 Country, public name, and message are optional. Country is never inferred from a wallet or IP address; only self-declared information is aggregated.
 
@@ -11,15 +11,20 @@ Country, public name, and message are optional. Country is never inferred from a
 ```mermaid
 sequenceDiagram
   participant S as Supporter
-  participant V as Vault
+  participant BV as Base ETH Vault
+  participant PV as Polygon JPYC Vault
   participant O as Certified NPO treasury multisig
   participant E as Registered financial or payment provider
   participant K as Kumamoto Disaster Support Account
   participant R as Registry
-  S->>V: Support the certified NPO in ETH or JPYC
-  V-->>S: Receipt event and Tamagaki SBT
-  O->>V: Consolidate using a unique batch ID
-  V->>E: Transfer the relevant asset
+  S->>BV: Contribute ETH on Base
+  BV-->>S: Event and Base Tamagaki SBT
+  S->>PV: Contribute JPYC on Polygon
+  PV-->>S: Event and Polygon Tamagaki SBT
+  O->>BV: Consolidate ETH with a chain-specific batch ID
+  O->>PV: Consolidate JPYC with a chain-specific batch ID
+  BV->>E: Transfer ETH
+  PV->>E: Transfer JPYC
   E->>K: Remit the NPO's separate yen donation
   K-->>R: Record prefectural receipt and recovery evidence
 ```

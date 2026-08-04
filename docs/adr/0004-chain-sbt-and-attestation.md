@@ -6,13 +6,15 @@
 
 ## 決定
 
-- ETHとJPYCは、各資産が正式に利用可能なEVMチェーン上で受け付ける。
-- 非公式ブリッジ資産を許可しない。
+- 本番候補ではETHをBase Mainnet、資金移動業型JPYCをPolygon PoS（chain ID `137`）で受け付け、チェーン別にVaultをデプロイする。
+- Polygon VaultはJPYC株式会社が公表する公式JPYCコントラクトだけをallowlistへ登録する。非公式ブリッジ、wrapped JPYC、同名tokenを許可しない。
 - 玉垣はERC-721とERC-5192を採用する。
+- 玉垣SBTは支援を受けたチェーンのVaultが同一transaction内で発行する。ETH支援はBase版SBT、JPYC支援はPolygon版SBTとし、単一chainへのcross-chain mintを行わない。
 - チェーン間集計はインデクサーで統合し、支援IDにチェーンIDと受付コントラクトを含める。
+- SBTのglobal IDは`chainId:sbtContract:tokenId`とし、同じtoken IDが複数chainに存在しても衝突させない。
 - 受領確認・復興報告は文書本体ではなくハッシュを`RecoveryAttestationRegistry`へ記録する。
 - Ethereum Sepoliaを標準統合デモネットワーク、Base SepoliaをL2代替統合デモネットワークとする。両testnetの`MockJPYC`と玉垣SBTを本番資産・本番証明として扱わない。
-- L2のfinality、Data Availability、forced transaction、canonical bridge、proof、upgrade権限とL1エスケープハッチは[ADR-0009](./0009-l2-selection-and-escape-hatch.md)に従う。
+- Base上のETHに関するfinality、Data Availability、forced transaction、canonical bridge、proof、upgrade権限とL1エスケープハッチは[ADR-0009](./0009-l2-selection-and-escape-hatch.md)に従う。Polygon JPYCはmilestone finality、checkpoint、PoS BridgeまたはJPYC EX直接償還に基づく別runbookを用意する。
 - 画像対応デモの玉垣SBTは、ERC-721 `tokenURI`からオンチェーンSVGを返す。氏名・メッセージは送金前に編集・プレビューし、明示的な公開同意を必須とする。
 - 玉垣は支援額による大小を設けず、すべて同一寸法とする。多数の玉垣を横方向へ連続させ、熊本城を取り囲む一つの垣根として可視化する。下部には家紋と区別できるデジタル証明印と`TAMAGAKI SBT`を表示する。
 - 画像の資産と金額は`SupportReceived`と同じ実際の送金値から生成し、利用者が金額表示を偽装できないようにする。
@@ -22,6 +24,10 @@
 
 資産の公式性、低コスト、SBTの固有性、公開検証と行政文書の機密性を両立するため。
 
+## 実装状況
+
+`RecoverySupportVault`は期待chain IDと`AssetMode`をconstructorで固定する。`BaseEthRecoverySupportModule`は`8453 / NativeOnly`、`PolygonJpycRecoverySupportModule`は`137 / ERC20Only`と公式JPYCアドレスをコードで固定した。各Vaultは同じchainの`TamagakiSBT`だけへmintし、フロントエンドhelperは`chainId:sbtContract:tokenId`をglobal IDとして生成する。本番デプロイ、統合Indexer、chain別finality運用は未完了である。
+
 ## トレードオフ
 
-マルチチェーンはインデクサーと運用監視を複雑化する。SBT発行チェーンを別にする場合は、受付イベントの最終性と重複防止が必要になる。オンチェーンSVGは外部ストレージに依存しない一方、発行ガスを増加させ、公開した氏名・メッセージを完全には削除できない。
+マルチチェーンはインデクサー、鍵、RPC、finality、障害回復、コントラクトアドレス確認を複雑化する。一方、支援とSBTを同一chainの同一transactionへ置くことでcross-chain oracle、発行遅延、二重mintを避ける。オンチェーンSVGは外部ストレージに依存しない一方、発行ガスを増加させ、公開した氏名・メッセージを完全には削除できない。

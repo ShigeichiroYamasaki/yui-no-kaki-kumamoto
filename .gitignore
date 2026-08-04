@@ -44,5 +44,7 @@ next-env.d.ts
 /artifacts/
 /cache/
 /ignition/deployments/
+/ignition/parameters/base-mainnet.json
+/ignition/parameters/polygon-mainnet.json
 /docs/.vitepress/cache/
 /docs/.vitepress/dist/

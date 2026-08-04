@@ -45,17 +45,44 @@ npm run contracts:deploy:demo:base-sepolia:security-v3
 
 併せて`BASE_SEPOLIA_PUBLIC_RPC_URL`を読み取り専用の公開RPC、`BASE_SEPOLIA_JPYC_DECIMALS`を`18`、`BASE_SEPOLIA_TAMAGAKI_METADATA_VERSION`を`2`にします。Actionsを再実行すると、デモと集計ページにEthereum Sepolia / Base Sepoliaの切替が表示されます。
 
+### Base ETH / Polygon JPYC本番候補module
+
+コードには次の専用Ignition moduleを用意しています。
+
+| module | chain拘束 | Vaultの固定モード | 許可資産 |
+|---|---:|---|---|
+| `BaseEthRecoverySupport.ts` | Base Mainnet `8453` | `NativeOnly` | ETHのみ |
+| `PolygonJpycRecoverySupport.ts` | Polygon PoS `137` | `ERC20Only` | 公式JPYC `0xE7C3D8C9a439feDe00D2600032D5dB0Be71C3c29`のみ |
+
+`RecoverySupportVault`はconstructorで期待chain IDを検査し、デプロイ後も`AssetMode`に反する資産追加を拒否します。Base VaultへERC-20、Polygon Vaultへnative assetを管理者が追加することもできません。USDCはallowlistにもmoduleにも含めません。
+
+実際の本番デプロイ前にexampleを秘密情報を含まない作業用ファイルへ複製し、組織Safe、登録事業者入金先、reporter、有限上限を二人で確認します。`base-mainnet.json`と`polygon-mainnet.json`はgitignore対象です。
+
+```bash
+cp ignition/parameters/base-mainnet.example.json ignition/parameters/base-mainnet.json
+cp ignition/parameters/polygon-mainnet.example.json ignition/parameters/polygon-mainnet.json
+npx hardhat keystore set BASE_MAINNET_RPC_URL
+npx hardhat keystore set POLYGON_MAINNET_RPC_URL
+npx hardhat keystore set MAINNET_DEPLOYER_PRIVATE_KEY
+npm run contracts:deploy:production:base
+npm run contracts:deploy:production:polygon
+```
+
+このコマンドが存在することは本番開始の承認を意味しません。監査、関係者合意、Safe/timelock、Baseエスケープハッチ、Polygon停止・回収訓練が完了するまで実行しません。各chainで発行したSBTは`chainId:sbtContract:tokenId`をglobal IDとして統合します。
+
 ## 実装上の境界
 
 - `RecoverySupportVault`のオンチェーン送金先は、認定NPOが契約する登録金融・決済事業者の入金アドレスに限定します。初期本番候補では支援資産はNPOへ帰属し、円転後の銀行送金はNPOから熊本県への別個の円貨寄附です。
-- 玉垣SBTは通常のウォレット間移転を禁止し、支援参加の証しとして扱います。
+- 本番候補moduleとBase Mainnet・Polygon Mainnet接続設定は実装済みですが、本番アドレスは未デプロイです。エスケープハッチ、Polygon回収runbook、本番Indexerは未実装です。
+- 玉垣SBTは通常のウォレット間移転を禁止し、支援と同じchainで発行します。Indexerは`chainId:sbtContract:tokenId`でBase版とPolygon版を統合します。
 - 本番系では氏名、住所、正確な位置情報などの個人情報をオンチェーンへ保存しません。Sepoliaの画像付きSBTデモだけは、明示的に同意した任意表示名とメッセージをオンチェーンへ記録できます。
 - Councilの投票は参考情報であり、熊本県の予算や公共事業を拘束しません。
-- 本番導入には、外部監査、マルチシグ、タイムロック、正式な受領合意、利用チェーン上の公式JPYCアドレス確認が必要です。
+- 本番導入には、外部監査、マルチシグ、タイムロック、正式な受領合意、Polygon chain ID `137`と公式JPYCアドレス・codehash・decimalsの確認が必要です。
 
 ## セキュリティ強化版の仕様
 
 - ERC-20は許可時のcodehash、symbol、decimalsを固定し、入金前後のVault残高差分を実受領額として記録します。
+- constructorは期待chain IDと`Mixed / NativeOnly / ERC20Only`を固定し、誤chainへのデプロイと資産種別の後付け変更を拒否します。
 - 資産ごとにVault残高、1 batch、1日の送付上限を設定します。デモの既定値は動作確認用であり、本番では有限値が必須です。
 - `transferBatch`は`supportRoot`、`instructionHash`、`validUntil`を必須とし、同じ`batchId`の再利用と期限切れを拒否します。
 - `beneficiary`変更は提案後2日待って実行し、pauseとunpauseは別ロールです。初期adminから組織マルチシグへロールを移す作業はデプロイ後に必要です。

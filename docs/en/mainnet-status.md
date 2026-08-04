@@ -9,7 +9,7 @@ The production contracts have not been deployed to mainnet, and operating agreem
   <strong>Not accepting contributions</strong>
   <dl>
     <div><dt>Support total</dt><dd>No production data</dd></div>
-    <div><dt>Network</dt><dd>Not selected</dd></div>
+    <div><dt>Production candidate</dt><dd>ETH: Base / JPYC: Polygon (inactive)</dd></div>
     <div><dt>Official Vault</dt><dd>Not deployed</dd></div>
     <div><dt>Official JPYC</dt><dd>Not connected</dd></div>
   </dl>

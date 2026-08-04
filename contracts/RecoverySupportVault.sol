@@ -20,7 +20,15 @@ contract RecoverySupportVault is AccessControl, Pausable, ReentrancyGuard {
     address public constant NATIVE_ASSET = address(0);
     uint64 public constant BENEFICIARY_CHANGE_DELAY = 2 days;
 
+    enum AssetMode {
+        Mixed,
+        NativeOnly,
+        ERC20Only
+    }
+
     TamagakiSBT public immutable tamagakiSBT;
+    AssetMode public immutable assetMode;
+    uint256 public immutable expectedChainId;
     address public beneficiary;
     address public pendingBeneficiary;
     uint64 public beneficiaryExecutableAt;
@@ -75,6 +83,9 @@ contract RecoverySupportVault is AccessControl, Pausable, ReentrancyGuard {
     error ExpiredBatch(uint64 validUntil);
     error BeneficiaryDelayActive(uint64 executableAt);
     error NoPendingBeneficiary();
+    error WrongChain(uint256 expected, uint256 actual);
+    error AssetTypeForbidden(address asset);
+    error InvalidAssetMode();
 
     event SupportReceived(
         bytes32 indexed supportId,
@@ -95,20 +106,53 @@ contract RecoverySupportVault is AccessControl, Pausable, ReentrancyGuard {
     event BeneficiaryProposalCancelled(address indexed proposedBeneficiary);
     event BeneficiaryUpdated(address indexed previousBeneficiary, address indexed newBeneficiary);
 
-    constructor(address admin, address beneficiary_, TamagakiSBT tamagakiSBT_) {
+    constructor(
+        address admin,
+        address beneficiary_,
+        TamagakiSBT tamagakiSBT_,
+        AssetMode assetMode_,
+        uint256 expectedChainId_,
+        bool nativeAssetAllowed,
+        uint256 nativeBalanceCap,
+        uint256 nativeBatchCap,
+        uint256 nativeDailyCap
+    ) {
         if (admin == address(0) || beneficiary_ == address(0) || address(tamagakiSBT_) == address(0)) {
             revert ZeroAddress();
         }
+        if (expectedChainId_ != 0 && block.chainid != expectedChainId_) {
+            revert WrongChain(expectedChainId_, block.chainid);
+        }
+        if (
+            (assetMode_ == AssetMode.NativeOnly && !nativeAssetAllowed)
+                || (assetMode_ == AssetMode.ERC20Only && nativeAssetAllowed)
+        ) revert InvalidAssetMode();
+        if (nativeAssetAllowed && (nativeBalanceCap == 0 || nativeBatchCap == 0 || nativeDailyCap == 0)) {
+            revert ZeroAmount();
+        }
         beneficiary = beneficiary_;
         tamagakiSBT = tamagakiSBT_;
-        allowedAsset[NATIVE_ASSET] = true;
+        assetMode = assetMode_;
+        expectedChainId = expectedChainId_;
+        allowedAsset[NATIVE_ASSET] = nativeAssetAllowed;
         assetPolicy[NATIVE_ASSET] = AssetPolicy(
-            type(uint256).max, type(uint256).max, type(uint256).max, bytes32(0), bytes32(0), 18
+            nativeBalanceCap, nativeBatchCap, nativeDailyCap, bytes32(0), bytes32(0), 18
         );
         _grantRole(DEFAULT_ADMIN_ROLE, admin);
         _grantRole(TREASURER_ROLE, admin);
         _grantRole(PAUSER_ROLE, admin);
         _grantRole(UNPAUSER_ROLE, admin);
+        emit AllowedAssetUpdated(NATIVE_ASSET, nativeAssetAllowed);
+        emit AssetPolicyUpdated(
+            NATIVE_ASSET,
+            nativeAssetAllowed,
+            nativeBalanceCap,
+            nativeBatchCap,
+            nativeDailyCap,
+            bytes32(0),
+            bytes32(0),
+            18
+        );
     }
 
     function supportNative(
@@ -234,6 +278,11 @@ contract RecoverySupportVault is AccessControl, Pausable, ReentrancyGuard {
         external
         onlyRole(DEFAULT_ADMIN_ROLE)
     {
+        if (
+            allowed
+                && ((assetMode == AssetMode.NativeOnly && asset != NATIVE_ASSET)
+                    || (assetMode == AssetMode.ERC20Only && asset == NATIVE_ASSET))
+        ) revert AssetTypeForbidden(asset);
         if (allowed && (balanceCap == 0 || batchCap == 0 || dailyCap == 0)) revert ZeroAmount();
         bytes32 codeHash;
         bytes32 symbolHash;

@@ -42,5 +42,23 @@ export default defineConfig({
       url: configVariable("BASE_SEPOLIA_RPC_URL"),
       accounts: [configVariable("DEPLOYER_PRIVATE_KEY")],
     },
+    base: {
+      type: "http",
+      chainType: "op",
+      url: configVariable("BASE_MAINNET_RPC_URL"),
+      accounts: [configVariable("MAINNET_DEPLOYER_PRIVATE_KEY")],
+    },
+    polygon: {
+      type: "http",
+      chainType: "generic",
+      url: configVariable("POLYGON_MAINNET_RPC_URL"),
+      accounts: [configVariable("MAINNET_DEPLOYER_PRIVATE_KEY")],
+    },
+    polygonAmoy: {
+      type: "http",
+      chainType: "generic",
+      url: configVariable("POLYGON_AMOY_RPC_URL"),
+      accounts: [configVariable("DEPLOYER_PRIVATE_KEY")],
+    },
   },
 });

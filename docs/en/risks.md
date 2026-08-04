@@ -39,7 +39,8 @@ The current implementation is suitable for a Sepolia technical demonstration, no
 | A-09 | **Medium** | Unsolicited SBT is minted to another address for spam or eligibility manipulation | Non-transferability and `recipient == msg.sender` | If delegated receipt is later added, require EIP-712 recipient consent |
 | A-10 | **Medium** | Sybil voting through many wallets and micro-contributions | One wallet/one vote, no execution authority, proposal cutoff, valid-status check | Pre-acquired SBTs across multiple wallets remain a Sybil path |
 | A-11 | **Medium** | Event volume and RPC rate limits deny public data service | Input-length limits | Add rate limiting, caching, pagination, multiple RPCs, backfill queue, and read-only degraded mode |
-| A-12 | **High** | L2 sequencer outage or censorship, data-availability, proof, canonical-bridge, or malicious-upgrade failure | Pause, pending state, and multiple RPCs | Alternate RPCs cannot withdraw funds; require L1 forced transactions, canonical withdrawal, fixed Recovery Vault, L1 gas reserve, halt thresholds, and public challenge-period status |
+| A-12 | **High** | Base sequencer outage or censorship, data-availability, proof, canonical-bridge, or malicious-upgrade failure | Pause, pending state, and multiple RPCs | Alternate RPCs cannot withdraw ETH; require L1 forced transactions, canonical withdrawal, fixed Recovery Vault, L1 gas reserve, halt thresholds, and public challenge-period status |
+| A-13 | **High** | Polygon validator, milestone, checkpoint, PoS Bridge, fake-JPYC, or JPYC EX redemption failure | Official asset allowlist, pause, and per-chain totals | The Base escape hatch does not apply; pin chain ID and JPYC code hash, use multiple RPCs and finalized blocks, define JPYC EX versus PoS Bridge recovery priority, caps, and halt thresholds |
 
 ## Human error and insider misuse
 
@@ -73,6 +74,7 @@ The current implementation is suitable for a Sepolia technical demonstration, no
 | Voting | Proposal-time token-ID cutoff and valid status | Compare with block snapshots and continue Sybil-resistance review |
 | On-chain name | UI consent can be bypassed | Reconsider production use; require recipient consent if retained |
 | L2 escape | Not implemented; Base Sepolia support is connectivity and demo configuration only | L1 emergency multisig, Escape Controller, fixed L1 Recovery Vault, cross-domain authentication, and a complete withdrawal exercise |
+| Polygon JPYC/SBT | `ERC20Only`, chain ID `137`, official-JPYC module, and global-ID helper implemented; not deployed to production | Milestone finality, recovery runbook, multi-RPC production indexer, Polygon testnet exercise, and external audit |
 
 ## Operating principles
 

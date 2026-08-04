@@ -2,6 +2,11 @@ import { network } from "hardhat";
 import RecoverySupportModule from "../ignition/modules/RecoverySupport.js";
 
 const networkName = process.argv[2] ?? "hardhatOp";
+if (networkName === "base" || networkName === "polygon") {
+  throw new Error(
+    "Production candidates require the chain-specific npm scripts and reviewed parameter files; generic deployment is disabled.",
+  );
+}
 const connection = await network.create(networkName);
 const { ignition } = connection;
 

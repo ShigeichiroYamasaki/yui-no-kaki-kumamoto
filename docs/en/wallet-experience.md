@@ -121,9 +121,9 @@ flowchart TD
 
 ## 0. Before contributing
 
-The site tells the user which EVM wallets are supported, the official domain, network and chain ID, required balances, and whether the campaign is production or a valueless testnet demonstration. ETH contributions require enough ETH for both the amount and gas. JPYC contributions require JPYC plus the network's gas asset.
+The site tells the user which EVM wallets are supported, the official domain, network and chain ID, required balances, and whether the campaign is production or a valueless testnet demonstration. In the production candidate, ETH uses Base (`8453`) and JPYC uses Polygon (`137`). ETH contributions require enough ETH for both the amount and gas; JPYC contributions require official Polygon JPYC plus POL for gas.
 
-The demo identifies Ethereum Sepolia, test ETH, and MockJPYC at the top of the page and before signing. Production addresses for the network, Vault, and official JPYC must also be verifiable through independent official channels.
+The demo identifies Ethereum Sepolia or Base Sepolia, test ETH, and MockJPYC at the top of the page and before signing. In production, selecting ETH switches to Base and selecting JPYC switches to Polygon, with the corresponding Vault and SBT contracts. The Polygon JPYC contract must also be verifiable through an independent JPYC official channel.
 
 ## 1. Connect the wallet
 
@@ -137,7 +137,7 @@ The supporter selects ETH or JPYC, an amount, and optional public name, country 
 
 ## 3-A. Contribute ETH
 
-ETH normally requires one transaction confirmation:
+Production ETH support runs on Base and normally requires one transaction confirmation. The resulting Tamagaki SBT is also on Base:
 
 1. The site shows the amount, estimated gas, and Vault address.
 2. MetaMask shows the contract interaction and value.
@@ -148,7 +148,7 @@ Rejecting the wallet prompt sends nothing. Because a successful on-chain transac
 
 ## 3-B. Contribute JPYC
 
-JPYC, as an ERC-20, normally requires two transaction confirmations:
+Production JPYC support uses official JPYC on Polygon, requires POL for gas, and mints its Tamagaki SBT on Polygon. As an ERC-20, JPYC normally requires two transaction confirmations:
 
 1. **Allowance:** approve the Vault to access exactly the intended contribution amount.
 2. **Contribution:** the image-enabled demo calls `supportERC20WithMetadata`, moving JPYC to the Vault and minting the SBT; the legacy flow uses `supportERC20`.

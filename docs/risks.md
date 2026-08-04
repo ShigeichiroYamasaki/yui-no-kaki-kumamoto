@@ -41,7 +41,8 @@
 | A-09 | **Medium** | 第三者へ無断でSBTを発行し、ウォレットをspamまたは投票資格操作 | SBTは譲渡不能かつ`recipient == msg.sender` | 代理受領を将来追加する場合はEIP-712受領同意が必要 |
 | A-10 | **Medium** | 多数ウォレット・少額支援による参考投票Sybil攻撃 | 1 wallet 1 vote、資金移動権限なし、提案時cutoff、有効status検査 | cutoff後の追加発行は排除するが、複数walletによる事前取得は残る |
 | A-11 | **Medium** | 大量支援、巨大ログ、RPC rate limitで公開画面を停止 | 入力長制限 | rate limit、キャッシュ、ページング、複数RPC、バックフィルキュー、read-only degraded modeが必要 |
-| A-12 | **High** | L2 sequencer停止・検閲、Data Availability・proof・canonical bridge障害、悪意あるupgrade | pause、処理中表示、複数RPC | 代替RPCだけでは資金を退出できない。L1 forced transaction、canonical withdrawal、固定Recovery Vault、L1 gas reserve、停止基準、challenge期間中の公開状態が必要 |
+| A-12 | **High** | Base sequencer停止・検閲、Data Availability・proof・canonical bridge障害、悪意あるupgrade | pause、処理中表示、複数RPC | 代替RPCだけではETHを退出できない。L1 forced transaction、canonical withdrawal、固定Recovery Vault、L1 gas reserve、停止基準、challenge期間中の公開状態が必要 |
+| A-13 | **High** | Polygon validator/milestone/checkpoint/PoS Bridge障害、偽JPYC、JPYC EX償還停止 | 公式asset allowlist、pause、chain別集計 | Baseのescape hatchは利用できない。公式JPYCのchain ID・codehash固定、複数RPC、finalized block使用、JPYC EX直接償還とPoS Bridgeの優先順位、最大滞留額・停止基準が必要 |
 
 ## 当事者の操作ミス・内部不正
 
@@ -77,6 +78,7 @@
 | 投票資格 | 提案作成時token ID cutoffと有効statusを検証 | block snapshot方式との比較、Sybil耐性の継続評価 |
 | オンチェーン表示名 | UI同意は回避可能 | 本番採否を再判断し、採用時は受領署名と明確な警告 |
 | L2エスケープ | 未実装。Base Sepolia対応は接続・デモ設定のみ | L1緊急マルチシグ、Escape Controller、固定L1 Recovery Vault、cross-domain認証、完全退出訓練 |
+| Polygon JPYC / SBT | `ERC20Only`・chain ID `137`・公式JPYC固定module、global ID helperを実装。本番未デプロイ | milestone finality、停止・回収runbook、複数RPC本番Indexer、Polygon testnet端間試験、外部監査 |
 
 ## 運用上の安全原則
 

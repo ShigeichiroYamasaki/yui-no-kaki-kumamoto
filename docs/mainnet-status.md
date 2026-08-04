@@ -9,7 +9,7 @@
   <strong>受付開始前</strong>
   <dl>
     <div><dt>支援総額</dt><dd>表示対象なし</dd></div>
-    <div><dt>ネットワーク</dt><dd>未決定</dd></div>
+    <div><dt>本番候補</dt><dd>ETH: Base / JPYC: Polygon（未稼働）</dd></div>
     <div><dt>公式Vault</dt><dd>未デプロイ</dd></div>
     <div><dt>公式JPYC</dt><dd>未接続</dd></div>
   </dl>

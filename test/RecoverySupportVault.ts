@@ -15,6 +15,12 @@ describe("RecoverySupportVault", async function () {
       admin.account.address,
       beneficiary.account.address,
       sbt.address,
+      0,
+      0n,
+      true,
+      maxUint256,
+      maxUint256,
+      maxUint256,
     ]);
     await sbt.write.grantRole([MINTER_ROLE, vault.address]);
     return { sbt, vault };
@@ -142,6 +148,75 @@ describe("RecoverySupportVault", async function () {
     ]);
     assert.equal(await jpyc.read.balanceOf([beneficiary.account.address]), 30_000n);
     assert.equal(await jpyc.read.balanceOf([fixture.vault.address]), 0n);
+  });
+
+  it("enforces fixed native-only and ERC20-only deployment policies", async () => {
+    const token = await viem.deployContract("MockJPYC");
+    const nativeOnlySbt = await viem.deployContract("TamagakiSBT", [admin.account.address, "ipfs://base/"]);
+    const nativeOnlyVault = await viem.deployContract("RecoverySupportVault", [
+      admin.account.address,
+      beneficiary.account.address,
+      nativeOnlySbt.address,
+      1,
+      0n,
+      true,
+      1_000n,
+      1_000n,
+      1_000n,
+    ]);
+    await viem.assertions.revertWithCustomError(
+      nativeOnlyVault.write.configureAsset([token.address, true, 1_000n, 1_000n, 1_000n]),
+      nativeOnlyVault,
+      "AssetTypeForbidden",
+    );
+
+    const erc20OnlySbt = await viem.deployContract("TamagakiSBT", [admin.account.address, "ipfs://polygon/"]);
+    const erc20OnlyVault = await viem.deployContract("RecoverySupportVault", [
+      admin.account.address,
+      beneficiary.account.address,
+      erc20OnlySbt.address,
+      2,
+      0n,
+      false,
+      0n,
+      0n,
+      0n,
+    ]);
+    await viem.assertions.revertWithCustomError(
+      erc20OnlyVault.write.configureAsset([zeroAddress, true, 1_000n, 1_000n, 1_000n]),
+      erc20OnlyVault,
+      "AssetTypeForbidden",
+    );
+    const erc20VaultAsSupporter = await viem.getContractAt("RecoverySupportVault", erc20OnlyVault.address, {
+      client: { wallet: supporter },
+    });
+    await viem.assertions.revertWithCustomError(
+      erc20VaultAsSupporter.write.supportNative([
+        keccak256(stringToHex("JP")),
+        keccak256(stringToHex("message")),
+        supporter.account.address,
+        keccak256(stringToHex("metadata")),
+      ], { value: 1n }),
+      erc20OnlyVault,
+      "AssetNotAllowed",
+    );
+  });
+
+  it("rejects deployment on an unexpected chain", async () => {
+    const sbt = await viem.deployContract("TamagakiSBT", [admin.account.address, "ipfs://wrong-chain/"]);
+    await assert.rejects(
+      viem.deployContract("RecoverySupportVault", [
+        admin.account.address,
+        beneficiary.account.address,
+        sbt.address,
+        1,
+        8453n,
+        true,
+        1_000n,
+        1_000n,
+        1_000n,
+      ]),
+    );
   });
 
   it("dispenses demo JPYC from the faucet and enforces its cooldown", async () => {

@@ -5,18 +5,25 @@
 ```mermaid
 flowchart LR
   S[国内外の支援者] --> W[支援Webアプリ]
-  W --> V[RecoverySupportVault]
-  N["認定NPO・法的運営主体"] --> V
-  V --> T[玉垣SBT]
-  V --> X[登録交換・決済事業者]
+  W --> BV[Base ETH Vault]
+  W --> PV[Polygon JPYC Vault]
+  N["認定NPO・法的運営主体"] --> BV
+  N --> PV
+  BV --> BT[Base玉垣SBT]
+  PV --> PT[Polygon玉垣SBT]
+  BV --> X[登録交換・決済事業者]
+  PV --> X
   X --> K[熊本県災害支援口座]
   K --> A[受領・復興報告]
   A --> R[Attestation Registry]
-  V --> I[イベントインデクサー]
-  T --> I
+  BV --> I[イベントインデクサー]
+  PV --> I
+  BT --> I
+  PT --> I
   R --> I
   I --> D[公開ダッシュボード]
-  T --> C[参考投票 Council]
+  BT --> C[参考投票 Council]
+  PT --> C
 ```
 
 ## 認定NPOを中心とする共同運営
@@ -26,9 +33,12 @@ flowchart LR
 ```mermaid
 flowchart TB
   D["支援者・DAO参加者"] -->|"支援・非拘束の参考投票"| N["認定NPO法人<br/>法的運営主体"]
-  D -->|"JPYC / ETH"| V["RecoverySupportVault"]
-  N -->|"規約・会計・理事会決議・照合"| V
-  V -->|"登録済み入金先への送付"| F["登録金融・決済事業者<br/>AML・円転・取引記録"]
+  D -->|"Base ETH"| BV["Base ETH Vault"]
+  D -->|"Polygon JPYC"| PV["Polygon JPYC Vault"]
+  N -->|"規約・会計・理事会決議・照合"| BV
+  N -->|"規約・会計・理事会決議・照合"| PV
+  BV -->|"登録済み入金先への送付"| F["登録金融・決済事業者<br/>AML・円転・取引記録"]
+  PV -->|"登録済み入金先への送付"| F
   F -->|"円貨の銀行送金"| P["熊本県<br/>熊本県災害支援口座"]
   P -->|"受領確認・復興報告"| N
   K["株式会社等の技術受託者"] -->|"開発・保守・監視"| N
@@ -54,8 +64,9 @@ flowchart TB
 
 | コントラクト | 責務 | 資金移動権限 |
 |---|---|---|
-| `RecoverySupportVault` | ETH・許可済みERC-20受付、集約送金 | 登録済み交換・決済事業者入金先へのみ |
-| `TamagakiSBT` | ERC-721 + ERC-5192型の譲渡不能証明 | なし |
+| Base `RecoverySupportVault` | chain ID `8453`、`NativeOnly`でETH受付・集約送金 | 登録済み交換・決済事業者入金先へのみ |
+| Polygon `RecoverySupportVault` | chain ID `137`、`ERC20Only`で公式JPYC受付・集約送金 | 登録済み交換・決済事業者入金先へのみ |
+| chain別`TamagakiSBT` | ERC-721 + ERC-5192型の譲渡不能証明 | なし |
 | `RecoveryAttestationRegistry` | 県受領証跡と復興報告ハッシュ | なし |
 | `RecoverySupportCouncil` | SBT保有者の非拘束投票 | なし |
 
@@ -139,7 +150,20 @@ flowchart TB
 
 ## チェーン選択
 
-低コストなEVM L2を基本候補とし、公式JPYCが利用できるネットワークと、運用事業者が正式対応するチェーンを採用します。非公式ブリッジ資産は許可しません。最終的なネットワークはJPYC、交換・決済事業者、監査者との協議後に確定します。
+本番候補では資産ごとに受付チェーンを分離します。**ETHはBase Mainnet、JPYCはPolygon PoS**を第一候補とし、それぞれ別のVaultと玉垣SBTをデプロイします。JPYCはJPYC株式会社がPolygonで公式発行する資金移動業型JPYCだけを許可し、chain ID `137`と[公式コントラクトアドレス](https://corporate.jpyc.co.jp/news/posts/Notice)をallowlistへ固定します。非公式bridge・wrapped JPYC・同名tokenは受け付けません。この選択はJPYC、登録金融・決済事業者、認定NPO、監査者との合意前の提案であり、正式対応と償還経路を確認して確定します。
+
+```mermaid
+flowchart LR
+  E["ETH支援者"] --> BV["Base ETH Vault + Base Tamagaki SBT"]
+  J["JPYC支援者"] --> PV["Polygon JPYC Vault + Polygon Tamagaki SBT"]
+  BV --> I["reorg / finality対応Indexer"]
+  PV --> I
+  I --> D["統合された玉垣・支援ダッシュボード"]
+```
+
+玉垣SBTは単一の共通chainへcross-chain mintせず、支援を受けたchain上で原子的に発行します。したがってBase ETH支援にはBase版、Polygon JPYC支援にはPolygon版のSBTが存在します。`supportId`はchain ID、Vaultアドレス、nonce、資産、支援者、金額を含み、Webサイトはchain IDとSBTコントラクトを組にしたglobal IDで統合表示します。これによりoracleやbridgeを介した二重発行を避けます。
+
+BaseとPolygonは異なるfinality・障害回復モデルを持ちます。Base ETHには以下のL2エスケープハッチを適用します。Polygon JPYCには[Polygonのdeterministic finalityとcheckpoint](https://docs.polygon.technology/pos/concepts/finality/finality)、公式PoS BridgeまたはJPYC EXへの直接償還を前提とする別の停止・回収手順を設け、Baseのforced transactionを流用しません。
 
 ### L2を利用する利点
 
@@ -168,4 +192,4 @@ flowchart LR
 
 プロジェクト側には、L1緊急マルチシグ、L2 Escape Controller、Ethereum L1上の固定Recovery Vault、二重送金防止台帳、L1 gas用ETHを用意します。OP Stackのaddress aliasingとcross-domain認証を考慮し、L1からの呼出しがL2 Safeと同じ送信者になるとは仮定しません。独自のzk-STARKをアプリへ追加するだけではsequencer停止時の資産退出にならないため、ロールアップ本体のproof・Data Availability・bridgeを利用します。
 
-現行プロトタイプにはこの回収経路が未実装です。Base Sepoliaを含む公開テストネットでforced transactionからL1受領、残高照合、通常経路との二重送金防止まで訓練し、外部監査を完了するまで実資金を受け付けません。詳細は[ADR-0009](./adr/0009-l2-selection-and-escape-hatch)を参照してください。
+現行プロトタイプにはこの回収経路が未実装です。Base Sepoliaを含む公開テストネットでforced transactionからL1受領、残高照合、通常経路との二重送金防止まで訓練し、外部監査を完了するまでBaseで実資金を受け付けません。詳細は[ADR-0009](./adr/0009-l2-selection-and-escape-hatch)を参照してください。

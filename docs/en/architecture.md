@@ -5,18 +5,25 @@
 ```mermaid
 flowchart LR
   S[Supporters worldwide] --> W[Support web app]
-  W --> V[RecoverySupportVault]
-  N["Certified NPO・legal operator"] --> V
-  V --> T[Tamagaki SBT]
-  V --> X[Registered exchange or payment provider]
+  W --> BV[Base ETH Vault]
+  W --> PV[Polygon JPYC Vault]
+  N["Certified NPO・legal operator"] --> BV
+  N --> PV
+  BV --> BT[Base Tamagaki SBT]
+  PV --> PT[Polygon Tamagaki SBT]
+  BV --> X[Registered exchange or payment provider]
+  PV --> X
   X --> K[Kumamoto Disaster Support Account]
   K --> A[Receipt and recovery reports]
   A --> R[Attestation Registry]
-  V --> I[Event indexer]
-  T --> I
+  BV --> I[Event indexer]
+  PV --> I
+  BT --> I
+  PT --> I
   R --> I
   I --> D[Public dashboard]
-  T --> C[Advisory voting Council]
+  BT --> C[Advisory voting Council]
+  PT --> C
 ```
 
 ## Joint operation led by a certified NPO
@@ -26,9 +33,12 @@ The production candidate appoints an **existing certified NPO** whose charter co
 ```mermaid
 flowchart TB
   D["Supporters and DAO participants"] -->|"Support and non-binding advice"| N["Certified NPO<br/>legally accountable operator"]
-  D -->|"JPYC / ETH"| V["RecoverySupportVault"]
-  N -->|"Terms, accounting, board approval, reconciliation"| V
-  V -->|"Transfer to registered deposit address"| F["Registered financial or payment provider<br/>AML, conversion, records"]
+  D -->|"Base ETH"| BV["Base ETH Vault"]
+  D -->|"Polygon JPYC"| PV["Polygon JPYC Vault"]
+  N -->|"Terms, accounting, board approval, reconciliation"| BV
+  N -->|"Terms, accounting, board approval, reconciliation"| PV
+  BV -->|"Transfer to registered deposit address"| F["Registered financial or payment provider<br/>AML, conversion, records"]
+  PV -->|"Transfer to registered deposit address"| F
   F -->|"Yen bank remittance"| P["Kumamoto Prefecture<br/>Disaster Support Account"]
   P -->|"Receipt and recovery reports"| N
   K["Corporate technical contractor"] -->|"Development, maintenance, monitoring"| N
@@ -54,8 +64,9 @@ Certified-NPO status alone does not remove Payment Services Act requirements. Th
 
 | Contract | Responsibility | Authority to move funds |
 |---|---|---|
-| `RecoverySupportVault` | Receives ETH and approved ERC-20 assets and consolidates transfers | Only to a registered exchange or payment-provider deposit address |
-| `TamagakiSBT` | Non-transferable ERC-721 and ERC-5192 participation proof | None |
+| Base `RecoverySupportVault` | Chain ID `8453`, `NativeOnly` ETH intake and consolidation | Only to a registered exchange or payment-provider deposit address |
+| Polygon `RecoverySupportVault` | Chain ID `137`, `ERC20Only` official-JPYC intake and consolidation | Only to a registered exchange or payment-provider deposit address |
+| Per-chain `TamagakiSBT` | Non-transferable ERC-721 and ERC-5192 participation proof | None |
 | `RecoveryAttestationRegistry` | Records hashes of prefectural receipt evidence and recovery reports | None |
 | `RecoverySupportCouncil` | Non-binding voting by SBT holders | None |
 
@@ -139,7 +150,20 @@ Directly scanning all RPC history from the public site is limited to the demo. P
 
 ## Chain selection
 
-A low-cost EVM L2 is the primary candidate. The selected network must support official JPYC and be formally supported by the operating service providers. Unofficial bridged assets will not be accepted. The final network will be determined after consultation with JPYC, exchange or payment providers, and auditors.
+The production candidate routes each asset to a different network: **ETH on Base Mainnet and JPYC on Polygon PoS**. Each network has its own Vault and Tamagaki SBT contract. The Polygon Vault accepts only the funds-transfer-service JPYC officially issued by JPYC Inc.; chain ID `137` and the [official contract address](https://corporate.jpyc.co.jp/news/posts/Notice) are pinned in the allowlist. Unofficial bridges, wrapped JPYC, and look-alike tokens are rejected. This remains a proposal until JPYC Inc., the registered provider, the certified NPO, and auditors confirm formal support and redemption operations.
+
+```mermaid
+flowchart LR
+  E["ETH supporter"] --> BV["Base ETH Vault + Base Tamagaki SBT"]
+  J["JPYC supporter"] --> PV["Polygon JPYC Vault + Polygon Tamagaki SBT"]
+  BV --> I["Reorg- and finality-aware indexer"]
+  PV --> I
+  I --> D["Unified tamagaki and contribution dashboard"]
+```
+
+The SBT is minted atomically on the network that receives the contribution, rather than cross-chain minting onto one common network. A Base ETH contribution therefore receives a Base SBT, while a Polygon JPYC contribution receives a Polygon SBT. The `supportId` includes chain ID, Vault, nonce, asset, supporter, and amount; the site combines chain ID and SBT contract into a global identifier. This avoids oracle- or bridge-mediated duplicate minting.
+
+Base and Polygon have different finality and recovery models. The L2 escape hatch below applies to Base ETH. Polygon JPYC receives a separate halt and recovery procedure based on [Polygon deterministic finality and checkpoints](https://docs.polygon.technology/pos/concepts/finality/finality), the official PoS Bridge or direct JPYC EX redemption; Base forced transactions are not reused for Polygon.
 
 ### Benefits of using an L2
 
@@ -168,4 +192,4 @@ Candidate L2s must provide L1-available transaction data, L1 forced transactions
 
 Project controls include an L1 emergency multisig, an L2 Escape Controller, a fixed Ethereum L1 Recovery Vault, a double-payment prevention ledger, and an ETH reserve for L1 gas. OP Stack address aliasing and cross-domain authentication must be handled explicitly; an L1 call is not assumed to have the same sender as an L2 Safe. Adding an application-specific zk-STARK alone does not create an asset exit during sequencer failure, so the design uses the rollup's native proof, data-availability, and bridge mechanisms.
 
-The current prototype does not implement this recovery path. No real funds will be accepted until forced transaction, L1 receipt, reconciliation, and double-payment prevention have been exercised on a public testnet including Base Sepolia and independently audited. See [ADR-0009](../adr/0009-l2-selection-and-escape-hatch).
+The current prototype does not implement this recovery path. No real funds will be accepted on Base until forced transaction, L1 receipt, reconciliation, and double-payment prevention have been exercised on a public testnet including Base Sepolia and independently audited. See [ADR-0009](../adr/0009-l2-selection-and-escape-hatch).

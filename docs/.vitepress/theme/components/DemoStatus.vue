@@ -10,6 +10,7 @@ import {
   type Hash,
 } from "viem";
 import { availableDemoNetworks, demoNetworks, type DemoNetworkKey } from "../testnetNetworks";
+import { tamagakiGlobalId } from "../multichainIdentity";
 
 const props = defineProps<{ locale: "ja" | "en" }>();
 const preferredNetwork = import.meta.env.VITE_RECOVERY_DEFAULT_NETWORK as DemoNetworkKey | undefined;
@@ -43,7 +44,7 @@ type SupportRow = {
   amount: bigint;
   tokenId: bigint;
 };
-type SbtRow = { tokenId: bigint; owner: Address; txHash: Hash; blockNumber: bigint; image?: string };
+type SbtRow = { tokenId: bigint; owner: Address; txHash: Hash; blockNumber: bigint; globalId: string; image?: string };
 
 const loading = ref(true);
 const error = ref("");
@@ -121,7 +122,13 @@ async function refresh() {
     const minted = mintLogs.flatMap((log) => {
       const { to, tokenId } = log.args;
       if (!to || tokenId === undefined || !log.transactionHash) return [];
-      return [{ tokenId, owner: to, txHash: log.transactionHash, blockNumber: log.blockNumber }];
+      return [{
+        tokenId,
+        owner: to,
+        txHash: log.transactionHash,
+        blockNumber: log.blockNumber,
+        globalId: tamagakiGlobalId(selected.chain.id, selected.sbtAddress, tokenId),
+      }];
     }).sort((a, b) => Number(b.tokenId - a.tokenId));
     sbts.value = await Promise.all(minted.map(async (sbt) => {
       try {
@@ -183,7 +190,7 @@ onMounted(() => void refresh());
       <p class="whitepaper-hero__eyebrow">TAMAGAKI SBT</p>
       <h2>{{ locale === "ja" ? "取得されたSBT" : "Issued SBTs" }}</h2>
       <div v-if="sbts.length" class="tamagaki-grid">
-        <a v-for="sbt in sbts" :key="sbt.tokenId.toString()" :href="explorer('token', network.sbtAddress, sbt.tokenId)" target="_blank" rel="noreferrer">
+        <a v-for="sbt in sbts" :key="sbt.globalId" :href="explorer('token', network.sbtAddress, sbt.tokenId)" target="_blank" rel="noreferrer">
           <img v-if="sbt.image" :src="sbt.image" :alt="`Tamagaki SBT #${sbt.tokenId}`">
           <span class="tamagaki-grid__number">玉垣 {{ sbt.tokenId.toString().padStart(3, "0") }}</span>
           <strong>SBT #{{ sbt.tokenId }}</strong>
