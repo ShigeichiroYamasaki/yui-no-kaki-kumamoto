@@ -75,7 +75,7 @@ head:
     <a href="./prefecture-operations"><b>OPS</b><span>NPO and prefectural key and settlement operations</span></a>
     <a href="./smart-contracts"><b>CODE</b><span>Smart contracts and source code</span></a>
     <a href="./mainnet-status"><b>MAINNET</b><span>Production fundraising status</span></a>
-    <a href="./demo-status"><b>SEPOLIA</b><span>Testnet contributions and SBTs</span></a>
+    <a href="./demo-status"><b>TESTNETS</b><span>Switch between Ethereum and Base Sepolia data</span></a>
   </section>
   <div class="scope-note"><strong>Current status</strong><br>This document is a proposal and technical prototype prepared before coordination with relevant parties. The demo is not connected to real funds, real JPYC, or any Kumamoto Prefecture system, and does not indicate endorsement by Kumamoto Prefecture.</div>
 </main>

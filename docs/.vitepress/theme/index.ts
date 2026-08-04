@@ -38,7 +38,7 @@ const Layout = defineComponent({
         { text: "Operations", link: "/en/prefecture-operations" },
         { text: "Testnet Guide", link: "/en/wallet-experience" },
         { text: "Mainnet Status", link: "/en/mainnet-status" },
-        { text: "Sepolia Data", link: "/en/demo-status" },
+        { text: "Testnet Data", link: "/en/demo-status" },
         { text: "GitHub", link: "https://github.com/ShigeichiroYamasaki/yui-no-kaki-kumamoto" },
         { text: "日本語", link: languageLink },
       ] : [
@@ -48,7 +48,7 @@ const Layout = defineComponent({
         { text: "NPO・県運用", link: "/prefecture-operations" },
         { text: "デモガイド", link: "/wallet-experience" },
         { text: "本番支援状況", link: "/mainnet-status" },
-        { text: "Sepolia集計", link: "/demo-status" },
+        { text: "テストネット集計", link: "/demo-status" },
         { text: "ADR", link: "/adr/" },
         { text: "GitHub", link: "https://github.com/ShigeichiroYamasaki/yui-no-kaki-kumamoto" },
         { text: "English", link: languageLink },

@@ -63,6 +63,11 @@ const supporterCount = computed(() => new Set(supports.value.map((row) => row.su
 function short(value: string) {
   return `${value.slice(0, 8)}…${value.slice(-6)}`;
 }
+function selectNetwork(key: DemoNetworkKey) {
+  if (networkKey.value === key) return;
+  networkKey.value = key;
+  void refresh();
+}
 function amount(row: SupportRow) {
   const decimals = row.asset === "ETH" ? 18 : network.value.jpycDecimals;
   return Number(formatUnits(row.amount, decimals)).toLocaleString(undefined, {
@@ -151,6 +156,26 @@ onMounted(() => void refresh());
 
 <template>
   <div class="demo-status">
+    <nav v-if="availableDemoNetworks.length > 1" class="testnet-switcher" :aria-label="locale === 'ja' ? '表示するテストネット' : 'Test network to display'">
+      <div class="testnet-switcher__intro">
+        <b>{{ locale === "ja" ? "表示するテストネットを選択" : "Choose a test network" }}</b>
+        <span>{{ locale === "ja" ? "ネットワークごとに支援額とSBTを個別表示します" : "Contributions and SBTs are shown separately for each network" }}</span>
+      </div>
+      <div class="testnet-switcher__options">
+        <button
+          v-for="item in availableDemoNetworks"
+          :key="item.key"
+          type="button"
+          :class="{ 'is-active': networkKey === item.key }"
+          :aria-pressed="networkKey === item.key"
+          @click="selectNetwork(item.key)"
+        >
+          <span>{{ item.label }}</span>
+          <small>Chain ID {{ item.chain.id }}</small>
+          <b>{{ networkKey === item.key ? (locale === "ja" ? "表示中" : "Selected") : (locale === "ja" ? "表示する" : "View") }}</b>
+        </button>
+      </div>
+    </nav>
     <div class="demo-warning">
       <b>{{network.label.toUpperCase()}} TESTNET</b>
       {{ locale === "ja" ? "表示されるETH・MockJPYC・SBTに実資産としての価値はありません。" : "The displayed ETH, MockJPYC, and SBTs have no real-world asset value." }}
@@ -161,7 +186,6 @@ onMounted(() => void refresh());
         <div><p class="whitepaper-hero__eyebrow">DEPLOYED CONTRACTS</p><h2>{{ locale === "ja" ? "コントラクトアドレス" : "Contract addresses" }}</h2></div>
         <span class="demo-status__network">{{network.label}} · {{network.chain.id}}</span>
       </div>
-      <label v-if="availableDemoNetworks.length > 1" class="editor-field"><span>{{locale === "ja" ? "テストネット" : "Test network"}}</span><select v-model="networkKey" @change="refresh"><option v-for="item in availableDemoNetworks" :key="item.key" :value="item.key">{{item.label}} · {{item.chain.id}}</option></select></label>
       <div class="contract-addresses">
         <a v-for="([name, address]) in addresses" :key="name" :href="explorer('address', address)" target="_blank" rel="noreferrer">
           <span>{{ name }}</span><code>{{ address }}</code><b>↗</b>

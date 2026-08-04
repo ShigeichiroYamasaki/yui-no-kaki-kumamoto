@@ -151,12 +151,24 @@ function changeNetwork() {
   tokenId.value = undefined;
   message.value = `${network.value.label}を選択しました。ウォレットを接続してください`;
 }
+function selectNetwork(key: DemoNetworkKey) {
+  if (networkKey.value === key) return;
+  networkKey.value = key;
+  changeNetwork();
+}
 </script>
 
 <template>
   <section class="testnet-demo">
+    <nav v-if="availableDemoNetworks.length > 1" class="testnet-switcher" aria-label="支援に使用するテストネット">
+      <div class="testnet-switcher__intro"><b>支援に使用するテストネットを選択</b><span>各ネットワークのテスト資産とSBTは別々に管理されます</span></div>
+      <div class="testnet-switcher__options">
+        <button v-for="item in availableDemoNetworks" :key="item.key" type="button" :class="{ 'is-active': networkKey === item.key }" :aria-pressed="networkKey === item.key" @click="selectNetwork(item.key)">
+          <span>{{item.label}}</span><small>Chain ID {{item.chain.id}}</small><b>{{networkKey === item.key ? "選択中" : "選択する"}}</b>
+        </button>
+      </div>
+    </nav>
     <div class="demo-warning"><b>{{network.label.toUpperCase()}} TESTNET</b>実資産ではありません。入力した氏名とメッセージは、送金後に公開ブロックチェーンへ記録されます。</div>
-    <label v-if="availableDemoNetworks.length > 1" class="editor-field"><span>テストネット</span><select v-model="networkKey" @change="changeNetwork"><option v-for="item in availableDemoNetworks" :key="item.key" :value="item.key">{{item.label}} · {{item.chain.id}}</option></select></label>
     <div v-if="!metadataReady" class="metadata-upgrade-notice"><strong>画像メタデータ対応版の再デプロイ待ちです</strong><span>編集とプレビューは利用できますが、新しいコントラクトアドレスを設定するまで送金ボタンは無効です。</span></div>
 
     <button class="demo-primary" @click="connect">{{ account ? shortAccount : "ウォレットを接続" }}</button>
