@@ -38,7 +38,7 @@ head:
     <div class="fundraising-notice" role="status"><strong>まだ募金を受け付けていません</strong><span>現在は構想・技術検証段階です。テストネットデモでは実資産を使用しません。</span></div>
     <div class="whitepaper-hero__eyebrow">KUMAMOTO RELIEF DAO / RECOVERY SUPPORT</div>
     <h1>熊本災害支援DAO <span>世界の想いを、熊本の復興力へ。</span></h1>
-    <p>BitcoinとEVMを通じた国外からの復興支援をデジタル玉垣として可視化し、資金が熊本県へ届き、インフラ復旧へつながる過程を誰もが検証できる国際支援基盤。Lightningは安全条件を満たした後の段階的追加です。</p>
+    <p>Bitcoin、Ethereum、JPYCを通じた国外からの復興支援をデジタル玉垣として可視化し、資金が熊本県へ届き、インフラ復旧へつながる過程を誰もが検証できる国際支援基盤。</p>
     <div class="hero-actions">
       <a href="./vision">ホワイトペーパーを読む</a>
       <a href="./architecture">技術構造を見る</a>
@@ -53,7 +53,7 @@ head:
   <MainnetSupportTrend locale="ja" />
   <p class="whitepaper-hero__eyebrow">EXECUTIVE SUMMARY</p>
   <h2>支援の入口から、復興の報告まで。</h2>
-  <p>熊本災害支援DAOは、認定NPOを法的運営主体とし、Native Bitcoin・ETH・JPYCによる国外中心の災害復興支援、譲渡不能な玉垣SBT、登録金融・決済事業者を介した円転と熊本県災害支援口座への円貨寄附、受領証跡、復興事業の進捗報告を一つの検証可能な流れとして接続する構想です。Lightningはオンライン署名鍵の例外審査後に追加する候補であり、初期本番では無効です。既存の国内銀行募金や税制優遇を提供する仕組みではなく、ブロックチェーンの国際性と公開検証性を活かしたインフラ復旧支援を対象とします。</p>
+  <p>熊本災害支援DAOは、認定NPOを法的運営主体とし、Bitcoin・Ethereum・JPYCによる国外中心の災害復興支援、譲渡不能な玉垣SBT、登録金融・決済事業者を介した円転と熊本県災害支援口座への円貨寄附、受領証跡、復興事業の進捗報告を一つの検証可能な流れとして接続する構想です。Ethereumの受付チェーンにはBaseを使用し、JPYCにはPolygonを使用します。Lightningはオンライン署名鍵の例外審査後に追加する候補であり、初期本番では無効です。既存の国内銀行募金や税制優遇を提供する仕組みではなく、ブロックチェーンの国際性と公開検証性を活かしたインフラ復旧支援を対象とします。</p>
   <section class="principles">
     <article><b>検証可能性</b><span>支援受付、集約送金、県受領、復興報告の重要な証跡を公開検証できる形で結びます。</span></article>
     <article><b>公共性の尊重</b><span>DAOは意見表明の場です。支援者投票が熊本県の予算や公共事業を拘束することはありません。</span></article>

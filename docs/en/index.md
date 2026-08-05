@@ -38,7 +38,7 @@ head:
     <div class="fundraising-notice" role="status"><strong>Fundraising has not started</strong><span>This project is currently at the concept and technical validation stage. The testnet demo uses no real assets.</span></div>
     <div class="whitepaper-hero__eyebrow">KUMAMOTO RELIEF DAO / RECOVERY SUPPORT</div>
     <h1>Kumamoto Relief DAO <span>Turning global solidarity into Kumamoto's power to recover.</span></h1>
-    <p>A public support platform that represents international Bitcoin and EVM recovery contributions as digital tamagaki and makes their path to Kumamoto Prefecture verifiable. Lightning is a later, safety-gated addition.</p>
+    <p>A public support platform that represents international contributions through Bitcoin, Ethereum, and JPYC as digital tamagaki and makes their path to Kumamoto Prefecture verifiable.</p>
     <div class="hero-actions">
       <a href="./vision">Read the whitepaper</a>
       <a href="./architecture">View the architecture</a>
@@ -52,7 +52,7 @@ head:
   <MainnetSupportTrend locale="en" />
   <p class="whitepaper-hero__eyebrow">EXECUTIVE SUMMARY</p>
   <h2>From receiving support to reporting recovery.</h2>
-  <p>Kumamoto Relief DAO proposes a certified NPO as legal operator and connects international disaster recovery support through Native Bitcoin, ETH, and JPYC with non-transferable Tamagaki SBTs, registered-provider conversion, a separate yen donation to the Kumamoto Disaster Support Account, proof of receipt, and recovery updates in one verifiable flow. Lightning is a candidate added only after an online-key exception review and is disabled at initial production launch. The system complements rather than replaces domestic bank fundraising and is not a tax-incentive scheme.</p>
+  <p>Kumamoto Relief DAO proposes a certified NPO as legal operator and connects international disaster recovery support through Bitcoin, Ethereum, and JPYC with non-transferable Tamagaki SBTs, registered-provider conversion, a separate yen donation to the Kumamoto Disaster Support Account, proof of receipt, and recovery updates in one verifiable flow. Ethereum contributions use Base, while JPYC uses Polygon. Lightning is a candidate added only after an online-key exception review and is disabled at initial production launch. The system complements rather than replaces domestic bank fundraising and is not a tax-incentive scheme.</p>
   <section class="principles">
     <article><b>Verifiability</b><span>Key evidence for receipt, consolidated transfer, prefectural receipt, and recovery reporting is publicly linked and independently verifiable.</span></article>
     <article><b>Public mandate</b><span>DAO-style participation provides a channel for views. Supporter votes do not bind Kumamoto Prefecture's budgets or public works.</span></article>
