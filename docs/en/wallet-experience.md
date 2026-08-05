@@ -95,7 +95,7 @@ After the contribution transaction completes, open the [contracts, SBT, and cont
 - Explain wallet connection, token approval, and contribution as separate actions.
 - Before every signature, show the network, asset, amount, gas estimate, and destination contract.
 - Default a JPYC allowance to the contribution amount; never require unlimited approval.
-- Mint the Tamagaki SBT in the contribution transaction without a separate claim signature.
+- For Base ETH and Polygon JPYC, mint the Tamagaki SBT in the contribution transaction without a separate claim signature. Bitcoin and Lightning are non-atomic exceptions and use a Base claim after threshold attestation.
 - Distinguish wallet confirmation, pending, on-chain success, and finalized aggregation.
 - Treat explorer ownership as authoritative even when a wallet does not display the image.
 
@@ -173,7 +173,7 @@ The transaction hash makes status recoverable after closing the page. Pending tr
 
 A successful contribution transaction establishes the `supportId`, asset and amount, supporter address, SBT `tokenId`, owner, and initial `Received` status. The completion view offers “View tamagaki,” “Verify in explorer,” and “Copy support ID.”
 
-The SBT is non-transferable and represents no sale value, repayment right, tax benefit, or investment return. Receiving it requires no additional signature, seed phrase, private key, or separate fee.
+The SBT is non-transferable and represents no sale value, repayment right, tax benefit, or investment return. Base ETH and Polygon JPYC require no additional receiving signature. No path ever requests a seed phrase or private key; the separate Bitcoin or Lightning claim is described below.
 
 MetaMask may not automatically display the SBT image. Minting is still complete when the SBT contract, token ID, and owner match in the block explorer. The site provides the contract address and token ID for manual import when required. See [MetaMask's NFT display and verification guide](https://support.metamask.io/manage-crypto/nfts/nft-tokens-in-your-metamask-wallet/).
 
@@ -193,6 +193,65 @@ MetaMask may not automatically display the SBT image. Minting is still complete 
 ## 7. Anti-phishing information
 
 The site and wallet let the user cross-check the official domain, chain and chain ID, Vault and JPYC contracts, amount, JPYC allowance, and estimated gas. This system never requests a seed phrase, private key, separate SBT receiving fee, or NFT `setApprovalForAll`. Any page requesting them to receive a Tamagaki SBT must be treated as fraudulent.
+
+## Contributing with Bitcoin Lightning
+
+The supporter does not install or operate LND. They use an ordinary BOLT 11 compatible Lightning wallet for payment and a separate Base-compatible wallet for the Tamagaki SBT. A supporter who does not want an SBT may complete a Lightning contribution without connecting a Base wallet.
+
+```mermaid
+sequenceDiagram
+  actor U as International supporter
+  participant W as Lightning wallet
+  participant Web as Support Web app
+  participant L as LND invoice service
+  participant A as Independent attesters
+  participant S as Base SBT
+  U->>Web: Edit satoshi amount and Tamagaki
+  U->>Web: Connect Base wallet and sign intent
+  Web->>L: Request a one-time BOLT 11 invoice
+  L-->>Web: QR code / lightning: URI
+  U->>W: Scan QR or open wallet
+  W-->>U: Show amount, routing fee, and recipient
+  U->>W: Approve payment
+  W->>L: Lightning payment
+  L-->>Web: Settled
+  A->>S: Threshold attestation
+  U->>S: Claim Tamagaki SBT
+  S-->>U: Non-transferable SBT
+```
+
+### 1. Edit the amount and Tamagaki
+
+The primary amount is expressed in satoshis. An indicative fiat conversion is separate and includes its quotation time. The supporter may edit an optional display name or nickname, country or region, short message, and amount and country visibility. One tall Tamagaki preview shows the result. Input is length- and character-validated and never interpreted as HTML.
+
+### 2. Bind the Base recipient before payment
+
+A supporter requesting an SBT connects a Base wallet and signs a donation intent containing the donation ID, satoshi amount, recipient address, Tamagaki metadata hash, and expiry. This is not a payment and consumes no gas. The one-time invoice is bound to the signed intent, preventing substitution of another recipient or Tamagaki after payment.
+
+### 3. Pay from a Lightning wallet
+
+Desktop presents a QR code; mobile prioritizes a `lightning:` link, with invoice copy as a fallback. The supporter verifies the amount, recipient, invoice expiry, and routing fee inside their wallet. The routing fee is separate from the contribution. An expired invoice is replaced from the same intent rather than asking the user to pay it.
+
+### 4. Separate payment and SBT states
+
+| State | User-facing meaning |
+|---|---|
+| `IntentCreated` | Details registered; no funds have been sent |
+| `InvoiceIssued` | Pay from the Lightning wallet |
+| `PaymentPending` | Waiting for the Lightning result |
+| `Settled` | The contribution has been received |
+| `Attesting` | Preparing evidence for the Tamagaki SBT |
+| `Claimable` | The SBT can be claimed on Base |
+| `SBTIssued` | Display the token ID and Base transaction |
+
+Lightning has no ordinary public on-chain transaction ID. The completion view therefore shows the project donation number, satoshi amount, settlement time, public evidence commitment, and Base token ID and transaction. It does not publish the payment hash or preimage. An SBT delay never reverses a settled contribution, and only the claim is retried.
+
+### 5. User guarantees
+
+- Never request the seed or private key of either wallet.
+- Never collapse payment failure, invoice expiry, and “paid but SBT pending” into one error.
+- Allow a tightly scoped Paymaster to sponsor Base gas for the SBT claim.
+- Never issue a real-BTC invoice until production Lightning intake is formally approved.
 
 ## Demo and production
 

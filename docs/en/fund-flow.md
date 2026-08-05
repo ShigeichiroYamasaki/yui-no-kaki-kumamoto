@@ -2,7 +2,7 @@
 
 ## Receiving support
 
-International supporters may send ETH to the Base Mainnet Vault, official JPYC to the Polygon PoS Vault, or BTC to a donation-specific Bitcoin address or Lightning invoice. EVM Vaults atomically mint a Tamagaki SBT on the same chain. Bitcoin and Lightning mint a Base SBT only after confirmation and threshold attestation.
+International supporters may send ETH to the Base Mainnet Vault, official JPYC to the Polygon PoS Vault, or Native BTC to a donation-specific Bitcoin address. EVM Vaults atomically mint a Tamagaki SBT on the same chain. Native Bitcoin mints a Base SBT only after confirmation and threshold attestation. A Lightning invoice follows the same non-atomic model but is disabled at initial production launch and added only after the ADR-0011 exception conditions are met.
 
 Country, public name, and message are optional. Country is never inferred from a wallet or IP address; only self-declared information is aggregated.
 
@@ -13,7 +13,7 @@ sequenceDiagram
   participant S as Supporter
   participant BV as Base ETH Vault
   participant PV as Polygon JPYC Vault
-  participant BTC as Bitcoin / Lightning receiver
+  participant BTC as Bitcoin / future Lightning receiver
   participant BR as Bitcoin verifiers + Base Registry
   participant O as Certified NPO treasury multisig
   participant E as Registered financial or payment provider
@@ -39,7 +39,7 @@ The contracts, Bitcoin receiver, and DAO do not perform exchange services. The a
 
 ## Bitcoin confirmation model
 
-Native Bitcoin separates `Detected → Confirmed → Accepted → SBTIssued`; zero-confirmation payments are excluded from confirmed totals. Lightning uses a one-time invoice and verifies its settled state by payment hash. Independent Bitcoin nodes threshold-attest the payment to a Base Registry, and one `txid:vout` or `paymentHash` can produce at most one SBT. See [ADR-0011](../adr/0011-bitcoin-lightning-and-base-sbt).
+Native Bitcoin separates `Detected → Confirmed → Accepted → SBTIssued`; zero-confirmation payments are excluded from confirmed totals. Lightning uses a one-time invoice and verifies settlement against the payment hash in a restricted audit domain. The public Registry receives a domain-separated commitment, and one `txid:vout` or payment commitment can produce at most one SBT. See [ADR-0011](../adr/0011-bitcoin-lightning-and-base-sbt).
 
 ## Accounting presentation
 

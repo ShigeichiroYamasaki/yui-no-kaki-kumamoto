@@ -7,7 +7,7 @@ flowchart LR
   S[Primarily international supporters] --> W[Multilingual Web3 support app]
   W --> BV[Base ETH Vault]
   W --> PV[Polygon JPYC Vault]
-  W --> BTC[Unique Bitcoin address / Lightning invoice]
+  W --> BTC[Unique Bitcoin address / future Lightning invoice]
   BTC --> BR[Bitcoin verifiers + Base Registry]
   N["Certified NPO・legal operator"] --> BV
   N --> PV
@@ -40,7 +40,7 @@ flowchart TB
   D["Supporters and DAO participants"] -->|"Support and non-binding advice"| N["Certified NPO<br/>legally accountable operator"]
   D -->|"Base ETH"| BV["Base ETH Vault"]
   D -->|"Polygon JPYC"| PV["Polygon JPYC Vault"]
-  D -->|"Native Bitcoin / Lightning"| BTC["Bitcoin receiver and NPO multisig"]
+  D -->|"Native Bitcoin / future Lightning"| BTC["Bitcoin receiver and NPO multisig"]
   N -->|"Terms, accounting, board approval, reconciliation"| BV
   N -->|"Terms, accounting, board approval, reconciliation"| PV
   BV -->|"Transfer to registered deposit address"| F["Registered financial or payment provider<br/>AML, conversion, records"]
@@ -73,7 +73,7 @@ Certified-NPO status alone does not remove Payment Services Act requirements. Th
 |---|---|---|
 | Base `RecoverySupportVault` | Chain ID `8453`, `NativeOnly` ETH intake and consolidation | Only to a registered exchange or payment-provider deposit address |
 | Polygon `RecoverySupportVault` | Chain ID `137`, `ERC20Only` official-JPYC intake and consolidation | Only to a registered exchange or payment-provider deposit address |
-| Base `BitcoinSupportRegistry` | Threshold attestations for Bitcoin outpoints or Lightning payment hashes and duplicate prevention | None |
+| Base `BitcoinSupportRegistry` | Threshold attestations for Bitcoin outpoints or Lightning payment commitments and duplicate prevention | None |
 | Per-chain `TamagakiSBT` | Non-transferable ERC-721 and ERC-5192 participation proof | None |
 | `RecoveryAttestationRegistry` | Records hashes of prefectural receipt evidence and recovery reports | None |
 | `RecoverySupportCouncil` | Non-binding voting by SBT holders | None |
@@ -81,7 +81,7 @@ Certified-NPO status alone does not remove Payment Services Act requirements. Th
 ## Off-chain components
 
 - An indexer that synchronizes chain events safely across reorganizations
-- An isolated wallet service that derives donation-specific Bitcoin addresses, independent Bitcoin nodes, a Lightning node, and a threshold-attestation service
+- An isolated wallet service that derives donation-specific Bitcoin addresses, independent Bitcoin nodes, and a threshold-attestation service; the Lightning node is added only after exception approval
 - Public aggregation APIs by country, time, and asset
 - A revocable data store for optional public names, countries, and messages
 - A document platform for bank evidence, prefectural acknowledgements, and recovery reports
@@ -91,11 +91,24 @@ This is the production principle. The image-enabled Sepolia demo also evaluates 
 
 ### Bitcoin-to-Base boundary
 
-Native BTC is not bridged into an EVM Vault. A unique Bitcoin address or one-time Lightning invoice maps to a donation intent. Independent verifiers confirm the required confirmations or settlement and submit a threshold attestation to a Base Registry. The ERC-721 and ERC-5192 Tamagaki SBT is then minted to the Base address selected before payment or through a one-time claim. Bitcoin private keys, xprvs, Lightning macaroons, and preimages never enter Base or the public indexer. See [ADR-0011](../adr/0011-bitcoin-lightning-and-base-sbt).
+Native BTC is not bridged into an EVM Vault. A unique Bitcoin address or one-time Lightning invoice maps to a signed donation intent. Independent verifiers confirm the required confirmations or settlement and submit a threshold attestation to a Base Registry. The ERC-721 and ERC-5192 Tamagaki SBT is then minted to the Base address selected before payment. For Lightning, the Registry receives a domain-separated commitment rather than the underlying payment hash. Bitcoin private keys, xprvs, Lightning macaroons, payment hashes, and preimages never enter Base or the public indexer. See [ADR-0011](../adr/0011-bitcoin-lightning-and-base-sbt).
 
 ## Permission model
 
-Production administration will not rely on a single wallet. Administration, treasury transfers, and reporting are separated and protected through multisignature approval, timelocks, and emergency pausing. The destination is restricted to the registered provider address contractually linked to a yen donation into the Kumamoto Disaster Support Account and cannot be changed by DAO voting.
+Production administration will not rely on a single wallet. As a stronger rule, **application servers, databases, indexers, public Web servers, and Bitcoin Core never store a private key capable of moving funds**. Administration, treasury transfers, and reporting are separated across hardware wallets, multisignature approval, timelocks, HSM/KMS signing, and emergency pausing. The destination is restricted to the registered provider address contractually linked to a yen donation into the Kumamoto Disaster Support Account and cannot be changed by DAO voting.
+
+| Key or credential | Location | Policy |
+|---|---|---|
+| Supporter key | The supporter's own wallet | The site never requests a seed or private key |
+| EVM treasury and administration keys | Hardware wallets held by separate organizations | Safe-style multisig and timelock; no server-side signing |
+| Bitcoin custody keys | Hardware wallets held by separate organizations | Watch-only descriptor and PSBT; no seed in Bitcoin Core |
+| Attestation and Paymaster keys | HSM/KMS under independent operators | Non-exportable, least privilege, threshold approval, no treasury authority |
+| LND macaroon | Restricted invoice service | Invoice RPCs only; never distribute administrator authority |
+| Lightning channel key | Remote signer or dedicated isolated environment | A narrowly approved online-key exception; Lightning is disabled at initial production launch |
+
+For a Bitcoin withdrawal, a server prepares an unsigned PSBT. Hardware-wallet holders representing multiple certified-NPO staff, a joint operator, and independent audit or partner organizations verify the destination, amount, and fee and provide the required signatures. In the initial candidate, prefectural staff hold neither Bitcoin custody keys nor Vault transfer keys. Bitcoin Core broadcasts only the completed PSBT. Because a server compromise can still falsify a screen or interrupt service, signers compare the hardware-wallet display with transfer instructions delivered over a separate channel.
+
+A Lightning node must sign channel state while online, so it cannot fully satisfy the offline-key rule. Initial production therefore enables Native Bitcoin only. Lightning requires a separate exception review covering a remote signer or external provider, hot-balance limits, recovery drills, and restricted macaroons. See [ADR-0011](../adr/0011-bitcoin-lightning-and-base-sbt).
 
 ## Security boundaries and critical improvements
 

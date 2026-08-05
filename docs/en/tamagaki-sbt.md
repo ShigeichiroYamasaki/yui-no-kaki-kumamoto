@@ -8,7 +8,7 @@ Because every tamagaki represents a distinct contribution, it is based on ERC-72
 
 Each EVM Tamagaki SBT is issued on the same network as its contribution. An ETH contribution on Base mints a Base SBT, while a JPYC contribution on Polygon mints a Polygon SBT in the same contribution transaction.
 
-Native Bitcoin and Lightning are explicit exceptions. Independent verifiers confirm the donation-specific Bitcoin outpoint or Lightning payment hash and submit a threshold attestation to a Base Registry. A Base SBT is then minted to the address selected before payment or during a one-time claim. Payment and minting are non-atomic, and a pending payment is never shown as an issued SBT. A transferable Bitcoin-inscription UTXO is not treated as the official SBT.
+Native Bitcoin and Lightning are explicit exceptions. Independent verifiers confirm the donation-specific Bitcoin outpoint or Lightning payment commitment and submit a threshold attestation to a Base Registry. A Base SBT is then minted to the address selected before payment; the underlying Lightning payment hash is not public. Payment and minting are non-atomic, and a pending payment is never shown as an issued SBT. A transferable Bitcoin-inscription UTXO is not treated as the official SBT.
 
 Because a token ID is unique only within one contract, the public system uses `chainId:sbtContract:tokenId` as its global identifier. The unified indexer applies each chain's finality rule and verifies that a `supportId` has no more than one valid SBT before presenting one combined tamagaki view. Status updates and transfer batches retain their source-chain identity.
 
@@ -35,7 +35,7 @@ A hash of canonicalized input JSON is stored as `publicMetadataHash`, linking th
 
 ## Display experience
 
-An overview places Base, Polygon, and Bitcoin/Lightning-derived Base tamagaki together around Kumamoto Castle. At high density, the interface aggregates by region, period, asset, chain, and state. Selecting an individual tamagaki reveals its chain ID, SBT contract, token ID, Bitcoin outpoint or Lightning payment hash where applicable, threshold attestation, transfer batch, receipt confirmation, and recovery reports.
+An overview places Base, Polygon, and Bitcoin/Lightning-derived Base tamagaki together around Kumamoto Castle. At high density, the interface aggregates by region, period, asset, chain, and state. Selecting an individual tamagaki reveals its chain ID, SBT contract, token ID, Bitcoin outpoint or Lightning payment commitment where applicable, threshold attestation, transfer batch, receipt confirmation, and recovery reports.
 
 ## No financial or public rights
 

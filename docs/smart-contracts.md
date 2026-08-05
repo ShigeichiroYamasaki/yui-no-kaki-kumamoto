@@ -145,6 +145,6 @@ mintWithMetadata(address to, bytes32 supportId, bytes32 publicMetadataHash,
 
 本番集計はBase ETHとPolygon JPYCを切り替えず、単一表の2行で同時表示します。GitHub Actions VariablesにはBase用の`BASE_MAINNET_PUBLIC_RPC_URL`、`BASE_MAINNET_VAULT_ADDRESS`、`BASE_MAINNET_TAMAGAKI_SBT_ADDRESS`、`BASE_MAINNET_DEPLOYMENT_BLOCK`と、Polygon用の`POLYGON_MAINNET_PUBLIC_RPC_URL`、`POLYGON_MAINNET_VAULT_ADDRESS`、`POLYGON_MAINNET_TAMAGAKI_SBT_ADDRESS`、`POLYGON_MAINNET_JPYC_ADDRESS`、`POLYGON_MAINNET_DEPLOYMENT_BLOCK`、`POLYGON_MAINNET_JPYC_DECIMALS`を設定します。異なる資産額は換算合算せず、チェーン別に表示します。トップページの本番玉垣ブロックは両chainのSBTを一つの垣根として表示します。
 
-ADR-0011で提案するNative Bitcoin／Lightning受付、`BitcoinSupportRegistry`、閾値アテステーション、Base SBT Claimは現行コードに未実装です。既存のEVM VaultへNative BTCを送ることはできません。Bitcoin Signet/testnet、Lightning test環境、Base Sepoliaを結ぶ独立プロトタイプとして実装・監査した後に本番候補へ統合します。
+ADR-0011で提案するNative Bitcoin／Lightning受付、`BitcoinSupportRegistry`、閾値アテステーション、Base SBT Claimは現行コードに未実装です。既存のEVM VaultへNative BTCを送ることはできません。Native BitcoinはBitcoin Signet/testnetとBase Sepoliaを結ぶ独立プロトタイプとして実装・監査した後に本番候補へ統合します。Lightningはtest環境とonline signer例外を追加検証し、別個の開始承認後にのみ有効化します。
 
 GitHub Pagesでは従来の`RECOVERY_*`変数をEthereum Sepoliaとして利用できます。Base Sepoliaを併用する場合は、`BASE_SEPOLIA_PUBLIC_RPC_URL`、`BASE_SEPOLIA_VAULT_ADDRESS`、`BASE_SEPOLIA_JPYC_ADDRESS`、`BASE_SEPOLIA_TAMAGAKI_SBT_ADDRESS`、`BASE_SEPOLIA_REGISTRY_ADDRESS`、`BASE_SEPOLIA_COUNCIL_ADDRESS`、`BASE_SEPOLIA_DEPLOYMENT_BLOCK`、`BASE_SEPOLIA_JPYC_DECIMALS`、`BASE_SEPOLIA_TAMAGAKI_METADATA_VERSION=2`をGitHub Actions Variablesへ追加します。三つの主要アドレスが揃うとBase Sepoliaパネルが有効になり、Ethereum Sepoliaと同時に表示されます。秘密鍵や書き込み権限はPagesへ設定しません。

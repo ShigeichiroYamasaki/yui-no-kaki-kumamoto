@@ -2,7 +2,7 @@
 
 ## Assessment basis
 
-This assessment covers the prototype code and proposed operations as of August 4, 2026. It does not replace an external audit, penetration test, or an end-to-end operational exercise with Kumamoto Prefecture and settlement providers.
+This assessment covers the prototype code and proposed operations as of August 5, 2026. It does not replace an external audit, penetration test, or an end-to-end operational exercise with Kumamoto Prefecture and settlement providers.
 
 | Severity | Criterion |
 |---|---|
@@ -43,7 +43,7 @@ The current implementation is suitable for a Sepolia technical demonstration, no
 | A-13 | **High** | Polygon validator, milestone, checkpoint, PoS Bridge, fake-JPYC, or JPYC EX redemption failure | Official asset allowlist, pause, and per-chain totals | The Base escape hatch does not apply; pin chain ID and JPYC code hash, use multiple RPCs and finalized blocks, define JPYC EX versus PoS Bridge recovery priority, caps, and halt thresholds |
 | A-14 | **Critical** | Compromised or colluding Bitcoin watchers attest a nonexistent outpoint and falsify Base SBT or accounting state | Not implemented | Require independent Bitcoin nodes, threshold signatures, `txid:vout` uniqueness, signed domains, timelocked verifier rotation, and public reconciliation |
 | A-15 | **High** | Bitcoin reorganization, RBF, or zero-confirmation double spend is treated as final support | Not implemented | Require value-based confirmation thresholds, reorg rollback, zero-conf exclusion, and Accepted state before SBT minting |
-| A-16 | **Critical** | Compromise of a Bitcoin xprv, multisig signer, Lightning macaroon, or wallet key | Only general EVM key separation exists | Require hardware multisig, receive/storage separation, least-privilege macaroons, liquidity caps, two-site backup, and sweep monitoring |
+| A-16 | **Critical** | Compromise of a Bitcoin xprv, multisig signer, Lightning macaroon, or wallet key | Current code is unimplemented; production design uses watch-only Bitcoin Core, PSBT, hardware multisig, HSM/KMS separation, and disables Lightning initially | Complete organizational approval of signers and threshold, two-site backup, recovery drills, and sweep monitoring; when enabling Lightning add restricted macaroons, a remote signer or external provider, and a hot-balance cap |
 
 ## Human error and insider misuse
 
@@ -62,7 +62,7 @@ The current implementation is suitable for a Sepolia technical demonstration, no
 | H-11 | **Medium** | Testnet/mainnet or MockJPYC/official JPYC confusion | Separate device/account/color/domain; always display chain ID and contract; never deploy mock to production |
 | H-12 | **Medium** | Real or third-party identity entered as permanent nickname | Start blank, allow self-chosen nickname, show irreversibility immediately before signing, retain preview and off-chain option |
 | H-13 | **Critical** | Wrong Bitcoin network, address, change output, or PSBT fee | Pin descriptor and network; independently decode destination, fee, and change; run a small first transfer |
-| H-14 | **High** | Duplicate claims for one outpoint/payment hash or an expired invoice counted as paid | Registry uniqueness, one-time claim tokens, invoice-state reload, and independent pre-mint reconciliation |
+| H-14 | **High** | Duplicate claims for one outpoint/payment commitment or an expired invoice counted as paid | Registry uniqueness, signed intent as the standard path, one-time recovery claim tokens, payment-hash reconciliation in a restricted audit domain, invoice-state reload, and independent pre-mint reconciliation |
 
 ## Prototype-to-production gap
 

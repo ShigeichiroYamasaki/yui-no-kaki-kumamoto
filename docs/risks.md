@@ -2,7 +2,7 @@
 
 ## 評価の前提
 
-この評価は2026年8月4日時点のプロトタイプコードと運用案を対象とします。外部監査、ペネトレーションテスト、熊本県・交換事業者との実運用試験に代わるものではありません。
+この評価は2026年8月5日時点のプロトタイプコードと運用案を対象とします。外部監査、ペネトレーションテスト、熊本県・交換事業者との実運用試験に代わるものではありません。
 
 重大度は次の基準です。
 
@@ -45,7 +45,7 @@
 | A-13 | **High** | Polygon validator/milestone/checkpoint/PoS Bridge障害、偽JPYC、JPYC EX償還停止 | 公式asset allowlist、pause、chain別集計 | Baseのescape hatchは利用できない。公式JPYCのchain ID・codehash固定、複数RPC、finalized block使用、JPYC EX直接償還とPoS Bridgeの優先順位、最大滞留額・停止基準が必要 |
 | A-14 | **Critical** | Bitcoin監視者の侵害・共謀により未入金outpointを証明し、Base SBTや会計を偽造 | 未実装 | 独立Bitcoin node、閾値署名、`txid:vout`重複拒否、署名domain、監視者交代timelock、公開照合が必要 |
 | A-15 | **High** | Bitcoin再編成、RBF、0-confirmation二重支払いを確定支援として処理 | 未実装 | 金額別confirmation、再編成rollback、0-conf除外、SBT発行前のAccepted状態が必要 |
-| A-16 | **Critical** | Bitcoin xprv、multisig signer、Lightning macaroon／wallet鍵の侵害 | EVM鍵分離方針のみ | hardware multisig、受取・保管分離、最小権限macaroon、流動性上限、二拠点backup、Sweep監視が必要 |
+| A-16 | **Critical** | Bitcoin xprv、multisig signer、Lightning macaroon／wallet鍵の侵害 | 現行コードは未実装。本番設計はwatch-only Bitcoin Core、PSBT、hardware multisig、HSM/KMS分離、初期Lightning無効化 | 署名者・閾値の法人決議、二拠点backup、復旧訓練、Sweep監視が必要。Lightning有効化時は限定macaroon、remote signerまたは外部事業者、hot balance上限を追加 |
 
 ## 当事者の操作ミス・内部不正
 
@@ -66,7 +66,7 @@
 | H-11 | **Medium** | テストネットと本番、MockJPYCと公式JPYCを混同する | 端末・アカウント・UI色・ドメイン分離、chain IDとcontract addressの強制表示、本番にMockをデプロイしない |
 | H-12 | **Medium** | ニックネーム入力欄へ本名・第三者情報を誤公開する | 空欄から本人が名称を決め、不可逆性を直前表示。プレビュー、再確認、off-chain方式の選択肢を用意 |
 | H-13 | **Critical** | Bitcoin network、address、change output、PSBT feeを誤認して送金する | descriptorとnetwork固定、PSBT decode、送付先全文・fee・changeの四眼確認、少額先行 |
-| H-14 | **High** | 同じoutpoint／payment hashへ複数Claimを発行、または期限切れinvoiceを誤計上する | Registryの一意制約、一回限りClaim token、invoice状態再読込、発行前の独立照合 |
+| H-14 | **High** | 同じoutpoint／payment commitmentへ複数Claimを発行、または期限切れinvoiceを誤計上する | Registryの一意制約、標準の署名済みIntent、補助Claim tokenの一回性、限定監査領域でのpayment hash照合、invoice状態再読込、発行前の独立照合 |
 
 ## 現行コントラクトと本番要求の差
 

@@ -2,7 +2,7 @@
 
 ## 支援受付
 
-国外支援者はBase MainnetのETH VaultへETH、Polygon PoSのJPYC Vaultへ公式JPYCを送るほか、支援Intentごとの固有Bitcoin addressまたはLightning invoiceからBTCを送れます。EVM Vaultは同じchainで玉垣SBTを原子的に発行します。Bitcoin／Lightningは確認と閾値アテステーション後にBaseでSBTを発行します。
+国外支援者はBase MainnetのETH VaultへETH、Polygon PoSのJPYC Vaultへ公式JPYCを送るほか、支援Intentごとの固有Bitcoin addressからNative BTCを送れます。EVM Vaultは同じchainで玉垣SBTを原子的に発行します。Native Bitcoinは確認と閾値アテステーション後にBaseでSBTを発行します。Lightning invoice経路も同じ非原子的モデルを使いますが、初期本番では無効とし、ADR-0011の限定例外条件を満たした後に追加します。
 
 国、表示名、メッセージは任意です。国はウォレットやIPアドレスから推定せず、本人の申告だけを集計します。
 
@@ -13,7 +13,7 @@ sequenceDiagram
   participant S as 支援者
   participant BV as Base ETH Vault
   participant PV as Polygon JPYC Vault
-  participant BTC as Bitcoin / Lightning受入基盤
+  participant BTC as Bitcoin / 将来のLightning受入基盤
   participant BR as Bitcoin検証者 + Base Registry
   participant O as 認定NPO財務マルチシグ
   participant E as 登録金融・決済事業者
@@ -39,7 +39,7 @@ sequenceDiagram
 
 ## Bitcoin確認モデル
 
-Native Bitcoinは`Detected → Confirmed → Accepted → SBTIssued`を分離し、0-confirmationを確定集計へ含めません。Lightningは一回限りのinvoiceがsettledになったことをpayment hashで確認します。単一backendではなく複数Bitcoin nodeの閾値アテステーションをBase Registryへ登録し、同一`txid:vout`または`paymentHash`から複数SBTを発行しません。詳細は[ADR-0011](./adr/0011-bitcoin-lightning-and-base-sbt)を参照してください。
+Native Bitcoinは`Detected → Confirmed → Accepted → SBTIssued`を分離し、0-confirmationを確定集計へ含めません。Lightningは一回限りのinvoiceがsettledになったことを限定監査領域のpayment hashで確認します。公開Registryにはdomain-separated commitmentを登録し、同一`txid:vout`またはpayment commitmentから複数SBTを発行しません。詳細は[ADR-0011](./adr/0011-bitcoin-lightning-and-base-sbt)を参照してください。
 
 ## 会計上の表示
 

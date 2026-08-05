@@ -8,7 +8,7 @@
 
 EVM支援の玉垣SBTは支援資産と同じチェーンで発行します。Base上のETH支援にはBase版SBT、Polygon上のJPYC支援にはPolygon版SBTを同じ支援transaction内でmintします。
 
-Native BitcoinとLightningは例外です。支援IntentごとのBitcoin outpointまたはLightning payment hashを複数の独立検証者が確認し、閾値アテステーションをBase Registryへ登録した後、支援者が事前指定またはClaim時に指定したBase addressへBase版SBTを発行します。Bitcoinの支払いとSBT発行は非原子的であり、確認中の支払いを発行済みSBTとして表示しません。Bitcoin inscriptionは移転可能なUTXOに結び付くため正式なSBTには採用しません。
+Native BitcoinとLightningは例外です。支援IntentごとのBitcoin outpointまたはLightning payment commitmentを複数の独立検証者が確認し、閾値アテステーションをBase Registryへ登録した後、支援者が支払い前に指定したBase addressへBase版SBTを発行します。元のLightning payment hashは公開しません。Bitcoinの支払いとSBT発行は非原子的であり、確認中の支払いを発行済みSBTとして表示しません。Bitcoin inscriptionは移転可能なUTXOに結び付くため正式なSBTには採用しません。
 
 token IDはコントラクト内でのみ一意であるため、公開システムでは`chainId:sbtContract:tokenId`をglobal IDとして扱います。統合Indexerは各チェーン固有のfinalityを確認し、同じ`supportId`に複数の有効SBTがないことを検証してから、一つの玉垣ビューへ統合します。SBTの状態更新と送金batchも元のチェーンを明示します。
 
@@ -35,7 +35,7 @@ token IDはコントラクト内でのみ一意であるため、公開システ
 
 ## 表示体験
 
-Base版、Polygon版、Bitcoin／Lightning由来のBase版を区別なく熊本城の周囲へ配置した俯瞰ビューを提供します。表示密度が高い場合は地域・期間・資産・チェーン・状態による集約表示を使い、個別玉垣を選択するとchain ID、SBTコントラクト、token ID、Bitcoin outpointまたはLightning payment hash、閾値アテステーション、県送金バッチ、受領確認、復興報告を確認できます。
+Base版、Polygon版、Bitcoin／Lightning由来のBase版を区別なく熊本城の周囲へ配置した俯瞰ビューを提供します。表示密度が高い場合は地域・期間・資産・チェーン・状態による集約表示を使い、個別玉垣を選択するとchain ID、SBTコントラクト、token ID、Bitcoin outpointまたはLightning payment commitment、閾値アテステーション、県送金バッチ、受領確認、復興報告を確認できます。
 
 ## 権利の否定
 

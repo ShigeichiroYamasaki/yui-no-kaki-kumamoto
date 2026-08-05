@@ -2,11 +2,11 @@
 
 ## リアルタイム可視化
 
-ダッシュボードは、Base、Polygon、Bitcoin、Lightningの累計支援件数、ユニーク支援ウォレットまたは支援Intent、資産別数量、参考評価額、円転確定額、国・地域別分布、時間的推移、集約バッチ、県送金済み額、残高、復興事業の進捗を各networkの確定状況に応じて更新します。
+ダッシュボードは、Base、Polygon、Native Bitcoinと、有効化済みの場合のLightningについて、累計支援件数、ユニーク支援ウォレットまたは支援Intent、資産別数量、参考評価額、円転確定額、国・地域別分布、時間的推移、集約バッチ、県送金済み額、残高、復興事業の進捗を各networkの確定状況に応じて更新します。無効な経路は0件ではなく「受付未開始」と表示します。
 
 ブロック確定前の支援は「確認中」とし、確定集計から分離します。インデクサー障害時には最終同期時刻を表示します。
 
-Bitcoinでは最後に合意したblock height、confirmation数、閾値アテステーション状態を表示します。Lightningではinvoiceのsettled状態を表示しますが、preimage、node credential、支援者の非公開情報は公開しません。
+Bitcoinでは最後に合意したblock height、confirmation数、閾値アテステーション状態を表示します。Lightningを有効化した場合はinvoiceのsettled状態とdomain-separated payment commitmentを表示しますが、payment hash、preimage、node credential、支援者の非公開情報は公開しません。
 
 ## プライバシー
 

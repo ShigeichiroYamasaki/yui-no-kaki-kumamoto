@@ -27,7 +27,7 @@
 ### 検証可能な送金バッチ
 
 - 各バッチへ対象`supportId`一覧のMerkle root、件数、資産別数量、円転確定額、明示手数料、県送金額、前バッチハッシュ、証憑ハッシュを関連付ける。
-- Bitcoin batchではoutpoint、satoshi額、確認block、閾値アテステーションID、PSBT／登録事業者送金transactionのハッシュを関連付ける。Lightningではpayment hashとsettled時刻を用い、preimageやnode credentialを公開しない。
+- Bitcoin batchではoutpoint、satoshi額、確認block、閾値アテステーションID、PSBT／登録事業者送金transactionのハッシュを関連付ける。Lightningの限定監査領域ではpayment hashとsettled時刻を照合し、公開batchにはdomain-separated payment commitmentだけを用いる。payment hash、preimage、node credentialを公開しない。
 - 各バッチへ、事業者名、チェーン、登録済み入金アドレス、銀行振込先を特定する県の口座指定書hash、事業者受付番号、見積有効期限を含む決済指図hashを関連付ける。銀行口座番号そのものは公開チェーンへ記録しない。
 - 支援者が自身の`supportId`についてMerkle proofを取得し、包含を検証できるようにする。
 - 同一`supportId`を複数バッチへ含めない不変条件をインデクサーと監査処理で検証する。

@@ -25,7 +25,7 @@
 
 - ERC-721とERC-5192の組合せを採用し譲渡を禁止する。
 - EVM支援は支援と同じチェーンでSBTを原子的に発行する。Bitcoin／Lightning支援は閾値アテステーション後にBaseで発行し、非原子的であることを表示する。
-- SBTは`chainId:sbtContract:tokenId`をglobal IDとして統合表示し、元支援にはBitcoin outpointまたはLightning payment hashを含む別のglobal IDを保持する。
+- SBTは`chainId:sbtContract:tokenId`をglobal IDとして統合表示し、元支援にはBitcoin outpointまたはLightningのdomain-separated payment commitmentを含む別のglobal IDを保持する。元のpayment hashは公開しない。
 - `Received / Included / Delivered / Reported / Invalidated`を管理する。
 - 集約送金バッチと対象支援IDの対応は、明細そのものではなく検証可能なハッシュまたはMerkle rootとして記録し、SBTの状態遷移を追跡可能にする。
 - SBTは金銭的権利、返済請求権、公共事業への決定権を表さない。
@@ -39,6 +39,8 @@
 - 送金は一意なバッチIDを持ち、二重実行を拒否する。
 - JPYC・ETH・BTCの円転は登録事業者に委ね、コントラクト、Bitcoin受入基盤、DAO自身は交換しない。
 - BTCは認定NPOのhardware walletを用いたBitcoin multisigで管理し、EVM管理鍵、Lightning node鍵、Bitcoin鍵を分離する。
+- アプリケーション、DB、Indexer、公開Web、Bitcoin Coreに資金移転可能な秘密鍵を保存しない。Bitcoinはwatch-only descriptorとPSBT、EVM管理はhardware wallet multisig、アテステーションは独立HSM/KMSを用いる。
+- Lightning channel鍵は常時オンライン署名を必要とする限定例外であるため、初期本番ではLightning受付を無効化し、別途の例外承認、hot balance上限、復旧訓練、限定macaroonを満たしてから有効化する。
 - 運営費は復興支援金と分離する。
 
 ### P-04 熊本県受領確認
@@ -64,12 +66,12 @@
 ### P-07 可視化
 
 - 支援ウォレット数、件数、資産別数量、参考評価額、円転確定額、県送金額、残高を分離表示する。
-- 本番集計はBase ETH、Polygon JPYC、Native Bitcoin、Lightningを同時表示し、異なる資産やnetworkを換算根拠なく合算しない。
+- 本番集計はBase ETH、Polygon JPYC、Native Bitcoinと、有効化済みの場合のLightningを同じ画面へ表示し、異なる資産やnetworkを換算根拠なく合算しない。無効な経路は「受付未開始」とする。
 - 全chainの玉垣SBTを一つのギャラリーへ統合し、各玉垣にはchain名と`chainId:sbtContract:tokenId` global IDを付ける。
 - 玉垣表示は、熊本城を囲む全体俯瞰、100本単位の区画、個別玉垣の3段階とする。支援者はウォレット接続、表示名、通し番号、wallet address、transaction hash、global IDから自分の玉垣へ到達できる。
 - 個別玉垣にはglobal IDを含む恒久的な共有URLを付け、全体の中で本人の玉垣を強調する。支援額によって玉垣の大きさや配置上の優劣を変えない。
 - 大規模化した本番表示はIndexer APIから区画単位で取得し、遠景をCanvas/WebGLまたは密度表現、近景を個別画像として描画する。ブラウザが全SBT metadataを一括取得する構成を本番要件としない。
-- トップページにBase、Polygon、Bitcoin／Lightning由来のBase SBTを統合した本番玉垣俯瞰ブロックを置く。テストネットSBTを混在させず、未設定または未発行の場合は0本と受付開始前の状態を明示する。
+- トップページにBase、Polygon、Bitcoin由来と、有効化済みの場合のLightning由来Base SBTを統合した本番玉垣俯瞰ブロックを置く。テストネットSBTを混在させない。受付中だが未発行なら0本、経路が無効なら「受付未開始」と区別する。
 - 異なる資産額は換算根拠なしに合算せず、chain・asset別数量として表示する。
 - 国別集計は本人の任意申告に基づく。
 - ネットワークごとに定めた確認ブロック数へ達する前の取引は「確認中」として確定値から除外する。
@@ -92,7 +94,7 @@
 
 ## 本番移行ゲート
 
-具体的な認定NPOの理事会承認、熊本県との覚書、熊本県災害支援口座、公式資産、登録金融・決済事業者、Bitcoin multisig、Lightning運用、閾値アテステーション、会計処理、規約、プライバシー方針、監査完了が揃うまで本番受付を開始しない。ADR-0007、ADR-0008、ADR-0011の本番移行条件を満たし、Critical/Highリスクが未解決でないことを開始承認の必須資料とする。
+具体的な認定NPOの理事会承認、熊本県との覚書、熊本県災害支援口座、対象資産・経路に対応する登録金融・決済事業者、会計処理、規約、プライバシー方針、監査完了が揃うまで、その資産経路の本番受付を開始しない。Native BitcoinにはBitcoin multisigと閾値アテステーションを必須とする。Lightning運用はシステム全体の初期開始条件にはせず、ADR-0011の限定例外条件を満たした後に別途有効化する。ADR-0007、ADR-0008、ADR-0011の該当する本番移行条件を満たし、Critical/Highリスクが未解決でないことを各経路の開始承認の必須資料とする。
 
 ## プロトタイプとの境界
 

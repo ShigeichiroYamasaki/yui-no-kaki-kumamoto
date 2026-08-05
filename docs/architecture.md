@@ -7,7 +7,7 @@ flowchart LR
   S[国外を中心とする支援者] --> W[多言語Web3支援アプリ]
   W --> BV[Base ETH Vault]
   W --> PV[Polygon JPYC Vault]
-  W --> BTC[Bitcoin固有address / Lightning invoice]
+  W --> BTC[Bitcoin固有address / 将来のLightning invoice]
   BTC --> BR[Bitcoin検証者 + Base Registry]
   N["認定NPO・法的運営主体"] --> BV
   N --> PV
@@ -40,7 +40,7 @@ flowchart TB
   D["支援者・DAO参加者"] -->|"支援・非拘束の参考投票"| N["認定NPO法人<br/>法的運営主体"]
   D -->|"Base ETH"| BV["Base ETH Vault"]
   D -->|"Polygon JPYC"| PV["Polygon JPYC Vault"]
-  D -->|"Native Bitcoin / Lightning"| BTC["Bitcoin受入基盤・NPO multisig"]
+  D -->|"Native Bitcoin / 将来のLightning"| BTC["Bitcoin受入基盤・NPO multisig"]
   N -->|"規約・会計・理事会決議・照合"| BV
   N -->|"規約・会計・理事会決議・照合"| PV
   BV -->|"登録済み入金先への送付"| F["登録金融・決済事業者<br/>AML・円転・取引記録"]
@@ -73,7 +73,7 @@ flowchart TB
 |---|---|---|
 | Base `RecoverySupportVault` | chain ID `8453`、`NativeOnly`でETH受付・集約送金 | 登録済み交換・決済事業者入金先へのみ |
 | Polygon `RecoverySupportVault` | chain ID `137`、`ERC20Only`で公式JPYC受付・集約送金 | 登録済み交換・決済事業者入金先へのみ |
-| Base `BitcoinSupportRegistry` | Bitcoin outpoint／Lightning payment hashの閾値アテステーションと重複防止 | なし |
+| Base `BitcoinSupportRegistry` | Bitcoin outpoint／Lightning payment commitmentの閾値アテステーションと重複防止 | なし |
 | chain別`TamagakiSBT` | ERC-721 + ERC-5192型の譲渡不能証明 | なし |
 | `RecoveryAttestationRegistry` | 県受領証跡と復興報告ハッシュ | なし |
 | `RecoverySupportCouncil` | SBT保有者の非拘束投票 | なし |
@@ -81,7 +81,7 @@ flowchart TB
 ## オフチェーン構成
 
 - チェーンイベントを再編成に耐えて同期するインデクサー
-- 支援IntentごとのBitcoin addressを導出する分離wallet基盤、独立Bitcoin node、Lightning node、閾値アテステーションサービス
+- 支援IntentごとのBitcoin addressを導出する分離wallet基盤、独立Bitcoin node、閾値アテステーションサービス。Lightning nodeは例外承認後に追加
 - 国別・時間別・資産別の公開集計API
 - 任意公開名、国、メッセージを管理する撤回可能なデータストア
 - 銀行証憑・県受領確認書・復興報告書を保管する文書基盤
@@ -91,11 +91,24 @@ flowchart TB
 
 ### BitcoinとBaseの境界
 
-Native BTCはEVM Vaultへbridgeしません。Bitcoin側で固有addressまたは一回限りのLightning invoiceを支援Intentへ対応させ、必要なconfirmationまたはsettlementを独立検証者が確認します。閾値アテステーションをBase Registryへ登録した後、事前指定または一回限りのClaimで選択されたBase addressへERC-721＋ERC-5192玉垣SBTを発行します。Bitcoin private key、xprv、Lightning macaroon、preimageをBaseまたは公開Indexerへ渡しません。詳細は[ADR-0011](./adr/0011-bitcoin-lightning-and-base-sbt)に従います。
+Native BTCはEVM Vaultへbridgeしません。Bitcoin側で固有addressまたは一回限りのLightning invoiceを署名済み支援Intentへ対応させ、必要なconfirmationまたはsettlementを独立検証者が確認します。閾値アテステーションをBase Registryへ登録した後、支払い前に指定したBase addressへERC-721＋ERC-5192玉垣SBTを発行します。Lightningでは元のpayment hashではなくdomain-separated commitmentをRegistryへ登録します。Bitcoin private key、xprv、Lightning macaroon、payment hash、preimageをBaseまたは公開Indexerへ渡しません。詳細は[ADR-0011](./adr/0011-bitcoin-lightning-and-base-sbt)に従います。
 
 ## 権限モデル
 
-本番では単独ウォレットを管理者にしません。管理、送金、報告を分離し、マルチシグ、タイムロック、緊急停止を組み合わせます。Vaultの送金先は、熊本県災害支援口座への円貨送金契約と結び付いた登録済み事業者入金先に限定し、DAO投票から変更できない構造とします。
+本番では単独ウォレットを管理者にしません。さらに、**アプリケーション、DB、Indexer、公開Web、Bitcoin Coreには資金移転可能な秘密鍵を置かない**ことを設計原則とします。管理、送金、報告を分離し、ハードウェアウォレット、マルチシグ、タイムロック、HSM/KMS、緊急停止を用途に応じて組み合わせます。Vaultの送金先は、熊本県災害支援口座への円貨送金契約と結び付いた登録済み事業者入金先に限定し、DAO投票から変更できない構造とします。
+
+| 鍵・認証情報 | 保持場所 | 方針 |
+|---|---|---|
+| 支援者鍵 | 支援者自身のwallet | サイトはseed／private keyを要求しない |
+| EVM財務・管理鍵 | 複数組織のhardware wallet | Safe型multisig＋timelock。serverから署名しない |
+| Bitcoin保管鍵 | 複数組織のhardware wallet | watch-only descriptor＋PSBT。Bitcoin Coreにseedを入れない |
+| アテステーション・Paymaster鍵 | 独立主体ごとのHSM/KMS | 抽出不能、最小権限、閾値署名。資金移転権限なし |
+| LND macaroon | 限定されたinvoice service | invoice RPCだけを許可し、admin権限を配布しない |
+| Lightning channel鍵 | remote signer／専用隔離環境 | 常時署名の限定例外。初期本番ではLightningを無効化 |
+
+Bitcoin出金ではserverが未署名PSBTを作成し、認定NPOの複数担当、共同運営団体、独立監査・協力団体等のhardware walletで送付先、金額、feeを確認して必要数を署名します。初期候補では熊本県職員へBitcoinまたはVaultの資金管理鍵を持たせません。完成PSBTだけをBitcoin Coreがbroadcastします。秘密鍵なしのserver侵害で画面停止や偽表示が起こり得るため、署名者はhardware wallet画面と別経路の送付指図を照合します。
+
+Lightning nodeはchannel状態をオンラインで署名する必要があり、この原則の完全な適用対象にはできません。そのため初期本番はNative Bitcoinのみを有効にし、Lightningはremote signerまたは外部事業者、hot balance上限、復旧訓練、限定macaroonを含む例外審査後に有効化します。詳細は[ADR-0011](./adr/0011-bitcoin-lightning-and-base-sbt)を参照してください。
 
 ## セキュリティ境界と重大な改善
 

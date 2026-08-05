@@ -143,7 +143,7 @@ MockJPYCの取得にもSepolia ETHによる少額のガス代が必要です。M
 - ウォレット接続、トークン利用承認、支援送信を別の操作として説明する。
 - すべての署名前に、ネットワーク、資産、金額、ガス代、接続先コントラクトを表示する。
 - JPYCの利用承認額は支援額と同額を初期値とし、無制限承認を要求しない。
-- 玉垣SBTは支援トランザクション内で自動発行し、別の「受取」「Claim」署名を要求しない。
+- Base ETH／Polygon JPYCでは玉垣SBTを支援トランザクション内で自動発行し、別の「受取」「Claim」署名を要求しない。Bitcoin／Lightningは非原子的な例外であり、閾値アテステーション後にBaseでClaimする。
 - 「処理中」「チェーン上で成功」「必要確認数へ到達」を区別する。
 - ウォレットに画像が表示されなくても、ブロックエクスプローラー上の所有記録を正とする。
 
@@ -244,7 +244,7 @@ flowchart TD
 - SBT保有者
 - 初期状態`Received`
 
-完了画面には「玉垣を見る」「ブロックエクスプローラーで検証」「支援IDをコピー」を表示します。SBTは譲渡不能で、売却、換金、返済請求、税制優遇を表しません。また、受け取るための追加署名、秘密鍵、シードフレーズの入力を要求しません。
+EVM支援の完了画面には「玉垣を見る」「ブロックエクスプローラーで検証」「支援IDをコピー」を表示します。SBTは譲渡不能で、売却、換金、返済請求、税制優遇を表しません。Base ETH／Polygon JPYCでは受取用の追加署名を要求せず、どの経路でも秘密鍵やシードフレーズの入力を要求しません。Bitcoin／Lightningの追加Claimは後段で区別して説明します。
 
 MetaMaskでSBTが自動表示されない場合があります。この場合でも、ブロックエクスプローラー上でSBTコントラクト、Token ID、所有アドレスが一致すれば発行は完了しています。必要に応じてSBTコントラクトアドレスとToken IDを使った手動インポート手順を案内します。[MetaMaskのNFT表示・確認方法](https://support.metamask.io/manage-crypto/nfts/nft-tokens-in-your-metamask-wallet/)
 
@@ -273,6 +273,65 @@ MetaMaskでSBTが自動表示されない場合があります。この場合で
 - 推定ガス代
 
 本システムは、シードフレーズ、秘密鍵、SBT受取手数料の別送、NFTの`setApprovalForAll`を要求しません。SBT発行を名目にこれらを要求する画面は偽物として扱います。
+
+## Bitcoin Lightningで支援する体験
+
+支援者側にLNDの導入は不要です。通常のBOLT 11対応Lightning walletと、玉垣SBTを受け取るBase対応walletを別々に利用します。SBTを希望しない支援者はBase walletを接続せず、Lightning支援だけを完了できます。
+
+```mermaid
+sequenceDiagram
+  actor U as 国外の支援者
+  participant W as Lightning wallet
+  participant Web as 支援Web
+  participant L as LND invoice service
+  participant A as 独立アテスター
+  participant S as Base SBT
+  U->>Web: satoshi額と玉垣表示を編集
+  U->>Web: Base walletを接続してIntent署名
+  Web->>L: 一回限りのBOLT 11 invoiceを要求
+  L-->>Web: QR code / lightning: URI
+  U->>W: QR読取またはwalletで開く
+  W-->>U: 金額・routing fee・支払先を表示
+  U->>W: 支払いを承認
+  W->>L: Lightning payment
+  L-->>Web: Settled
+  A->>S: 閾値アテステーション
+  U->>S: 玉垣SBTをClaim
+  S-->>U: 譲渡不能SBT
+```
+
+### 1. 金額と玉垣を編集する
+
+金額はsatoshiを主表示にし、参考法定通貨換算と換算時刻を分離します。支援者は表示名／nickname、国・地域、短いmessage、金額と国の公開可否を編集し、一つの縦長玉垣previewで確認します。これらは任意であり、入力をHTMLとして解釈しません。
+
+### 2. Base受取先を支払い前に固定する
+
+SBTを希望する支援者はBase walletを接続し、支援ID、satoshi額、受取address、玉垣metadata hash、有効期限を含む支援Intentへ署名します。これは送金ではなくgasを消費しません。InvoiceはこのIntentへ結び付くため、支払い後に別のaddressや玉垣へ差し替えられません。
+
+### 3. Lightning walletで支払う
+
+DesktopではQR code、mobileでは`lightning:` linkを表示し、invoiceコピーも用意します。支援者はwallet内で支援額、支払先、invoice期限、routing feeを確認して承認します。routing feeは支援額とは別です。Invoice期限切れの場合は古いinvoiceへ送らせず、同じIntentから新しいinvoiceを発行します。
+
+### 4. 支払いとSBTの状態を分けて示す
+
+| 状態 | 利用者への表示 |
+|---|---|
+| `IntentCreated` | 支援内容を登録しました。資金は未送信です |
+| `InvoiceIssued` | Lightning walletで支払ってください |
+| `PaymentPending` | Lightningネットワークの結果を待っています |
+| `Settled` | 支援金を受領しました |
+| `Attesting` | 玉垣SBT用の証明を作成しています |
+| `Claimable` | Baseで玉垣SBTを受け取れます |
+| `SBTIssued` | Token IDとBase transactionを表示します |
+
+Lightningには通常の公開txidがないため、完了画面には支援番号、satoshi額、settled時刻、公開証明commitment、Base token ID／transactionを表示します。payment hashとpreimageは公開しません。SBT発行が遅れてもsettled済み支援は取り消されず、Claimだけを安全に再試行できます。
+
+### 5. 利用者へ約束すること
+
+- Lightning walletとBase walletのseed、private keyを要求しない。
+- 「支払い失敗」「invoice期限切れ」「支払い済みだがSBT準備中」を同じエラーにしない。
+- SBT Claimに必要なBase gasは、用途と上限を限定したPaymasterで負担できるようにする。
+- Lightning受付が本番承認されるまでは実BTCのinvoiceを発行しない。
 
 ## デモと本番の違い
 

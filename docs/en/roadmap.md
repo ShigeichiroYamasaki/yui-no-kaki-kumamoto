@@ -26,7 +26,7 @@
 - Implement the L1 emergency multisig, L2 Escape Controller, and L1 Recovery Vault
 - Exercise the complete path from a forced transaction through canonical withdrawal, L1 receipt, and double-payment prevention on Base Sepolia or an equivalent testnet
 - Exercise JPYC-like tokens, Polygon SBTs, chain-qualified global IDs, halt/recovery, and unified aggregation on a Polygon testnet
-- Threshold-attest Bitcoin Signet/testnet and Lightning test payments into a Base Sepolia Registry and exercise one-time SBT claims
+- Threshold-attest Bitcoin Signet/testnet and Lightning test payments into a Base Sepolia Registry; exercise signed-intent claims as the standard path and one-time claim tokens only as a recovery path
 
 ## Phase 3 — Audit and limited operation
 
@@ -35,7 +35,8 @@
 - Confirm legal, accounting, payment-services, and AML requirements
 - Run a small end-to-end test from JPYC support to conversion and a separate yen donation to the Prefecture
 - Verify that Base ETH and Polygon JPYC remain separately reconciled rather than being mixed into one on-chain accounting batch
-- Test end-to-end reconciliation from Native BTC/Lightning through the NPO Bitcoin multisig, a small registered-provider conversion, Base SBT, and prefectural transfer batch
+- Test end-to-end reconciliation from Native BTC through the NPO Bitcoin multisig, a small registered-provider conversion, Base SBT, and prefectural transfer batch
+- Without real funds, separately validate the Lightning remote signer or external provider, restricted macaroons, hot-balance cap, recovery procedure, and payment commitments
 - Operate and reconcile within limited amounts and periods
 - Gather feedback from supporters, Kumamoto Prefecture, and providers
 
@@ -46,6 +47,7 @@
 - Issue financial, security, and transparency reports
 - Exercise the escape hatch every six months and after an L2 or bridge upgrade
 - Accept improvement proposals from the public community
-- Operate Native Bitcoin and Lightning intake with Bitcoin-derived Base Tamagaki
+- Operate Native Bitcoin intake with Bitcoin-derived Base Tamagaki
+- Enable Lightning only in a later release after the ADR-0011 exception conditions and a separate launch approval are complete
 
 Movement between phases is determined not by dates but by whether agreement, audit, and operational-readiness conditions have been met.
