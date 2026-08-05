@@ -46,6 +46,7 @@ next-env.d.ts
 /ignition/deployments/
 /ignition/parameters/base-mainnet.json
 /ignition/parameters/polygon-mainnet.json
+/ignition/parameters/bitcoin-base-sepolia.json
 /docs/.vitepress/cache/
 /docs/.vitepress/dist/
 

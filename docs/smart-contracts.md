@@ -74,7 +74,7 @@ npm run contracts:deploy:production:polygon
 
 - `RecoverySupportVault`のオンチェーン送金先は、認定NPOが契約する登録金融・決済事業者の入金アドレスに限定します。初期本番候補では支援資産はNPOへ帰属し、円転後の銀行送金はNPOから熊本県への別個の円貨寄附です。
 - 本番候補moduleとBase Mainnet・Polygon Mainnet接続設定は実装済みですが、本番アドレスは未デプロイです。エスケープハッチ、Polygon回収runbook、本番Indexerは未実装です。
-- 現行EVM実装の玉垣SBTは通常のウォレット間移転を禁止し、支援と同じchainで発行します。Indexerは`chainId:sbtContract:tokenId`でBase版とPolygon版を統合します。Bitcoin／Lightning由来のBase SBTはADR-0011の未実装追加機能です。
+- 現行EVM実装の玉垣SBTは通常のウォレット間移転を禁止し、支援と同じchainで発行します。Indexerは`chainId:sbtContract:tokenId`でBase版とPolygon版を統合します。Bitcoin／Lightning由来のBase SBT発行Registryはプロトタイプ実装済みですが、Bitcoin Core／LND受入サービスと本番Indexerは未実装です。
 - 本番系では氏名、住所、正確な位置情報などの個人情報をオンチェーンへ保存しません。Sepoliaの画像付きSBTデモだけは、明示的に同意した任意表示名とメッセージをオンチェーンへ記録できます。
 - Councilの投票は参考情報であり、熊本県の予算や公共事業を拘束しません。
 - 本番導入には、外部監査、マルチシグ、タイムロック、正式な受領合意、Polygon chain ID `137`と公式JPYCアドレス・codehash・decimalsの確認が必要です。
@@ -145,6 +145,20 @@ mintWithMetadata(address to, bytes32 supportId, bytes32 publicMetadataHash,
 
 本番集計はBase ETH、Polygon JPYC、Native Bitcoinを切り替えず、単一表の3行で同時表示します。Bitcoin経路が未実装または未開始の間は数量を推測せず「受付開始前」と表示します。GitHub Actions VariablesにはBase用の`BASE_MAINNET_PUBLIC_RPC_URL`、`BASE_MAINNET_VAULT_ADDRESS`、`BASE_MAINNET_TAMAGAKI_SBT_ADDRESS`、`BASE_MAINNET_DEPLOYMENT_BLOCK`と、Polygon用の`POLYGON_MAINNET_PUBLIC_RPC_URL`、`POLYGON_MAINNET_VAULT_ADDRESS`、`POLYGON_MAINNET_TAMAGAKI_SBT_ADDRESS`、`POLYGON_MAINNET_JPYC_ADDRESS`、`POLYGON_MAINNET_DEPLOYMENT_BLOCK`、`POLYGON_MAINNET_JPYC_DECIMALS`を設定します。異なる資産額は換算合算せず、資産別に表示します。トップページの本番玉垣ブロックは現行EVM両chainのSBTを一つの垣根として表示し、将来はADR-0011のBitcoin由来Base SBTも統合します。
 
-ADR-0011で提案するNative Bitcoin／Lightning受付、`BitcoinSupportRegistry`、閾値アテステーション、Base SBT Claimは現行コードに未実装です。既存のEVM VaultへNative BTCを送ることはできません。Native BitcoinはBitcoin Signet/testnetとBase Sepoliaを結ぶ独立プロトタイプとして実装・監査した後に本番候補へ統合します。Lightningはtest環境とonline signer例外を追加検証し、別個の開始承認後にのみ有効化します。
+### Bitcoin／Lightning Base Registryプロトタイプ
+
+`BitcoinSupportRegistry`は、支援者が事前署名したEIP-712 `SupportIntent`と、独立検証者が署名した`Attestation`を検証し、同じBase transactionで玉垣SBTを発行します。Bitcoinはtxidとvout、Lightningはdomain-separated payment commitmentを一意キーとし、同じ支援からの二重発行を拒否します。検証者署名は設定threshold以上、署名者addressの昇順で渡します。検証者集合の更新ごとにepochを増やし、旧集合の署名を無効化します。
+
+Bitcoinの`amount`はsatoshi・小数8桁、Lightningはmillisatoshi・小数11桁です。Lightning payment hash、preimage、invoice、macaroonはRegistryへ渡しません。`lib/bitcoin-support.ts`はtxid検査、Lightning公開commitment、画像hash、署名順序の共通処理を提供します。
+
+Base Sepolia用moduleは`ignition/modules/BitcoinSupportBase.ts`、設定見本は`ignition/parameters/bitcoin-base-sepolia.example.json`です。見本を秘密情報を含まないローカル設定へコピーし、admin、2-of-3等のthreshold、異なる組織が管理するverifier addressを設定して次を実行します。
+
+```bash
+cp ignition/parameters/bitcoin-base-sepolia.example.json \
+  ignition/parameters/bitcoin-base-sepolia.json
+npm run contracts:deploy:bitcoin:base-sepolia
+```
+
+このコードはBase側の証明・発行プロトタイプです。既存のEVM VaultへNative BTCを送ることはできません。Bitcoin Core watch-only受入、固有address導出、confirmation／再編成監視、PSBT、LND invoice service、Paymaster、Indexer、UIは未実装です。Native BitcoinはSignet/testnetとの端間試験と監査後、Lightningはonline signer例外の追加検証と別個の開始承認後にのみ有効化します。
 
 GitHub Pagesでは従来の`RECOVERY_*`変数をEthereum Sepoliaとして利用できます。Base Sepoliaを併用する場合は、`BASE_SEPOLIA_PUBLIC_RPC_URL`、`BASE_SEPOLIA_VAULT_ADDRESS`、`BASE_SEPOLIA_JPYC_ADDRESS`、`BASE_SEPOLIA_TAMAGAKI_SBT_ADDRESS`、`BASE_SEPOLIA_REGISTRY_ADDRESS`、`BASE_SEPOLIA_COUNCIL_ADDRESS`、`BASE_SEPOLIA_DEPLOYMENT_BLOCK`、`BASE_SEPOLIA_JPYC_DECIMALS`、`BASE_SEPOLIA_TAMAGAKI_METADATA_VERSION=2`をGitHub Actions Variablesへ追加します。三つの主要アドレスが揃うとBase Sepoliaパネルが有効になり、Ethereum Sepoliaと同時に表示されます。秘密鍵や書き込み権限はPagesへ設定しません。

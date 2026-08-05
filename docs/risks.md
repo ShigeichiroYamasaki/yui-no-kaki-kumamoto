@@ -43,9 +43,9 @@
 | A-11 | **Medium** | 大量支援、巨大ログ、RPC rate limitで公開画面を停止 | 入力長制限 | rate limit、キャッシュ、ページング、複数RPC、バックフィルキュー、read-only degraded modeが必要 |
 | A-12 | **High** | Base sequencer停止・検閲、Data Availability・proof・canonical bridge障害、悪意あるupgrade | pause、処理中表示、複数RPC | 代替RPCだけではETHを退出できない。L1 forced transaction、canonical withdrawal、固定Recovery Vault、L1 gas reserve、停止基準、challenge期間中の公開状態が必要 |
 | A-13 | **High** | Polygon validator/milestone/checkpoint/PoS Bridge障害、偽JPYC、JPYC EX償還停止 | 公式asset allowlist、pause、chain別集計 | Baseのescape hatchは利用できない。公式JPYCのchain ID・codehash固定、複数RPC、finalized block使用、JPYC EX直接償還とPoS Bridgeの優先順位、最大滞留額・停止基準が必要 |
-| A-14 | **Critical** | Bitcoin監視者の侵害・共謀により未入金outpointを証明し、Base SBTや会計を偽造 | 未実装 | 独立Bitcoin node、閾値署名、`txid:vout`重複拒否、署名domain、監視者交代timelock、公開照合が必要 |
-| A-15 | **High** | Bitcoin再編成、RBF、0-confirmation二重支払いを確定支援として処理 | 未実装 | 金額別confirmation、再編成rollback、0-conf除外、SBT発行前のAccepted状態が必要 |
-| A-16 | **Critical** | Bitcoin xprv、multisig signer、Lightning macaroon／wallet鍵の侵害 | 現行コードは未実装。本番設計はwatch-only Bitcoin Core、PSBT、hardware multisig、HSM/KMS分離、初期Lightning無効化 | 署名者・閾値の法人決議、二拠点backup、復旧訓練、Sweep監視が必要。Lightning有効化時は限定macaroon、remote signerまたは外部事業者、hot balance上限を追加 |
+| A-14 | **Critical** | Bitcoin監視者の侵害・共謀により未入金outpointを証明し、Base SBTや会計を偽造 | Registryは閾値署名、検証者epoch、`txid:vout`／commitment重複拒否、EIP-712 domainを実装 | 独立Bitcoin node、検証者交代timelock、公開照合、外部監査が必要 |
+| A-15 | **High** | Bitcoin再編成、RBF、0-confirmation二重支払いを確定支援として処理 | RegistryはAccepted後にのみmintするが、Bitcoin監視は未実装 | 金額別confirmation、再編成検出、0-conf除外、監視不一致時pauseが必要 |
+| A-16 | **Critical** | Bitcoin xprv、multisig signer、Lightning macaroon／wallet鍵の侵害 | Base Registryは資金鍵を保持しない。Bitcoin Core/LND側は未実装。本番設計はwatch-only Bitcoin Core、PSBT、hardware multisig、HSM/KMS分離、初期Lightning無効化 | 署名者・閾値の法人決議、二拠点backup、復旧訓練、Sweep監視が必要。Lightning有効化時は限定macaroon、remote signerまたは外部事業者、hot balance上限を追加 |
 
 ## 当事者の操作ミス・内部不正
 

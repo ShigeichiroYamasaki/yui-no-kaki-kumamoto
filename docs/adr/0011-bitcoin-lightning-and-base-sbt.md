@@ -2,6 +2,7 @@
 
 - 状態: Proposed
 - 日付: 2026-08-05
+- 更新日: 2026-08-05
 
 ## 文脈
 
@@ -92,7 +93,16 @@ EVM内で原子的にSBTを発行できるが、Bitcoin Mainnetから直接支�
 
 ## 結果
 
-Bitcoinの国際性とBaseのSBT・DAO機能を両立できる一方、cross-chainアテステーション、Bitcoin multisig、Lightning流動性、登録事業者対応という新しい運用境界が生じる。現行コントラクトとデモは本ADRを未実装である。Native BitcoinはSignetまたはBitcoin testnetとBase Sepoliaを用いた端間試験、外部監査、少額円転試験が完了するまで実資金を受け付けない。Lightningはこれらに加えてLightning test環境、online signer例外、流動性・復旧試験が完了し、別個の開始承認を得るまで無効とする。
+Bitcoinの国際性とBaseのSBT・DAO機能を両立できる一方、cross-chainアテステーション、Bitcoin multisig、Lightning流動性、登録事業者対応という新しい運用境界が生じる。Base側の`BitcoinSupportRegistry`、EIP-712支援Intent、検証者epoch付き閾値署名、outpoint／Lightning commitment重複防止、Base SBT発行、無効化、pauseはプロトタイプ実装済みである。Bitcoin Core watch-only受入、HD address導出、confirmation／再編成監視、PSBT運用、LND invoice service、限定macaroon、Paymaster、Indexer、UIは未実装である。Native BitcoinはSignetまたはBitcoin testnetとBase Sepoliaを用いた端間試験、外部監査、少額円転試験が完了するまで実資金を受け付けない。Lightningはこれらに加えてLightning test環境、online signer例外、流動性・復旧試験が完了し、別個の開始承認を得るまで無効とする。
+
+## プロトタイプ実装上の制約
+
+- `BitcoinSupportRegistry`はBTCを保管・移転せず、公開証明とSBT発行だけを担当する。
+- Bitcoinでは`sourceId=txid`、`sourceIndex=vout`、`amount=satoshi`、`confirmationReference=block height`とする。
+- Lightningでは`sourceId=domain-separated payment commitment`、`sourceIndex=0`、`amount=millisatoshi`、`confirmationReference=settled timestamp`とする。payment hashとpreimageは入力しない。
+- 支援者署名と検証者署名はEIP-712 domainにBase chain IDとRegistry addressを含む。検証者集合を変更するとepochが増え、旧epochの未確定署名は使えない。
+- 現行の検証者集合変更はadminによる即時操作であり、本番前にSafe型multisigとtimelockへ移管する必要がある。
+- `Invalidated`は証跡とSBTを削除せず無効状態にする。使用済みoutpoint／commitmentを再発行可能には戻さない。
 
 ## 関連ADR
 
