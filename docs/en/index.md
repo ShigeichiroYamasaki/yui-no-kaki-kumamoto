@@ -52,7 +52,7 @@ head:
   <MainnetSupportTrend locale="en" />
   <p class="whitepaper-hero__eyebrow">EXECUTIVE SUMMARY</p>
   <h2>From receiving support to reporting recovery.</h2>
-  <p>Kumamoto Relief DAO proposes a certified NPO as legal operator and connects disaster recovery support in ETH and JPYC, non-transferable Tamagaki SBTs, conversion by a registered provider, a separate yen donation to the Kumamoto Disaster Support Account, proof of receipt, and recovery updates in one verifiable flow. It is not a tax-incentive scheme.</p>
+  <p>Kumamoto Relief DAO proposes a certified NPO as legal operator and connects international disaster recovery support through Bitcoin, Lightning, ETH, and JPYC with non-transferable Tamagaki SBTs, registered-provider conversion, a separate yen donation to the Kumamoto Disaster Support Account, proof of receipt, and recovery updates in one verifiable flow. It complements rather than replaces domestic bank fundraising and is not a tax-incentive scheme.</p>
   <section class="principles">
     <article><b>Verifiability</b><span>Key evidence for receipt, consolidated transfer, prefectural receipt, and recovery reporting is publicly linked and independently verifiable.</span></article>
     <article><b>Public mandate</b><span>DAO-style participation provides a channel for views. Supporter votes do not bind Kumamoto Prefecture's budgets or public works.</span></article>

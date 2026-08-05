@@ -74,7 +74,7 @@ npm run contracts:deploy:production:polygon
 
 - `RecoverySupportVault`のオンチェーン送金先は、認定NPOが契約する登録金融・決済事業者の入金アドレスに限定します。初期本番候補では支援資産はNPOへ帰属し、円転後の銀行送金はNPOから熊本県への別個の円貨寄附です。
 - 本番候補moduleとBase Mainnet・Polygon Mainnet接続設定は実装済みですが、本番アドレスは未デプロイです。エスケープハッチ、Polygon回収runbook、本番Indexerは未実装です。
-- 玉垣SBTは通常のウォレット間移転を禁止し、支援と同じchainで発行します。Indexerは`chainId:sbtContract:tokenId`でBase版とPolygon版を統合します。
+- 現行EVM実装の玉垣SBTは通常のウォレット間移転を禁止し、支援と同じchainで発行します。Indexerは`chainId:sbtContract:tokenId`でBase版とPolygon版を統合します。Bitcoin／Lightning由来のBase SBTはADR-0011の未実装追加機能です。
 - 本番系では氏名、住所、正確な位置情報などの個人情報をオンチェーンへ保存しません。Sepoliaの画像付きSBTデモだけは、明示的に同意した任意表示名とメッセージをオンチェーンへ記録できます。
 - Councilの投票は参考情報であり、熊本県の予算や公共事業を拘束しません。
 - 本番導入には、外部監査、マルチシグ、タイムロック、正式な受領合意、Polygon chain ID `137`と公式JPYCアドレス・codehash・decimalsの確認が必要です。
@@ -144,5 +144,7 @@ mintWithMetadata(address to, bytes32 supportId, bytes32 publicMetadataHash,
 トップページはViemの読み取り専用Public Clientを使用し、`RecoverySupportVault`の`SupportReceived`イベントを30秒ごとに取得します。各イベントのブロック時刻と資産アドレスから、ETH・JPYCの累計額と支援件数を算出します。テストネットの集計とSBT一覧はデモ状況ページへ分離します。
 
 本番集計はBase ETHとPolygon JPYCを切り替えず、単一表の2行で同時表示します。GitHub Actions VariablesにはBase用の`BASE_MAINNET_PUBLIC_RPC_URL`、`BASE_MAINNET_VAULT_ADDRESS`、`BASE_MAINNET_TAMAGAKI_SBT_ADDRESS`、`BASE_MAINNET_DEPLOYMENT_BLOCK`と、Polygon用の`POLYGON_MAINNET_PUBLIC_RPC_URL`、`POLYGON_MAINNET_VAULT_ADDRESS`、`POLYGON_MAINNET_TAMAGAKI_SBT_ADDRESS`、`POLYGON_MAINNET_JPYC_ADDRESS`、`POLYGON_MAINNET_DEPLOYMENT_BLOCK`、`POLYGON_MAINNET_JPYC_DECIMALS`を設定します。異なる資産額は換算合算せず、チェーン別に表示します。トップページの本番玉垣ブロックは両chainのSBTを一つの垣根として表示します。
+
+ADR-0011で提案するNative Bitcoin／Lightning受付、`BitcoinSupportRegistry`、閾値アテステーション、Base SBT Claimは現行コードに未実装です。既存のEVM VaultへNative BTCを送ることはできません。Bitcoin Signet/testnet、Lightning test環境、Base Sepoliaを結ぶ独立プロトタイプとして実装・監査した後に本番候補へ統合します。
 
 GitHub Pagesでは従来の`RECOVERY_*`変数をEthereum Sepoliaとして利用できます。Base Sepoliaを併用する場合は、`BASE_SEPOLIA_PUBLIC_RPC_URL`、`BASE_SEPOLIA_VAULT_ADDRESS`、`BASE_SEPOLIA_JPYC_ADDRESS`、`BASE_SEPOLIA_TAMAGAKI_SBT_ADDRESS`、`BASE_SEPOLIA_REGISTRY_ADDRESS`、`BASE_SEPOLIA_COUNCIL_ADDRESS`、`BASE_SEPOLIA_DEPLOYMENT_BLOCK`、`BASE_SEPOLIA_JPYC_DECIMALS`、`BASE_SEPOLIA_TAMAGAKI_METADATA_VERSION=2`をGitHub Actions Variablesへ追加します。三つの主要アドレスが揃うとBase Sepoliaパネルが有効になり、Ethereum Sepoliaと同時に表示されます。秘密鍵や書き込み権限はPagesへ設定しません。

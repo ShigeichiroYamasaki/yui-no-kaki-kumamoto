@@ -79,7 +79,7 @@ See the [system architecture](./architecture) for the wider technical design. Th
 
 ## Production multi-chain boundary
 
-The repository now contains guarded Base Mainnet and Polygon Mainnet deployment modules and network configuration, but no production addresses have been deployed. The Base escape hatch, Polygon recovery runbook, and production indexer remain unimplemented. Each SBT is minted on its contribution chain, and the indexer uses `chainId:sbtContract:tokenId` to combine Base and Polygon records. Production admission pins Polygon chain ID `137` and the official JPYC address, code hash, and decimals after stakeholder confirmation.
+The repository contains guarded Base Mainnet and Polygon Mainnet deployment modules and network configuration, but no production addresses have been deployed. The Base escape hatch, Polygon recovery runbook, production indexer, and ADR-0011 Bitcoin path remain unimplemented. Current EVM SBTs mint on their contribution chain, while a future Bitcoin/Lightning contribution mints on Base only after threshold attestation. The indexer uses `chainId:sbtContract:tokenId` to combine records.
 
 ## Tamagaki SBT technical specification
 
@@ -132,5 +132,7 @@ The UI derives `publicMetadataHash` from normalized JSON for comparing the pre-s
 ## On-chain aggregation on the home page
 
 The home page uses read-only Viem Public Clients and refreshes `SupportReceived` events every 30 seconds. Base ETH and Polygon JPYC appear as two rows of one table rather than separate panels, a chain selector, or an arbitrary exchange-rate total. Configure `BASE_MAINNET_PUBLIC_RPC_URL`, `BASE_MAINNET_VAULT_ADDRESS`, `BASE_MAINNET_TAMAGAKI_SBT_ADDRESS`, and `BASE_MAINNET_DEPLOYMENT_BLOCK` for Base, plus `POLYGON_MAINNET_PUBLIC_RPC_URL`, `POLYGON_MAINNET_VAULT_ADDRESS`, `POLYGON_MAINNET_TAMAGAKI_SBT_ADDRESS`, `POLYGON_MAINNET_JPYC_ADDRESS`, `POLYGON_MAINNET_DEPLOYMENT_BLOCK`, and `POLYGON_MAINNET_JPYC_DECIMALS` for Polygon. The home-page mainnet Tamagaki block combines SBTs from both production chains into one fence. Testnet totals and SBTs remain isolated on the demo status page.
+
+The Native Bitcoin/Lightning receiver, `BitcoinSupportRegistry`, threshold attestation, and Base SBT claim proposed by ADR-0011 are not implemented in the current code. Native BTC cannot be sent to the existing EVM Vaults. This path requires a separate prototype connecting Bitcoin Signet/testnet, a Lightning test environment, and Base Sepolia before production integration and audit.
 
 The existing `RECOVERY_*` GitHub Pages variables continue to configure Ethereum Sepolia. To enable Base Sepolia simultaneously, add `BASE_SEPOLIA_PUBLIC_RPC_URL`, the five `BASE_SEPOLIA_*_ADDRESS` values, `BASE_SEPOLIA_DEPLOYMENT_BLOCK`, `BASE_SEPOLIA_JPYC_DECIMALS`, and `BASE_SEPOLIA_TAMAGAKI_METADATA_VERSION=2` as GitHub Actions Variables. When its Vault, MockJPYC, and SBT addresses are all present, the Base Sepolia panel appears alongside Ethereum Sepolia while totals remain separated by chain. Pages receives no private key or write authority.

@@ -2,7 +2,7 @@
 
 ## Receiving support
 
-Supporters send ETH to the Base Mainnet ETH Vault and official JPYC to the Polygon PoS JPYC Vault. Each Vault mints a Tamagaki SBT on the same chain. Contracts reject zero value, unapproved assets, wrong-chain requests, and contributions while paused, then issue a chain-qualified support ID and event.
+International supporters may send ETH to the Base Mainnet Vault, official JPYC to the Polygon PoS Vault, or BTC to a donation-specific Bitcoin address or Lightning invoice. EVM Vaults atomically mint a Tamagaki SBT on the same chain. Bitcoin and Lightning mint a Base SBT only after confirmation and threshold attestation.
 
 Country, public name, and message are optional. Country is never inferred from a wallet or IP address; only self-declared information is aggregated.
 
@@ -13,6 +13,8 @@ sequenceDiagram
   participant S as Supporter
   participant BV as Base ETH Vault
   participant PV as Polygon JPYC Vault
+  participant BTC as Bitcoin / Lightning receiver
+  participant BR as Bitcoin verifiers + Base Registry
   participant O as Certified NPO treasury multisig
   participant E as Registered financial or payment provider
   participant K as Kumamoto Disaster Support Account
@@ -21,15 +23,23 @@ sequenceDiagram
   BV-->>S: Event and Base Tamagaki SBT
   S->>PV: Contribute JPYC on Polygon
   PV-->>S: Event and Polygon Tamagaki SBT
+  S->>BTC: Pay a unique address or invoice
+  BTC->>BR: Threshold-attest confirmation or settlement
+  BR-->>S: Make a Base Tamagaki SBT claimable
   O->>BV: Consolidate ETH with a chain-specific batch ID
   O->>PV: Consolidate JPYC with a chain-specific batch ID
   BV->>E: Transfer ETH
   PV->>E: Transfer JPYC
+  BTC->>E: Transfer BTC from the NPO Bitcoin multisig
   E->>K: Remit the NPO's separate yen donation
   K-->>R: Record prefectural receipt and recovery evidence
 ```
 
-The contract does not perform exchange services. The asset becomes the certified NPO's property when support completes, without supporter balances, exchange, or transfer services. A provider with the required registration and controls converts the NPO's own asset, and the NPO makes a separate yen donation to Kumamoto Prefecture. This is not presented as a direct JPYC donation to the Prefecture.
+The contracts, Bitcoin receiver, and DAO do not perform exchange services. The asset becomes the certified NPO's property when support completes, without supporter balances, exchange, or transfer services. A provider with the required registration and controls converts the NPO's ETH, JPYC, or BTC, and the NPO makes a separate yen donation to Kumamoto Prefecture. This is not presented as a direct cryptoasset donation to the Prefecture.
+
+## Bitcoin confirmation model
+
+Native Bitcoin separates `Detected → Confirmed → Accepted → SBTIssued`; zero-confirmation payments are excluded from confirmed totals. Lightning uses a one-time invoice and verifies its settled state by payment hash. Independent Bitcoin nodes threshold-attest the payment to a Base Registry, and one `txid:vout` or `paymentHash` can produce at most one SBT. See [ADR-0011](../adr/0011-bitcoin-lightning-and-base-sbt).
 
 ## Accounting presentation
 

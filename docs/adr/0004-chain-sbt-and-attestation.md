@@ -2,7 +2,7 @@
 
 - 状態: Proposed
 - 日付: 2026-07-31
-- 更新日: 2026-08-04
+- 更新日: 2026-08-05
 
 ## 決定
 
@@ -10,6 +10,7 @@
 - Polygon VaultはJPYC株式会社が公表する公式JPYCコントラクトだけをallowlistへ登録する。非公式ブリッジ、wrapped JPYC、同名tokenを許可しない。
 - 玉垣はERC-721とERC-5192を採用する。
 - 玉垣SBTは支援を受けたチェーンのVaultが同一transaction内で発行する。ETH支援はBase版SBT、JPYC支援はPolygon版SBTとし、単一chainへのcross-chain mintを行わない。
+- 前項の原子的発行はEVM支援に適用する。Native Bitcoin／LightningはADR-0011に基づく明示的例外とし、Bitcoin側の確認と独立検証者の閾値アテステーション後にBase版SBTを発行する。
 - チェーン間集計はインデクサーで統合し、支援IDにチェーンIDと受付コントラクトを含める。
 - 公開画面はchainを切り替えて一方だけを見せず、単一集計表へchain別の行を並べる。玉垣SBTは全chain共通の一つのギャラリーへ統合する。address単体ではなく`chainId:address`でcontractを識別し、別chainに同一addressが存在しても混同しない。
 - SBTのglobal IDは`chainId:sbtContract:tokenId`とし、同じtoken IDが複数chainに存在しても衝突させない。
@@ -33,4 +34,4 @@
 
 ## トレードオフ
 
-マルチチェーンはインデクサー、鍵、RPC、finality、障害回復、コントラクトアドレス確認を複雑化する。一方、支援とSBTを同一chainの同一transactionへ置くことでcross-chain oracle、発行遅延、二重mintを避ける。オンチェーンSVGは外部ストレージに依存しない一方、発行ガスを増加させ、公開した氏名・メッセージを完全には削除できない。
+マルチチェーンはインデクサー、鍵、RPC、finality、障害回復、コントラクトアドレス確認を複雑化する。EVM支援は支援とSBTを同一chainの同一transactionへ置いてcross-chain oracle、発行遅延、二重mintを避ける。Bitcoin／Lightningは国際的な支援入口を広げる代わりに閾値アテステーションと非原子的発行を受け入れる。オンチェーンSVGは外部ストレージに依存しない一方、発行ガスを増加させ、公開した氏名・メッセージを完全には削除できない。

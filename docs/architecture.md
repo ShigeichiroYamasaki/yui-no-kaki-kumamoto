@@ -4,15 +4,19 @@
 
 ```mermaid
 flowchart LR
-  S[国内外の支援者] --> W[支援Webアプリ]
+  S[国外を中心とする支援者] --> W[多言語Web3支援アプリ]
   W --> BV[Base ETH Vault]
   W --> PV[Polygon JPYC Vault]
+  W --> BTC[Bitcoin固有address / Lightning invoice]
+  BTC --> BR[Bitcoin検証者 + Base Registry]
   N["認定NPO・法的運営主体"] --> BV
   N --> PV
   BV --> BT[Base玉垣SBT]
   PV --> PT[Polygon玉垣SBT]
+  BR --> BT
   BV --> X[登録交換・決済事業者]
   PV --> X
+  BTC --> X
   X --> K[熊本県災害支援口座]
   K --> A[受領・復興報告]
   A --> R[Attestation Registry]
@@ -20,6 +24,7 @@ flowchart LR
   PV --> I
   BT --> I
   PT --> I
+  BR --> I
   R --> I
   I --> D[公開ダッシュボード]
   BT --> C[参考投票 Council]
@@ -35,10 +40,12 @@ flowchart TB
   D["支援者・DAO参加者"] -->|"支援・非拘束の参考投票"| N["認定NPO法人<br/>法的運営主体"]
   D -->|"Base ETH"| BV["Base ETH Vault"]
   D -->|"Polygon JPYC"| PV["Polygon JPYC Vault"]
+  D -->|"Native Bitcoin / Lightning"| BTC["Bitcoin受入基盤・NPO multisig"]
   N -->|"規約・会計・理事会決議・照合"| BV
   N -->|"規約・会計・理事会決議・照合"| PV
   BV -->|"登録済み入金先への送付"| F["登録金融・決済事業者<br/>AML・円転・取引記録"]
   PV -->|"登録済み入金先への送付"| F
+  BTC -->|"閾値確認後に登録済み事業者へ送付"| F
   F -->|"円貨の銀行送金"| P["熊本県<br/>熊本県災害支援口座"]
   P -->|"受領確認・復興報告"| N
   K["株式会社等の技術受託者"] -->|"開発・保守・監視"| N
@@ -53,7 +60,7 @@ flowchart TB
 | 主体 | 法的・運用上の責務 | 持たせない権限 |
 |---|---|---|
 | 認定NPO法人 | 規約、寄附成立、会計、理事会決議、契約、照合、問い合わせ、公開報告 | 利用者向け交換業、単独鍵による送金、県予算の決定 |
-| 登録金融・決済事業者 | 必要な登録範囲でのJPYC管理・円転、AML/CFT、制裁対応、銀行送金、取引証憑 | 復興目的、DAO投票、NPOの事業判断 |
+| 登録金融・決済事業者 | 必要な登録範囲でのETH・JPYC・BTC円転、AML/CFT、制裁対応、銀行送金、取引証憑 | 復興目的、DAO投票、NPOの事業判断 |
 | 株式会社等の技術受託者 | コントラクト、インデクサー、UI、監視の開発・保守 | 支援金の所有、Vaultの単独管理、任意の手数料控除 |
 | 熊本県 | 円貨の受納、受領確認、復興事業と支出結果の報告 | NPOまたはDAOの未承認操作、Councilによる行政判断の拘束 |
 | DAO Council | 非拘束の参考投票、改善提案、公開検証 | 資金移動、円転、法人・行政の法定意思決定 |
@@ -66,6 +73,7 @@ flowchart TB
 |---|---|---|
 | Base `RecoverySupportVault` | chain ID `8453`、`NativeOnly`でETH受付・集約送金 | 登録済み交換・決済事業者入金先へのみ |
 | Polygon `RecoverySupportVault` | chain ID `137`、`ERC20Only`で公式JPYC受付・集約送金 | 登録済み交換・決済事業者入金先へのみ |
+| Base `BitcoinSupportRegistry` | Bitcoin outpoint／Lightning payment hashの閾値アテステーションと重複防止 | なし |
 | chain別`TamagakiSBT` | ERC-721 + ERC-5192型の譲渡不能証明 | なし |
 | `RecoveryAttestationRegistry` | 県受領証跡と復興報告ハッシュ | なし |
 | `RecoverySupportCouncil` | SBT保有者の非拘束投票 | なし |
@@ -73,12 +81,17 @@ flowchart TB
 ## オフチェーン構成
 
 - チェーンイベントを再編成に耐えて同期するインデクサー
+- 支援IntentごとのBitcoin addressを導出する分離wallet基盤、独立Bitcoin node、Lightning node、閾値アテステーションサービス
 - 国別・時間別・資産別の公開集計API
 - 任意公開名、国、メッセージを管理する撤回可能なデータストア
 - 銀行証憑・県受領確認書・復興報告書を保管する文書基盤
 - 熊本県または委任先が復興報告を入力する管理インターフェース
 
 これは本番系の原則です。画像付きSBTのSepoliaデモでは、明示的同意を得た任意表示名とメッセージをSBTのオンチェーンSVGへ直接格納する経路も検証します。この経路のデータは撤回できないため、本番採用は別途判断します。
+
+### BitcoinとBaseの境界
+
+Native BTCはEVM Vaultへbridgeしません。Bitcoin側で固有addressまたは一回限りのLightning invoiceを支援Intentへ対応させ、必要なconfirmationまたはsettlementを独立検証者が確認します。閾値アテステーションをBase Registryへ登録した後、事前指定または一回限りのClaimで選択されたBase addressへERC-721＋ERC-5192玉垣SBTを発行します。Bitcoin private key、xprv、Lightning macaroon、preimageをBaseまたは公開Indexerへ渡しません。詳細は[ADR-0011](./adr/0011-bitcoin-lightning-and-base-sbt)に従います。
 
 ## 権限モデル
 

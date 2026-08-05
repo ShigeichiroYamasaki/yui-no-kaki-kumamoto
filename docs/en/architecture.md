@@ -4,15 +4,19 @@
 
 ```mermaid
 flowchart LR
-  S[Supporters worldwide] --> W[Support web app]
+  S[Primarily international supporters] --> W[Multilingual Web3 support app]
   W --> BV[Base ETH Vault]
   W --> PV[Polygon JPYC Vault]
+  W --> BTC[Unique Bitcoin address / Lightning invoice]
+  BTC --> BR[Bitcoin verifiers + Base Registry]
   N["Certified NPO・legal operator"] --> BV
   N --> PV
   BV --> BT[Base Tamagaki SBT]
   PV --> PT[Polygon Tamagaki SBT]
+  BR --> BT
   BV --> X[Registered exchange or payment provider]
   PV --> X
+  BTC --> X
   X --> K[Kumamoto Disaster Support Account]
   K --> A[Receipt and recovery reports]
   A --> R[Attestation Registry]
@@ -20,6 +24,7 @@ flowchart LR
   PV --> I
   BT --> I
   PT --> I
+  BR --> I
   R --> I
   I --> D[Public dashboard]
   BT --> C[Advisory voting Council]
@@ -35,10 +40,12 @@ flowchart TB
   D["Supporters and DAO participants"] -->|"Support and non-binding advice"| N["Certified NPO<br/>legally accountable operator"]
   D -->|"Base ETH"| BV["Base ETH Vault"]
   D -->|"Polygon JPYC"| PV["Polygon JPYC Vault"]
+  D -->|"Native Bitcoin / Lightning"| BTC["Bitcoin receiver and NPO multisig"]
   N -->|"Terms, accounting, board approval, reconciliation"| BV
   N -->|"Terms, accounting, board approval, reconciliation"| PV
   BV -->|"Transfer to registered deposit address"| F["Registered financial or payment provider<br/>AML, conversion, records"]
   PV -->|"Transfer to registered deposit address"| F
+  BTC -->|"Transfer after threshold verification"| F
   F -->|"Yen bank remittance"| P["Kumamoto Prefecture<br/>Disaster Support Account"]
   P -->|"Receipt and recovery reports"| N
   K["Corporate technical contractor"] -->|"Development, maintenance, monitoring"| N
@@ -53,7 +60,7 @@ Terms, accounting, and contract behavior must agree on legal ownership. At compl
 | Actor | Legal and operational responsibility | Authority it must not receive |
 |---|---|---|
 | Certified NPO | Terms, completion of donation, accounting, board decisions, contracts, reconciliation, support, disclosure | Customer exchange services, unilateral treasury control, prefectural budget decisions |
-| Registered financial or payment provider | JPYC handling and conversion within its registrations, AML/CFT, sanctions controls, bank remittance, transaction evidence | Recovery priorities, DAO voting, NPO programme decisions |
+| Registered financial or payment provider | ETH, JPYC, and BTC conversion within its registrations, AML/CFT, sanctions controls, bank remittance, transaction evidence | Recovery priorities, DAO voting, NPO programme decisions |
 | Corporate technical contractor | Development and maintenance of contracts, indexer, UI, and monitoring | Ownership of support funds, unilateral Vault control, arbitrary fee deductions |
 | Kumamoto Prefecture | Acceptance of yen, receipt confirmation, recovery work and expenditure reporting | Unapproved NPO/DAO operations or Council control of administrative decisions |
 | DAO Council | Non-binding voting, improvement proposals, public verification | Transfers, conversion, or statutory corporate and administrative decisions |
@@ -66,6 +73,7 @@ Certified-NPO status alone does not remove Payment Services Act requirements. Th
 |---|---|---|
 | Base `RecoverySupportVault` | Chain ID `8453`, `NativeOnly` ETH intake and consolidation | Only to a registered exchange or payment-provider deposit address |
 | Polygon `RecoverySupportVault` | Chain ID `137`, `ERC20Only` official-JPYC intake and consolidation | Only to a registered exchange or payment-provider deposit address |
+| Base `BitcoinSupportRegistry` | Threshold attestations for Bitcoin outpoints or Lightning payment hashes and duplicate prevention | None |
 | Per-chain `TamagakiSBT` | Non-transferable ERC-721 and ERC-5192 participation proof | None |
 | `RecoveryAttestationRegistry` | Records hashes of prefectural receipt evidence and recovery reports | None |
 | `RecoverySupportCouncil` | Non-binding voting by SBT holders | None |
@@ -73,12 +81,17 @@ Certified-NPO status alone does not remove Payment Services Act requirements. Th
 ## Off-chain components
 
 - An indexer that synchronizes chain events safely across reorganizations
+- An isolated wallet service that derives donation-specific Bitcoin addresses, independent Bitcoin nodes, a Lightning node, and a threshold-attestation service
 - Public aggregation APIs by country, time, and asset
 - A revocable data store for optional public names, countries, and messages
 - A document platform for bank evidence, prefectural acknowledgements, and recovery reports
 - An administrative interface for Kumamoto Prefecture or an authorized reporting party
 
 This is the production principle. The image-enabled Sepolia demo also evaluates a path that embeds an optional display name and message directly in the SBT's on-chain SVG after explicit consent. That data cannot be withdrawn, so production adoption requires a separate decision.
+
+### Bitcoin-to-Base boundary
+
+Native BTC is not bridged into an EVM Vault. A unique Bitcoin address or one-time Lightning invoice maps to a donation intent. Independent verifiers confirm the required confirmations or settlement and submit a threshold attestation to a Base Registry. The ERC-721 and ERC-5192 Tamagaki SBT is then minted to the Base address selected before payment or through a one-time claim. Bitcoin private keys, xprvs, Lightning macaroons, and preimages never enter Base or the public indexer. See [ADR-0011](../adr/0011-bitcoin-lightning-and-base-sbt).
 
 ## Permission model
 

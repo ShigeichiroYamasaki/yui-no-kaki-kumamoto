@@ -2,9 +2,11 @@
 
 ## Real-time visualization
 
-The dashboard updates total contributions, unique supporting wallets, quantities by asset, indicative valuation, confirmed yen conversion, distribution by country or region, trends over time, consolidation batches, amount remitted to the prefecture, balance, and recovery-project progress according to chain finality.
+The dashboard updates Base, Polygon, Bitcoin, and Lightning contribution counts; unique wallets or donation intents; quantities by asset; indicative valuation; confirmed yen conversion; country or regional distribution; trends over time; consolidation batches; amounts remitted to the Prefecture; balances; and recovery progress according to each network's finality.
 
 Contributions awaiting block confirmation are labeled “pending” and excluded from finalized totals. If the indexer is unavailable, the time of the last successful synchronization is displayed.
+
+For Bitcoin, the interface shows the last agreed block height, confirmation count, and threshold-attestation state. For Lightning, it shows invoice settlement without publishing preimages, node credentials, or private supporter data.
 
 ## Privacy
 

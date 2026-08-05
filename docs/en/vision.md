@@ -10,7 +10,7 @@ For supporters, especially those overseas, it is difficult to continuously verif
 
 Kumamoto Relief DAO seeks to achieve three goals simultaneously:
 
-1. Enable people in Japan and abroad to participate in recovery support with minimal friction.
+1. Enable 24/7, low-friction participation from abroad through Bitcoin, Lightning, and EVM networks.
 2. Make the path from support to the certified NPO, through registered conversion, to the NPO's separate yen donation into the Kumamoto Disaster Support Account publicly verifiable.
 3. Continuously communicate recovery progress back to supporters.
 
@@ -25,6 +25,7 @@ The Tamagaki SBT is not a membership right, investment product, or repayment cla
 - **Recovery first** — Center infrastructure restoration and regional resilience.
 - **Separate funds from voting** — Limit DAO-style participation to expressing views; it conveys no authority to move funds.
 - **Traceability** — Distinguish amounts received, converted to yen, remitted, pending, held, and charged as fees.
+- **International reach** — Do not replace established domestic bank fundraising; provide Bitcoin, Lightning, and smart-contract rails that are difficult for a conventional administrative or corporate campaign to offer globally.
 - **Minimal on-chain data** — Record only values and hashes required for public verification.
 - **Phased implementation** — Progress from a safe demo to testnet validation, stakeholder agreement, and production audit.
 
