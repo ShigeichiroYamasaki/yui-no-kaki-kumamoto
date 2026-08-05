@@ -9,7 +9,7 @@ The production contracts have not been deployed to mainnet, and operating agreem
   <strong>Not accepting contributions</strong>
   <dl>
     <div><dt>Support total</dt><dd>No production data</dd></div>
-    <div><dt>Production candidate</dt><dd>ETH: Base / JPYC: Polygon (inactive)</dd></div>
+    <div><dt>Production candidate</dt><dd>ETH: Base / JPYC: Polygon / BTC: Bitcoin (inactive)</dd></div>
     <div><dt>Official Vault</dt><dd>Not deployed</dd></div>
     <div><dt>Official JPYC</dt><dd>Not connected</dd></div>
   </dl>
@@ -17,7 +17,7 @@ The production contracts have not been deployed to mainnet, and operating agreem
 
 ## Production totals by chain
 
-After launch, Base ETH and Polygon JPYC will appear as two rows of one table without a network switch. Amounts are reported separately instead of being combined through an arbitrary exchange rate, while contribution counts remain independently verifiable per chain.
+After launch, Base ETH, Polygon JPYC, and Bitcoin Mainnet BTC will appear as three rows of one table without a network switch. Amounts are reported separately instead of being combined through an arbitrary exchange rate, while contribution counts remain independently verifiable per network. Until Bitcoin intake is implemented and enabled, it is labeled “Not launched” rather than shown as zero BTC.
 
 <MainnetSupportTrend locale="en" />
 

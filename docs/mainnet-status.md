@@ -9,7 +9,7 @@
   <strong>受付開始前</strong>
   <dl>
     <div><dt>支援総額</dt><dd>表示対象なし</dd></div>
-    <div><dt>本番候補</dt><dd>ETH: Base / JPYC: Polygon（未稼働）</dd></div>
+    <div><dt>本番候補</dt><dd>ETH: Base / JPYC: Polygon / BTC: Bitcoin（未稼働）</dd></div>
     <div><dt>公式Vault</dt><dd>未デプロイ</dd></div>
     <div><dt>公式JPYC</dt><dd>未接続</dd></div>
   </dl>
@@ -17,7 +17,7 @@
 
 ## チェーン別の本番集計
 
-本番開始後は切替操作を必要とせず、BaseのETHとPolygonのJPYCを一つの表の2行として常時表示します。異なる資産を恣意的な換算レートで合算せず、資産額と支援件数をチェーン別に検証できます。
+本番開始後は切替操作を必要とせず、BaseのETH、PolygonのJPYC、Bitcoin MainnetのBTCを一つの表の3行として常時表示します。異なる資産を恣意的な換算レートで合算せず、資産額と支援件数をネットワーク別に検証できます。Bitcoin受付が未実装・無効な間は、0 BTCではなく「受付開始前」と表示します。
 
 <MainnetSupportTrend locale="ja" />
 
