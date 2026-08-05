@@ -29,7 +29,7 @@ Because a token ID is unique only within one contract, the public system uses `c
 
 In the image-enabled demo, ERC-721 `tokenURI` returns JSON and a Base64-encoded SVG on-chain. The tamagaki combines the display name and optional message confirmed before payment with the actual asset, amount, and SBT number. The displayed amount is derived from the same value recorded by `SupportReceived`, never from free-form text.
 
-The supporter edits and previews the name and message in the browser before sending. Anonymous display is the default, and explicit publication consent is required. Because on-chain publication cannot be completely erased, production may instead use a revocable off-chain public profile.
+The supporter edits and previews the display name and optional message in the browser before sending. The name starts blank, and the supporter enters either a real name or a self-chosen nickname. Explicit publication consent is required. Because on-chain publication cannot be completely erased, production may instead use a revocable off-chain public profile.
 
 A hash of canonicalized input JSON is stored as `publicMetadataHash`, linking the artwork input to the contribution transaction. The contract enforces text length and control-character limits and XML-escapes rendered text.
 

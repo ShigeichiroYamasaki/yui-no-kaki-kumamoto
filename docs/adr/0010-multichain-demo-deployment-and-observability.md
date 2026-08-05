@@ -66,7 +66,7 @@ addressだけをchainから切り離して識別しない。contractは`chainId:
 
 ### 5. マルチチェーン集計UI
 
-- 集計ページは独立したchainカードを並べず、Ethereum SepoliaとBase Sepoliaを単一表の2行として同時表示する。本番もBase ETHとPolygon JPYCを単一表の2行として表示する。
+- 集計ページは独立したchainカードを並べず、Ethereum SepoliaとBase Sepoliaを単一表の2行として同時表示する。本番はBase ETH、Polygon JPYC、Native Bitcoinを単一表の3行として表示する。Bitcoin受付が未実装または未開始の間は、推測値を表示せず状態を「受付開始前」とする。
 - 玉垣SBTはchain別ギャラリーに分割せず、全chain共通の一つのギャラリーへ統合する。各項目にchain名とglobal IDを表示する。
 - chain別の金額、件数、最終同期block、同期時刻、エラー、finalityを明示する。
 - ETHとJPYCを根拠のない為替レートで単一金額へ合算しない。必要な場合は数量を別々に表示し、合計参加件数にはchain横断重複の定義を明記する。
@@ -74,7 +74,7 @@ addressだけをchainから切り離して識別しない。contractは`chainId:
 - 統合玉垣表示は「全体俯瞰 → 100本単位の区画 → 個別玉垣」の段階表示とする。遠景では最大600本の軽量マーカーへサンプリングして全体密度を示し、近景だけtoken URI画像を並べる。
 - wallet接続は閲覧中のaddress取得だけに使用し署名を要求しない。全chainでowner addressが一致するSBTを抽出し、本人の玉垣を強調する。
 - 表示名、token ID、owner address、chain名、global IDをクライアント検索対象とする。恒久リンクはglobal IDをfragmentに格納し、対象区画へ移動する。fragmentに個人情報を追加しない。
-- トップページの本番玉垣ブロックは`BASE_MAINNET_TAMAGAKI_SBT_ADDRESS`と`POLYGON_MAINNET_TAMAGAKI_SBT_ADDRESS`をchain別に受け取り、支援eventのtoken IDと照合する。いずれの値もGitHub Actions Variablesから公開bundleへ渡す読み取り専用の公開情報とする。
+- トップページの本番玉垣ブロックは`BASE_MAINNET_TAMAGAKI_SBT_ADDRESS`と`POLYGON_MAINNET_TAMAGAKI_SBT_ADDRESS`をchain別に受け取り、支援eventのtoken IDと照合する。将来のBitcoin／Lightning由来SBTはADR-0011のRegistryとBase版SBT設定を追加して同じギャラリーへ統合する。いずれの値もGitHub Actions Variablesから公開bundleへ渡す読み取り専用の公開情報とする。
 
 ### 6. Faucetを必須経路にしない
 

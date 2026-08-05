@@ -30,7 +30,7 @@
 
 ## 実装状況
 
-`RecoverySupportVault`は期待chain IDと`AssetMode`をconstructorで固定する。`BaseEthRecoverySupportModule`は`8453 / NativeOnly`、`PolygonJpycRecoverySupportModule`は`137 / ERC20Only`と公式JPYCアドレスをコードで固定した。各Vaultは同じchainの`TamagakiSBT`だけへmintし、フロントエンドhelperは`chainId:sbtContract:tokenId`をglobal IDとして生成する。デモ集計は両Sepoliaを一つの表と、俯瞰・区画・個別表示を持つ一つのSBTギャラリーへ統合する。本番デプロイ、統合Indexer、chain別finality運用は未完了である。デプロイmanifestとRPC縮退は[ADR-0010](./0010-multichain-demo-deployment-and-observability.md)に従う。
+`RecoverySupportVault`は期待chain IDと`AssetMode`をconstructorで固定する。`BaseEthRecoverySupportModule`は`8453 / NativeOnly`、`PolygonJpycRecoverySupportModule`は`137 / ERC20Only`と公式JPYCアドレスをコードで固定した。各Vaultは同じchainの`TamagakiSBT`だけへmintし、フロントエンドhelperは`chainId:sbtContract:tokenId`をglobal IDとして生成する。画像付きmintでは表示名を必須、奉納メッセージを任意とし、`showAmount=false`ではSVGだけでなくtoken metadataのAmount属性も省略する。ただし`SupportReceived`の実受領額は公開される。デモ集計は両Sepoliaを一つの表と、俯瞰・区画・個別表示を持つ一つのSBTギャラリーへ統合する。本番デプロイ、統合Indexer、chain別finality運用は未完了である。デプロイmanifestとRPC縮退は[ADR-0010](./0010-multichain-demo-deployment-and-observability.md)に従う。
 
 ## トレードオフ
 

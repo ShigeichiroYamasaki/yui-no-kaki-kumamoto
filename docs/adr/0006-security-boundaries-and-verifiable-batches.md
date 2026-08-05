@@ -56,7 +56,7 @@
 
 ## 現行実装との差
 
-強化版プロトタイプは、`batchId`再利用拒否、Merkle rootと決済指図hash、期限、資産別残高・batch・日次上限、beneficiaryの二段階変更と2日待機、pause/unpauseロール分離を実装した。最大滞留時間、supportIdの重複なきMerkle包含のオンチェーン検証、管理ロール自体のtimelock、独立した組織マルチシグは未実装であり、デプロイ時の上限初期値も本番値へ設定し直す必要がある。
+強化版プロトタイプは、`batchId`再利用拒否、Merkle rootと決済指図hash、期限、資産別残高・batch・日次上限、beneficiaryの二段階変更と2日待機、pause/unpauseロール分離を実装した。allowlist資産の無効化は外部tokenの`symbol()`・`decimals()`を呼ばずに実行できるため、token metadata障害時にも緊急遮断できる。最大滞留時間、supportIdの重複なきMerkle包含のオンチェーン検証、管理ロール自体のtimelock、独立した組織マルチシグは未実装であり、デプロイ時の上限初期値も本番値へ設定し直す必要がある。
 
 攻撃だけでなく誤操作と内部不正を含む具体的な制御は[ADR-0007](./0007-threat-model-and-human-error-controls.md)に従う。
 

@@ -33,7 +33,7 @@
 | A-01 | **Critical** | admin鍵侵害により`beneficiary`を攻撃者へ変更 | `AccessControl`、変更event、提案後2日待機 | admin侵害だけで遅延後に変更できる。別管理マルチシグ、admin timelock、旧新アドレスの独立照合、変更時pauseが必要 |
 | A-02 | **Critical** | treasurer鍵侵害または悪意ある署名者がVault残高を送金 | 固定`beneficiary`、`nonReentrant`、重複ID、日次・batch上限、manifest拘束 | 新しいrootとIDで同じ支援を再処理できる。独立署名、supportId包含DB、遅延実行、監視が必要 |
 | A-03 | **Critical** | 事業者入金アドレスのすり替え、address poisoning、誤chain | 固定送付先という設計方針 | 登録時と実行時の二経路照合、code/address allowlist、決済指図hash、少額疎通、表示名でなくアドレス全文の確認が必要 |
-| A-04 | **High** | 悪意ある・侵害されたERC-20がrevert、再入、偽metadata、手数料差引を行う | allowlist、`SafeERC20`、`nonReentrant`、残高差分、metadata/codehash固定 | 公式資産限定、コード更新時の再審査、再入・fee-on-transfer試験が必要 |
+| A-04 | **High** | 悪意ある・侵害されたERC-20がrevert、再入、偽metadata、手数料差引を行う | allowlist、`SafeERC20`、`nonReentrant`、残高差分、metadata/codehash固定、metadata呼出しに依存しない緊急無効化 | 公式資産限定、コード更新時の再審査、再入・fee-on-transfer試験が必要 |
 | A-05 | **High** | reporter鍵侵害により虚偽の県受領・復興報告を登録 | role制限、同一IDの上書き禁止、後継参照 | 虚偽の後継も登録できる。報告マルチシグ、証憑hash照合、銀行入金との二人照合が必要 |
 | A-06 | **High** | DNS、GitHub Pages、依存パッケージ、RPCの侵害で偽Vaultへ誘導 | ウォレット確認、公開アドレス | CSP、依存固定とSBOM、署名付きrelease、複数公式経路、RPC応答の相互照合、変更監視が必要 |
 | A-07 | **High** | indexer再編成処理不備や意図的イベント注入で集計・バッチを二重計上 | eventとbatch ID | confirmation/finality、再編成rollback、assetとVaultの厳格filter、再生可能処理、会計不変条件が必要 |

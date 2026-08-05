@@ -97,7 +97,7 @@ Each token stores a `supportId`, a `publicMetadataHash`, support status, and the
 | Field | Type | Constraint and meaning |
 |---|---|---|
 | `displayName` | `string` | Up to 72 UTF-8 bytes; the UI starts blank and requires a real name or supporter-chosen nickname |
-| `dedicationMessage` | `string` | Up to 180 UTF-8 bytes |
+| `dedicationMessage` | `string` | Optional; up to 180 UTF-8 bytes |
 | `assetLabel` | `string` | Up to 16 UTF-8 bytes; supplied by the Vault from ETH or an allowlisted ERC-20 |
 | `amount` | `uint256` | `msg.value` or the token quantity actually received by the Vault, never a user-entered display value |
 | `assetDecimals` | `uint8` | Up to 18, used for human-readable formatting |
@@ -125,13 +125,13 @@ Legacy `supportNative`, `supportERC20`, and `mint` functions remain for backward
 
 ### `tokenURI` and image
 
-An artwork token returns a `data:application/json;base64,...` URI. Its JSON contains a name, description, `data:image/svg+xml;base64,...` image, and Asset, Amount, and Soulbound attributes. Every SVG uses the same tall vermilion-board dimensions regardless of amount, with a black header, token ID, vertically written display name, actual received amount when enabled, dedication message, and a small SBT attestation mark. Many tokens are presented side by side as one fence surrounding Kumamoto Castle. Each image remains reproducible from chain data without an external image server or IPFS.
+An artwork token returns a `data:application/json;base64,...` URI. Its JSON contains a name, description, `data:image/svg+xml;base64,...` image, and Asset and Soulbound attributes. The Amount attribute and rendered amount are included only when `showAmount=true`; the public `SupportReceived` event still exposes the actual amount. Every SVG uses the same tall vermilion-board dimensions regardless of amount, with a black header, token ID, vertically written display name, optional dedication message, and a small SBT attestation mark. Many tokens are presented side by side as one fence surrounding Kumamoto Castle. Each image remains reproducible from chain data without an external image server or IPFS.
 
 The UI derives `publicMetadataHash` from normalized JSON for comparing the pre-send preview with the minted result. Consent cannot be enforced by the contract itself, however, because a direct caller can bypass the UI. Production privacy must therefore not depend on the frontend alone, and adoption of metadata-enabled functions requires a separate decision under [ADR-0005](../adr/0005-privacy-and-public-data).
 
 ## On-chain aggregation on the home page
 
-The home page uses read-only Viem Public Clients and refreshes `SupportReceived` events every 30 seconds. Base ETH and Polygon JPYC appear as two rows of one table rather than separate panels, a chain selector, or an arbitrary exchange-rate total. Configure `BASE_MAINNET_PUBLIC_RPC_URL`, `BASE_MAINNET_VAULT_ADDRESS`, `BASE_MAINNET_TAMAGAKI_SBT_ADDRESS`, and `BASE_MAINNET_DEPLOYMENT_BLOCK` for Base, plus `POLYGON_MAINNET_PUBLIC_RPC_URL`, `POLYGON_MAINNET_VAULT_ADDRESS`, `POLYGON_MAINNET_TAMAGAKI_SBT_ADDRESS`, `POLYGON_MAINNET_JPYC_ADDRESS`, `POLYGON_MAINNET_DEPLOYMENT_BLOCK`, and `POLYGON_MAINNET_JPYC_DECIMALS` for Polygon. The home-page mainnet Tamagaki block combines SBTs from both production chains into one fence. Testnet totals and SBTs remain isolated on the demo status page.
+The home page uses read-only Viem Public Clients and refreshes `SupportReceived` events every 30 seconds. Base ETH, Polygon JPYC, and Native Bitcoin appear as three rows of one table rather than separate panels, a chain selector, or an arbitrary exchange-rate total. Until the Bitcoin path is implemented and opened, its row shows a not-yet-open state rather than an estimated amount. Configure `BASE_MAINNET_PUBLIC_RPC_URL`, `BASE_MAINNET_VAULT_ADDRESS`, `BASE_MAINNET_TAMAGAKI_SBT_ADDRESS`, and `BASE_MAINNET_DEPLOYMENT_BLOCK` for Base, plus `POLYGON_MAINNET_PUBLIC_RPC_URL`, `POLYGON_MAINNET_VAULT_ADDRESS`, `POLYGON_MAINNET_TAMAGAKI_SBT_ADDRESS`, `POLYGON_MAINNET_JPYC_ADDRESS`, `POLYGON_MAINNET_DEPLOYMENT_BLOCK`, and `POLYGON_MAINNET_JPYC_DECIMALS` for Polygon. The home-page mainnet Tamagaki block currently combines SBTs from both EVM production chains into one fence and will later add Bitcoin-derived Base SBTs under ADR-0011. Testnet totals and SBTs remain isolated on the demo status page.
 
 The Native Bitcoin/Lightning receiver, `BitcoinSupportRegistry`, threshold attestation, and Base SBT claim proposed by ADR-0011 are not implemented in the current code. Native BTC cannot be sent to the existing EVM Vaults. Native Bitcoin requires a separate prototype connecting Bitcoin Signet/testnet and Base Sepolia before production integration and audit. Lightning additionally requires test-environment and online-signer exception validation and a separate launch approval.
 

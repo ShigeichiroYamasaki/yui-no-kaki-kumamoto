@@ -8,7 +8,7 @@ import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 
 /// @title TamagakiSBT
 /// @notice Non-transferable proof that an address participated in Kumamoto recovery support.
-/// @dev Implements the ERC-5192 locked(uint256) interface and deliberately stores no PII.
+/// @dev Implements ERC-5192. Core records use hashes; the explicit demo-artwork path stores user-approved public text.
 contract TamagakiSBT is ERC721, AccessControl {
     using Strings for uint256;
 
@@ -87,7 +87,7 @@ contract TamagakiSBT is ERC721, AccessControl {
         uint8 assetDecimals,
         bool showAmount
     ) external onlyRole(MINTER_ROLE) returns (uint256 tokenId) {
-        if (bytes(displayName).length == 0 || bytes(dedicationMessage).length == 0) revert EmptyText();
+        if (bytes(displayName).length == 0) revert EmptyText();
         _validateText(displayName, 72);
         _validateText(dedicationMessage, 180);
         _validateText(assetLabel, 16);
@@ -157,13 +157,15 @@ contract TamagakiSBT is ERC721, AccessControl {
         if (bytes(art.displayName).length == 0) return super.tokenURI(tokenId);
 
         string memory svg = _renderSvg(tokenId, art);
+        string memory amountAttribute = art.showAmount
+            ? string.concat(',{"trait_type":"Amount","value":"', _formatAmount(art.amount, art.assetDecimals), '"}')
+            : "";
         string memory json = string.concat(
             '{"name":"Kumamoto Digital Tamagaki #', tokenId.toString(),
             '","description":"Non-transferable proof of participation in the Kumamoto Relief DAO prototype.",',
             '"image":"data:image/svg+xml;base64,', Base64.encode(bytes(svg)), '",',
             '"attributes":[{"trait_type":"Asset","value":"', _escapeJson(art.assetLabel),
-            '"},{"trait_type":"Amount","value":"', _formatAmount(art.amount, art.assetDecimals),
-            '"},{"trait_type":"Soulbound","value":"true"}]}'
+            '"}', amountAttribute, ',{"trait_type":"Soulbound","value":"true"}]}'
         );
         return string.concat("data:application/json;base64,", Base64.encode(bytes(json)));
     }

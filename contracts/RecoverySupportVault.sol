@@ -10,7 +10,7 @@ import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol
 import {TamagakiSBT} from "./TamagakiSBT.sol";
 
 /// @title RecoverySupportVault
-/// @notice Receives approved assets and can forward them only to the designated Kumamoto beneficiary.
+/// @notice Receives approved assets and forwards them only to the designated registered-provider address.
 contract RecoverySupportVault is AccessControl, Pausable, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
@@ -221,14 +221,12 @@ contract RecoverySupportVault is AccessControl, Pausable, ReentrancyGuard {
     ) external whenNotPaused nonReentrant returns (bytes32 supportId, uint256 tokenId) {
         if (amount == 0) revert ZeroAmount();
         _validateRecipient(sbtRecipient);
-        _validateAsset(address(asset));
+        (string memory symbol, uint8 decimals) = _validateAsset(address(asset));
         uint256 beforeBalance = asset.balanceOf(address(this));
         asset.safeTransferFrom(msg.sender, address(this), amount);
         uint256 received = asset.balanceOf(address(this)) - beforeBalance;
         if (received == 0) revert ZeroAmount();
         _checkBalanceCap(address(asset), beforeBalance + received);
-        string memory symbol = IERC20Metadata(address(asset)).symbol();
-        uint8 decimals = IERC20Metadata(address(asset)).decimals();
         supportId = _createSupportId(msg.sender, address(asset), received);
         MetadataSupport memory record = MetadataSupport(
             msg.sender, address(asset), received, countryCodeHash, messageHash,
@@ -278,12 +276,21 @@ contract RecoverySupportVault is AccessControl, Pausable, ReentrancyGuard {
         external
         onlyRole(DEFAULT_ADMIN_ROLE)
     {
+        if (!allowed) {
+            allowedAsset[asset] = false;
+            AssetPolicy storage previous = assetPolicy[asset];
+            emit AllowedAssetUpdated(asset, false);
+            emit AssetPolicyUpdated(
+                asset, false, previous.balanceCap, previous.batchCap, previous.dailyCap,
+                previous.codeHash, previous.symbolHash, previous.decimals
+            );
+            return;
+        }
         if (
-            allowed
-                && ((assetMode == AssetMode.NativeOnly && asset != NATIVE_ASSET)
-                    || (assetMode == AssetMode.ERC20Only && asset == NATIVE_ASSET))
+            (assetMode == AssetMode.NativeOnly && asset != NATIVE_ASSET)
+                || (assetMode == AssetMode.ERC20Only && asset == NATIVE_ASSET)
         ) revert AssetTypeForbidden(asset);
-        if (allowed && (balanceCap == 0 || batchCap == 0 || dailyCap == 0)) revert ZeroAmount();
+        if (balanceCap == 0 || batchCap == 0 || dailyCap == 0) revert ZeroAmount();
         bytes32 codeHash;
         bytes32 symbolHash;
         uint8 decimals = 18;
@@ -339,14 +346,16 @@ contract RecoverySupportVault is AccessControl, Pausable, ReentrancyGuard {
         if (sbtRecipient != address(0) && sbtRecipient != msg.sender) revert InvalidRecipient();
     }
 
-    function _validateAsset(address asset) private view {
+    function _validateAsset(address asset) private view returns (string memory symbol, uint8 decimals) {
         if (!allowedAsset[asset]) revert AssetNotAllowed(asset);
-        if (asset == NATIVE_ASSET) return;
+        if (asset == NATIVE_ASSET) return ("ETH", 18);
         AssetPolicy storage policy = assetPolicy[asset];
+        symbol = IERC20Metadata(asset).symbol();
+        decimals = IERC20Metadata(asset).decimals();
         if (
             asset.codehash != policy.codeHash
-                || IERC20Metadata(asset).decimals() != policy.decimals
-                || keccak256(bytes(IERC20Metadata(asset).symbol())) != policy.symbolHash
+                || decimals != policy.decimals
+                || keccak256(bytes(symbol)) != policy.symbolHash
         ) revert AssetConfigurationChanged(asset);
     }
 

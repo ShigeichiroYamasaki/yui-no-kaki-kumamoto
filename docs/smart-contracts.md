@@ -107,7 +107,7 @@ npm run contracts:deploy:production:polygon
 | フィールド | 型 | 制限・意味 |
 |---|---|---|
 | `displayName` | `string` | 最大72 UTF-8 bytes。UIでは空欄から実名または本人が決めたニックネームを入力 |
-| `dedicationMessage` | `string` | 最大180 UTF-8 bytes |
+| `dedicationMessage` | `string` | 任意。最大180 UTF-8 bytes |
 | `assetLabel` | `string` | 最大16 UTF-8 bytes。VaultがETHまたは許可済みERC-20から設定 |
 | `amount` | `uint256` | `msg.value`またはVaultが実際に受領したtoken量。利用者入力を採用しない |
 | `assetDecimals` | `uint8` | 最大18。人間向け金額表記に使用 |
@@ -143,7 +143,7 @@ mintWithMetadata(address to, bytes32 supportId, bytes32 publicMetadataHash,
 
 トップページはViemの読み取り専用Public Clientを使用し、`RecoverySupportVault`の`SupportReceived`イベントを30秒ごとに取得します。各イベントのブロック時刻と資産アドレスから、ETH・JPYCの累計額と支援件数を算出します。テストネットの集計とSBT一覧はデモ状況ページへ分離します。
 
-本番集計はBase ETHとPolygon JPYCを切り替えず、単一表の2行で同時表示します。GitHub Actions VariablesにはBase用の`BASE_MAINNET_PUBLIC_RPC_URL`、`BASE_MAINNET_VAULT_ADDRESS`、`BASE_MAINNET_TAMAGAKI_SBT_ADDRESS`、`BASE_MAINNET_DEPLOYMENT_BLOCK`と、Polygon用の`POLYGON_MAINNET_PUBLIC_RPC_URL`、`POLYGON_MAINNET_VAULT_ADDRESS`、`POLYGON_MAINNET_TAMAGAKI_SBT_ADDRESS`、`POLYGON_MAINNET_JPYC_ADDRESS`、`POLYGON_MAINNET_DEPLOYMENT_BLOCK`、`POLYGON_MAINNET_JPYC_DECIMALS`を設定します。異なる資産額は換算合算せず、チェーン別に表示します。トップページの本番玉垣ブロックは両chainのSBTを一つの垣根として表示します。
+本番集計はBase ETH、Polygon JPYC、Native Bitcoinを切り替えず、単一表の3行で同時表示します。Bitcoin経路が未実装または未開始の間は数量を推測せず「受付開始前」と表示します。GitHub Actions VariablesにはBase用の`BASE_MAINNET_PUBLIC_RPC_URL`、`BASE_MAINNET_VAULT_ADDRESS`、`BASE_MAINNET_TAMAGAKI_SBT_ADDRESS`、`BASE_MAINNET_DEPLOYMENT_BLOCK`と、Polygon用の`POLYGON_MAINNET_PUBLIC_RPC_URL`、`POLYGON_MAINNET_VAULT_ADDRESS`、`POLYGON_MAINNET_TAMAGAKI_SBT_ADDRESS`、`POLYGON_MAINNET_JPYC_ADDRESS`、`POLYGON_MAINNET_DEPLOYMENT_BLOCK`、`POLYGON_MAINNET_JPYC_DECIMALS`を設定します。異なる資産額は換算合算せず、資産別に表示します。トップページの本番玉垣ブロックは現行EVM両chainのSBTを一つの垣根として表示し、将来はADR-0011のBitcoin由来Base SBTも統合します。
 
 ADR-0011で提案するNative Bitcoin／Lightning受付、`BitcoinSupportRegistry`、閾値アテステーション、Base SBT Claimは現行コードに未実装です。既存のEVM VaultへNative BTCを送ることはできません。Native BitcoinはBitcoin Signet/testnetとBase Sepoliaを結ぶ独立プロトタイプとして実装・監査した後に本番候補へ統合します。Lightningはtest環境とonline signer例外を追加検証し、別個の開始承認後にのみ有効化します。
 

@@ -86,6 +86,35 @@ describe("RecoverySupportVault", async function () {
     assert.match(svg, /熊本の復興を応援します/);
   });
 
+  it("allows an empty optional dedication and omits a hidden amount from token metadata", async () => {
+    const vaultAsSupporter = await viem.getContractAt("RecoverySupportVault", fixture.vault.address, { client: { wallet: supporter } });
+    await vaultAsSupporter.write.supportNativeWithMetadata(
+      [
+        keccak256(stringToHex("CA")),
+        keccak256(stringToHex("")),
+        supporter.account.address,
+        keccak256(stringToHex("nickname-only metadata")),
+        {
+          displayName: "Alice",
+          dedicationMessage: "",
+          showAmount: false,
+        },
+      ],
+      { value: parseEther("0.25") },
+    );
+
+    const tokenUri = await fixture.sbt.read.tokenURI([1n]);
+    const json = JSON.parse(Buffer.from(tokenUri.split(",")[1], "base64").toString("utf8")) as {
+      image: string;
+      attributes: Array<{ trait_type: string; value: string }>;
+    };
+    assert.equal(json.attributes.some((attribute) => attribute.trait_type === "Amount"), false);
+    const svg = Buffer.from(json.image.split(",")[1], "base64").toString("utf8");
+    assert.match(svg, /Alice/);
+    assert.match(svg, /金額非公開/);
+    assert.doesNotMatch(svg, /0\.25 ETH/);
+  });
+
   it("prevents transfer of a Tamagaki SBT", async () => {
     const vaultAsSupporter = await viem.getContractAt("RecoverySupportVault", fixture.vault.address, { client: { wallet: supporter } });
     await vaultAsSupporter.write.supportNative(
@@ -352,6 +381,17 @@ describe("RecoverySupportVault", async function () {
       fixture.vault,
       "BatchCapExceeded",
     );
+  });
+
+  it("can disable an allowlisted token even when its metadata calls start reverting", async () => {
+    const token = await viem.deployContract("BreakableMetadataToken");
+    await fixture.vault.write.configureAsset([
+      token.address, true, maxUint256, maxUint256, maxUint256,
+    ]);
+    await token.write.breakMetadata();
+
+    await fixture.vault.write.configureAsset([token.address, false, 0n, 0n, 0n]);
+    assert.equal(await fixture.vault.read.allowedAsset([token.address]), false);
   });
 
   it("preserves the accounting invariant for native support", async () => {
