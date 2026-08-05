@@ -18,6 +18,8 @@
 - Base上のETHに関するfinality、Data Availability、forced transaction、canonical bridge、proof、upgrade権限とL1エスケープハッチは[ADR-0009](./0009-l2-selection-and-escape-hatch.md)に従う。Polygon JPYCはmilestone finality、checkpoint、PoS BridgeまたはJPYC EX直接償還に基づく別runbookを用意する。
 - 画像対応デモの玉垣SBTは、ERC-721 `tokenURI`からオンチェーンSVGを返す。氏名・メッセージは送金前に編集・プレビューし、明示的な公開同意を必須とする。
 - 玉垣は支援額による大小を設けず、すべて同一寸法とする。多数の玉垣を横方向へ連続させ、熊本城を取り囲む一つの垣根として可視化する。下部には家紋と区別できるデジタル証明印と`TAMAGAKI SBT`を表示する。
+- 俯瞰表示から個別SBTへ移動するときもchain境界でギャラリーを分断しない。個別位置、検索、共有URLはglobal IDを主キーとし、wallet addressだけを公開上の人物識別子として扱わない。
+- 配置は支援年月の区画と区画内の発行順を原則とする。金額、国籍、知名度による前列・大型化は行わず、本人の玉垣は閲覧時だけ金色の輪郭等で一時的に強調する。
 - 画像の資産と金額は`SupportReceived`と同じ実際の送金値から生成し、利用者が金額表示を偽装できないようにする。
 - 表示名の初期値は空欄とし、支援者が実名または自分で決めたニックネームを入力する。本番系で氏名等を扱う場合は、オンチェーン記録の不可逆性を再評価し、撤回可能なオフチェーン方式も選択できるようにする。
 
@@ -27,7 +29,7 @@
 
 ## 実装状況
 
-`RecoverySupportVault`は期待chain IDと`AssetMode`をconstructorで固定する。`BaseEthRecoverySupportModule`は`8453 / NativeOnly`、`PolygonJpycRecoverySupportModule`は`137 / ERC20Only`と公式JPYCアドレスをコードで固定した。各Vaultは同じchainの`TamagakiSBT`だけへmintし、フロントエンドhelperは`chainId:sbtContract:tokenId`をglobal IDとして生成する。デモ集計は両Sepoliaを一つの表と一つのSBTギャラリーへ統合する。本番デプロイ、統合Indexer、chain別finality運用は未完了である。デプロイmanifestとRPC縮退は[ADR-0010](./0010-multichain-demo-deployment-and-observability.md)に従う。
+`RecoverySupportVault`は期待chain IDと`AssetMode`をconstructorで固定する。`BaseEthRecoverySupportModule`は`8453 / NativeOnly`、`PolygonJpycRecoverySupportModule`は`137 / ERC20Only`と公式JPYCアドレスをコードで固定した。各Vaultは同じchainの`TamagakiSBT`だけへmintし、フロントエンドhelperは`chainId:sbtContract:tokenId`をglobal IDとして生成する。デモ集計は両Sepoliaを一つの表と、俯瞰・区画・個別表示を持つ一つのSBTギャラリーへ統合する。本番デプロイ、統合Indexer、chain別finality運用は未完了である。デプロイmanifestとRPC縮退は[ADR-0010](./0010-multichain-demo-deployment-and-observability.md)に従う。
 
 ## トレードオフ
 

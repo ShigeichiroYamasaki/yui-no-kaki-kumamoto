@@ -71,6 +71,10 @@ addressだけをchainから切り離して識別しない。contractは`chainId:
 - chain別の金額、件数、最終同期block、同期時刻、エラー、finalityを明示する。
 - ETHとJPYCを根拠のない為替レートで単一金額へ合算しない。必要な場合は数量を別々に表示し、合計参加件数にはchain横断重複の定義を明記する。
 - 送金フォームでは誤chain送信を防ぐため、対象chainを明示選択し、wallet署名前にchain名とchain IDを再表示する。
+- 統合玉垣表示は「全体俯瞰 → 100本単位の区画 → 個別玉垣」の段階表示とする。遠景では最大600本の軽量マーカーへサンプリングして全体密度を示し、近景だけtoken URI画像を並べる。
+- wallet接続は閲覧中のaddress取得だけに使用し署名を要求しない。全chainでowner addressが一致するSBTを抽出し、本人の玉垣を強調する。
+- 表示名、token ID、owner address、chain名、global IDをクライアント検索対象とする。恒久リンクはglobal IDをfragmentに格納し、対象区画へ移動する。fragmentに個人情報を追加しない。
+- トップページの本番玉垣ブロックは`BASE_MAINNET_TAMAGAKI_SBT_ADDRESS`と`POLYGON_MAINNET_TAMAGAKI_SBT_ADDRESS`をchain別に受け取り、支援eventのtoken IDと照合する。いずれの値もGitHub Actions Variablesから公開bundleへ渡す読み取り専用の公開情報とする。
 
 ### 6. Faucetを必須経路にしない
 
@@ -94,7 +98,7 @@ addressだけをchainから切り離して識別しない。contractは`chainId:
 
 ## 結果
 
-デモは公開RPCだけでも動作確認できるが、Faucet、RPC、Pages cache、外部providerの可用性を保証しない。RPC分割取得はデモの縮退策であり、本番Indexerの代替ではない。単一表と統合ギャラリーで全体像は分かりやすくなる一方、データの出所が見えにくくなるため、各行・玉垣・履歴にchain名とglobal IDを残し、chain別の独立したエラー表示と最終同期点を提供する。
+デモは公開RPCだけでも動作確認できるが、Faucet、RPC、Pages cache、外部providerの可用性を保証しない。RPC分割取得と最大600本の遠景サンプリングはデモの縮退策であり、本番IndexerやCanvas/WebGL描画の代替ではない。単一表と統合ギャラリーで全体像は分かりやすくなる一方、データの出所が見えにくくなるため、各行・玉垣・履歴にchain名とglobal IDを残し、chain別の独立したエラー表示と最終同期点を提供する。
 
 ## 関連ADR
 

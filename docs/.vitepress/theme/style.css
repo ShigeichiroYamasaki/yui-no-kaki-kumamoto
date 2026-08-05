@@ -187,14 +187,48 @@
 .multichain-summary__row > span { font-size: 17px; font-weight: 800; font-variant-numeric: tabular-nums; }
 .multichain-summary__row > span small { display: none; color: var(--vp-c-text-3); font-size: 10px; font-weight: 700; }
 .demo-status__note { margin: 12px 0 0; color: var(--vp-c-text-3); font-size: 12px; }
+.tamagaki-explorer__heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; }
+.tamagaki-explorer__heading h2 { margin-bottom: 5px; }
+.tamagaki-explorer__heading p { margin: 0; color: var(--vp-c-text-2); }
+.tamagaki-explorer__heading > strong { flex: 0 0 auto; font-size: clamp(36px, 6vw, 62px); line-height: 1; font-variant-numeric: tabular-nums; }
+.tamagaki-explorer__heading > strong small { display: block; margin-top: 5px; color: var(--vp-c-text-3); font-size: 11px; text-align: right; }
+.tamagaki-explorer { display: grid; gap: 18px; margin-top: 22px; }
+.tamagaki-overview { position: relative; min-height: 310px; overflow: hidden; border: 1px solid #775c38; border-radius: 18px; background: radial-gradient(circle at 50% 32%, rgba(250,239,207,.96) 0 12%, transparent 35%), linear-gradient(#bed5d2 0 54%,#b59b72 54% 68%,#51402e 68%); }
+.tamagaki-overview__castle { position: absolute; top: 35px; left: 50%; display: grid; width: 190px; height: 118px; place-content: center; border-bottom: 16px solid #302a23; color: #211e19; background: linear-gradient(150deg, transparent 31%,#24231f 32% 39%,transparent 40%) 0 4px/50% 48% repeat-x, linear-gradient(#f1eee4,#d7d1c2); box-shadow: 0 10px 20px rgba(23,20,16,.24); text-align: center; transform: translateX(-50%); clip-path: polygon(9% 20%,25% 20%,30% 0,45% 18%,55% 18%,60% 0,75% 20%,91% 20%,100% 100%,0 100%); }
+.tamagaki-overview__castle span { margin-top: 25px; font-family: serif; font-size: 22px; font-weight: 900; }
+.tamagaki-overview__castle small { font-size: 7px; letter-spacing: .12em; }
+.tamagaki-overview__fence { position: absolute; right: 2%; bottom: 25px; left: 2%; display: flex; min-height: 130px; align-items: flex-end; justify-content: center; overflow: hidden; perspective: 700px; }
+.tamagaki-overview__stake { position: relative; width: clamp(3px, .7vw, 9px); height: clamp(48px, 9vw, 94px); flex: 0 1 9px; padding: 0; border: 0; border-right: 1px solid #66150f; border-radius: 2px 2px 0 0; background: linear-gradient(90deg,#842016,#c7422d 58%,#8f2118); box-shadow: 0 3px 5px rgba(26,14,9,.3); cursor: pointer; transition: height .16s, filter .16s; }
+.tamagaki-overview__stake::before { content: ""; position: absolute; top: 0; right: 0; left: 0; height: 13%; background: #171411; }
+.tamagaki-overview__stake:hover,.tamagaki-overview__stake:focus-visible { z-index: 2; height: 112px; filter: brightness(1.25); outline: 2px solid #fff0a8; }
+.tamagaki-overview__stake.is-mine { z-index: 1; filter: drop-shadow(0 0 5px #ffe36e) brightness(1.35); outline: 2px solid #ffe36e; }
+.tamagaki-overview > p { position: absolute; right: 12px; bottom: 8px; margin: 0; color: rgba(255,255,255,.84); font-size: 10px; }
+.tamagaki-finder { display: grid; grid-template-columns: minmax(240px,1fr) auto auto; gap: 10px; align-items: end; padding: 15px; border: 1px solid var(--vp-c-divider); border-radius: 13px; background: var(--vp-c-bg); }
+.tamagaki-finder label { display: grid; gap: 5px; }
+.tamagaki-finder label span { color: var(--vp-c-text-2); font-size: 11px; font-weight: 800; }
+.tamagaki-finder input { min-width: 0; padding: 10px 12px; border: 1px solid var(--vp-c-divider); border-radius: 8px; color: var(--vp-c-text-1); background: var(--vp-c-bg-soft); }
+.tamagaki-finder button,.tamagaki-districts button { padding: 10px 13px; border: 1px solid var(--vp-c-divider); border-radius: 8px; color: var(--vp-c-text-1); background: var(--vp-c-bg-soft); font-weight: 800; cursor: pointer; }
+.tamagaki-finder__wallet { border-color: var(--vp-c-brand-1) !important; color: #fff !important; background: #176b50 !important; }
+.tamagaki-districts { display: flex; gap: 7px; overflow-x: auto; padding: 3px 0 8px; }
+.tamagaki-districts button { flex: 0 0 auto; }
+.tamagaki-districts button.is-active { border-color: #a78343; color: #fff; background: #7c2c20; }
+.tamagaki-explorer__result-heading { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
+.tamagaki-explorer__result-heading small { color: var(--vp-c-text-3); }
 .tamagaki-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 12px; }
-.tamagaki-grid a { display: grid; min-height: 145px; align-content: space-between; padding: 18px; border: 1px solid #a78343; border-radius: 8px 8px 18px 18px; color: #31260f; background: linear-gradient(145deg, #f7e7b6, #e0c477); box-shadow: inset 0 0 0 4px rgba(255,255,255,.2); text-decoration: none; }
+.tamagaki-grid article { position: relative; display: grid; min-width: 0; min-height: 145px; align-content: space-between; padding: 18px; border: 1px solid #a78343; border-radius: 8px 8px 18px 18px; color: #31260f; background: linear-gradient(145deg, #f7e7b6, #e0c477); box-shadow: inset 0 0 0 4px rgba(255,255,255,.2); }
+.tamagaki-grid article.is-mine { border: 3px solid #f0bd26; box-shadow: 0 0 0 4px rgba(240,189,38,.24),0 8px 25px rgba(97,69,5,.35); }
 .tamagaki-grid img { display: block; width: 100%; margin-bottom: 12px; border-radius: 4px; }
+.tamagaki-grid__placeholder { display: grid; min-height: 235px; place-content: center; margin-bottom: 12px; border-radius: 4px; color: #fff4df; background: linear-gradient(90deg,#8f1f16,#c63d27 48%,#8c2018); font-family: serif; font-size: 22px; font-weight: 800; line-height: 1.8; text-align: center; writing-mode: vertical-rl; }
 .tamagaki-grid__number { color: #72591f; font-size: 11px; font-weight: 800; letter-spacing: .15em; }
 .tamagaki-grid__chain { width: fit-content; padding: 4px 7px; border-radius: 999px; color: #fff; background: #176b50; font-size: 10px; font-weight: 800; }
+.tamagaki-grid__mine { position: absolute; top: 26px; right: 8px; padding: 5px 7px; border-radius: 999px; color: #352800; background: #ffe36e; font-size: 9px; font-weight: 900; }
 .tamagaki-grid strong { font-size: 22px; }
 .tamagaki-grid small { color: #5b481d; }
 .tamagaki-grid code { overflow: hidden; color: #72591f; font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
+.tamagaki-grid__actions { display: flex; gap: 7px; margin-top: 12px; }
+.tamagaki-grid__actions a,.tamagaki-grid__actions button { flex: 1; padding: 7px; border: 1px solid rgba(75,54,13,.35); border-radius: 7px; color: #49370c; background: rgba(255,255,255,.28); font-size: 10px; font-weight: 800; text-align: center; text-decoration: none; cursor: pointer; }
+.mainnet-tamagaki { display: grid; gap: 18px; margin-top: 30px; padding-top: 28px; border-top: 1px solid var(--vp-c-divider); }
+.mainnet-tamagaki__overview { min-height: 260px; }
 .contract-details { margin-top: 12px; border: 1px solid var(--vp-c-divider); border-radius: 10px; background: var(--vp-c-bg); }
 .contract-details summary { padding: 14px 16px; font-weight: 800; cursor: pointer; }
 .contract-details .contract-addresses { padding: 0 12px 12px; }
@@ -258,6 +292,11 @@
   .multichain-summary__row { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
   .multichain-summary__row strong { grid-column: 1 / -1; }
   .multichain-summary__row > span small { display: block; }
+  .tamagaki-explorer__heading { flex-direction: column; }
+  .tamagaki-explorer__heading > strong small { text-align: left; }
+  .tamagaki-overview { min-height: 260px; }
+  .tamagaki-finder { grid-template-columns: 1fr; }
+  .tamagaki-finder__clear { justify-self: start; }
   .network-status-card dl { grid-template-columns: 1fr 1fr; }
   .home-nav__languages a { padding: 6px 10px; }
   .whitepaper-hero { min-height: 610px; padding-top: 130px; background-position: 63% center; }

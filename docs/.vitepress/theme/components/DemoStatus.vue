@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
+import { computed, nextTick, onMounted, ref } from "vue";
 import {
   createPublicClient, formatUnits, http, parseAbiItem, zeroAddress,
-  type Address, type Hash,
+  type Address, type EIP1193Provider, type Hash,
 } from "viem";
 import { availableDemoNetworks, type DemoNetwork } from "../testnetNetworks";
 import { tamagakiGlobalId } from "../multichainIdentity";
@@ -15,6 +15,15 @@ const transferEvent = parseAbiItem("event Transfer(address indexed from, address
 const sbtAbi = [{
   type: "function", name: "tokenURI", stateMutability: "view",
   inputs: [{ name: "tokenId", type: "uint256" }], outputs: [{ type: "string" }],
+}, {
+  type: "function", name: "artwork", stateMutability: "view",
+  inputs: [{ name: "tokenId", type: "uint256" }], outputs: [{
+    name: "", type: "tuple", components: [
+      { name: "displayName", type: "string" }, { name: "dedicationMessage", type: "string" },
+      { name: "assetLabel", type: "string" }, { name: "amount", type: "uint256" },
+      { name: "assetDecimals", type: "uint8" }, { name: "showAmount", type: "bool" },
+    ],
+  }],
 }] as const;
 
 type SupportRow = {
@@ -35,6 +44,8 @@ type SbtRow = {
   blockNumber: bigint;
   globalId: string;
   image?: string;
+  displayName?: string;
+  dedicationMessage?: string;
 };
 
 const loading = ref(true);
@@ -42,11 +53,45 @@ const errors = ref<Record<string, string>>({});
 const supports = ref<SupportRow[]>([]);
 const sbts = ref<SbtRow[]>([]);
 const lastUpdated = ref<Date>();
+const search = ref("");
+const selectedDistrict = ref(0);
+const connectedAccount = ref<Address>();
+const onlyMine = ref(false);
+const copiedId = ref("");
+const districtSize = 100;
 
 const networks = computed(() => availableDemoNetworks);
 const totalSupportCount = computed(() => supports.value.length);
 const totalSbtCount = computed(() => sbts.value.length);
 const totalWalletCount = computed(() => new Set(supports.value.map((row) => row.supporter.toLowerCase())).size);
+const districtCount = computed(() => Math.max(1, Math.ceil(sbts.value.length / districtSize)));
+const matchingSbts = computed(() => {
+  const query = search.value.trim().toLowerCase();
+  return sbts.value.filter((sbt) => {
+    if (onlyMine.value && sbt.owner.toLowerCase() !== connectedAccount.value?.toLowerCase()) return false;
+    if (!query) return true;
+    return [sbt.displayName, sbt.owner, sbt.globalId, sbt.tokenId.toString(), sbt.network.label]
+      .some((value) => value?.toLowerCase().includes(query));
+  });
+});
+const districtSbts = computed(() => {
+  if (search.value.trim() || onlyMine.value) return matchingSbts.value;
+  const start = selectedDistrict.value * districtSize;
+  return sbts.value.slice(start, start + districtSize);
+});
+const overviewSbts = computed(() => {
+  const source = matchingSbts.value;
+  if (source.length <= 600) return source;
+  const step = source.length / 600;
+  return Array.from({ length: 600 }, (_, index) => source[Math.floor(index * step)]);
+});
+const resultLabel = computed(() => {
+  if (onlyMine.value) return props.locale === "ja" ? `自分の玉垣 ${districtSbts.value.length}本` : `${districtSbts.value.length} of my Tamagaki`;
+  if (search.value.trim()) return props.locale === "ja" ? `検索結果 ${districtSbts.value.length}本` : `${districtSbts.value.length} results`;
+  const first = selectedDistrict.value * districtSize + 1;
+  const last = Math.min((selectedDistrict.value + 1) * districtSize, sbts.value.length);
+  return props.locale === "ja" ? `第${selectedDistrict.value + 1}区画 · ${first}–${last}本目` : `District ${selectedDistrict.value + 1} · ${first}–${last}`;
+});
 
 function supportsFor(network: DemoNetwork) {
   return supports.value.filter((row) => row.network.key === network.key);
@@ -87,6 +132,41 @@ function addresses(network: DemoNetwork) {
     ["RecoveryAttestationRegistry", network.registryAddress],
     ["RecoverySupportCouncil", network.councilAddress],
   ] as const;
+}
+function isMine(sbt: SbtRow) { return sbt.owner.toLowerCase() === connectedAccount.value?.toLowerCase(); }
+function districtOf(sbt: SbtRow) { return Math.max(0, Math.floor(sbts.value.indexOf(sbt) / districtSize)); }
+function clearFilters() { search.value = ""; onlyMine.value = false; }
+function focusSbt(sbt: SbtRow) {
+  clearFilters();
+  selectedDistrict.value = districtOf(sbt);
+  void nextTick(() => document.getElementById(`sbt-${encodeURIComponent(sbt.globalId)}`)?.scrollIntoView({ behavior: "smooth", block: "center" }));
+}
+async function connectAndFindMine() {
+  const ethereum = (window as typeof window & { ethereum?: EIP1193Provider }).ethereum;
+  if (!ethereum) { errors.value.wallet = props.locale === "ja" ? "MetaMaskまたはCoinbase Walletが必要です。" : "MetaMask or Coinbase Wallet is required."; return; }
+  try {
+    const accounts = await ethereum.request({ method: "eth_requestAccounts" }) as Address[];
+    connectedAccount.value = accounts[0];
+    onlyMine.value = true;
+    search.value = "";
+  } catch (cause) { errors.value.wallet = cause instanceof Error ? cause.message : String(cause); }
+}
+function permalink(sbt: SbtRow) {
+  const url = new URL(window.location.href);
+  url.hash = `tamagaki=${encodeURIComponent(sbt.globalId)}`;
+  return url.toString();
+}
+async function copyPermalink(sbt: SbtRow) {
+  await navigator.clipboard.writeText(permalink(sbt));
+  copiedId.value = sbt.globalId;
+  window.setTimeout(() => { if (copiedId.value === sbt.globalId) copiedId.value = ""; }, 1800);
+}
+function applyDeepLink() {
+  const match = window.location.hash.match(/^#tamagaki=(.+)$/);
+  if (!match) return;
+  const id = decodeURIComponent(match[1]);
+  const sbt = sbts.value.find((row) => row.globalId === id);
+  if (sbt) focusSbt(sbt);
 }
 
 async function fetchNetwork(network: DemoNetwork) {
@@ -135,12 +215,14 @@ async function fetchNetwork(network: DemoNetwork) {
   });
   const networkSbts = await Promise.all(minted.map(async (sbt) => {
     try {
-      const uri = await client.readContract({
-        address: network.sbtAddress, abi: sbtAbi, functionName: "tokenURI", args: [sbt.tokenId],
-      });
-      if (!uri.startsWith("data:application/json;base64,")) return sbt;
+      const [uri, artwork] = await Promise.all([
+        client.readContract({ address: network.sbtAddress, abi: sbtAbi, functionName: "tokenURI", args: [sbt.tokenId] }),
+        client.readContract({ address: network.sbtAddress, abi: sbtAbi, functionName: "artwork", args: [sbt.tokenId] }),
+      ]);
+      const enriched = { ...sbt, displayName: artwork.displayName, dedicationMessage: artwork.dedicationMessage };
+      if (!uri.startsWith("data:application/json;base64,")) return enriched;
       const json = JSON.parse(atob(uri.slice(uri.indexOf(",") + 1))) as { image?: string };
-      return { ...sbt, image: json.image };
+      return { ...enriched, image: json.image };
     } catch { return sbt; }
   }));
   return { supports: networkSupports, sbts: networkSbts };
@@ -158,8 +240,11 @@ async function refresh() {
   }));
   supports.value = results.flatMap((result) => result.supports).sort((a, b) => b.timestamp - a.timestamp);
   sbts.value = results.flatMap((result) => result.sbts).sort((a, b) => Number(b.blockNumber - a.blockNumber));
+  selectedDistrict.value = Math.max(0, districtCount.value - 1);
   lastUpdated.value = new Date();
   loading.value = false;
+  await nextTick();
+  applyDeepLink();
 }
 
 onMounted(() => void refresh());
@@ -193,15 +278,44 @@ onMounted(() => void refresh());
 
     <section class="demo-status__section">
       <p class="whitepaper-hero__eyebrow">TAMAGAKI SBT / ALL CHAINS</p>
-      <h2>{{locale === "ja" ? "取得された玉垣SBT" : "Issued Tamagaki SBTs"}}</h2>
-      <div v-if="sbts.length" class="tamagaki-grid">
-        <a v-for="sbt in sbts" :key="sbt.globalId" :href="explorer(sbt.network, 'token', sbt.network.sbtAddress, sbt.tokenId)" target="_blank" rel="noreferrer">
-          <img v-if="sbt.image" :src="sbt.image" :alt="`Tamagaki SBT #${sbt.tokenId}`">
-          <span class="tamagaki-grid__chain">{{sbt.network.label}}</span>
-          <span class="tamagaki-grid__number">玉垣 {{sbt.tokenId.toString().padStart(3, "0")}}</span>
-          <strong>SBT #{{sbt.tokenId}}</strong><small>{{locale === "ja" ? "所有者" : "Owner"}} {{short(sbt.owner)}}</small>
-          <code>{{sbt.globalId}}</code>
-        </a>
+      <div class="tamagaki-explorer__heading">
+        <div><h2>{{locale === "ja" ? "熊本城を囲む支援の玉垣" : "A fence of support around Kumamoto Castle"}}</h2><p>{{locale === "ja" ? "遠景で支援の広がりを見渡し、区画または検索から一本ずつ確認できます。" : "See the breadth of support, then inspect an individual Tamagaki by district or search."}}</p></div>
+        <strong>{{sbts.length.toLocaleString()}}<small>{{locale === "ja" ? "本" : " Tamagaki"}}</small></strong>
+      </div>
+
+      <div v-if="sbts.length" class="tamagaki-explorer">
+        <div class="tamagaki-overview" :aria-label="locale === 'ja' ? '全玉垣の俯瞰図' : 'Overview of all Tamagaki'">
+          <div class="tamagaki-overview__castle" aria-hidden="true"><span>熊本城</span><small>KUMAMOTO CASTLE</small></div>
+          <div class="tamagaki-overview__fence">
+            <button v-for="sbt in overviewSbts" :key="sbt.globalId" type="button" class="tamagaki-overview__stake" :class="{'is-mine': isMine(sbt)}" :title="sbt.displayName || `SBT #${sbt.tokenId}`" @click="focusSbt(sbt)"><span></span></button>
+          </div>
+          <p v-if="sbts.length > overviewSbts.length">{{locale === "ja" ? `${sbts.length.toLocaleString()}本を密度表示しています` : `Density view of ${sbts.length.toLocaleString()} Tamagaki`}}</p>
+        </div>
+
+        <div class="tamagaki-finder">
+          <label><span>{{locale === "ja" ? "玉垣を探す" : "Find a Tamagaki"}}</span><input v-model="search" type="search" :placeholder="locale === 'ja' ? '名前・番号・ウォレット・グローバルID' : 'Name, number, wallet, or global ID'" @input="onlyMine = false"></label>
+          <button type="button" class="tamagaki-finder__wallet" @click="connectAndFindMine">{{connectedAccount ? (locale === "ja" ? "自分の玉垣を再表示" : "Show mine again") : (locale === "ja" ? "ウォレットで自分の玉垣を探す" : "Find mine with wallet")}}</button>
+          <button v-if="search || onlyMine" type="button" class="tamagaki-finder__clear" @click="clearFilters">{{locale === "ja" ? "解除" : "Clear"}}</button>
+        </div>
+
+        <div v-if="!search && !onlyMine && districtCount > 1" class="tamagaki-districts" aria-label="District selector">
+          <button v-for="district in districtCount" :key="district" type="button" :class="{'is-active': selectedDistrict === district - 1}" @click="selectedDistrict = district - 1">{{locale === "ja" ? `第${district}区画` : `District ${district}`}}</button>
+        </div>
+
+        <div class="tamagaki-explorer__result-heading"><strong>{{resultLabel}}</strong><small>{{locale === "ja" ? "すべてのチェーンを統合して表示" : "Combined across all chains"}}</small></div>
+        <div v-if="districtSbts.length" class="tamagaki-grid tamagaki-grid--explorer">
+          <article v-for="sbt in districtSbts" :id="`sbt-${encodeURIComponent(sbt.globalId)}`" :key="sbt.globalId" :class="{'is-mine': isMine(sbt)}">
+            <img v-if="sbt.image" :src="sbt.image" :alt="`Tamagaki SBT #${sbt.tokenId}`">
+            <span v-else class="tamagaki-grid__placeholder" aria-hidden="true">熊本<br>災害支援</span>
+            <span class="tamagaki-grid__chain">{{sbt.network.label}}</span>
+            <span v-if="isMine(sbt)" class="tamagaki-grid__mine">{{locale === "ja" ? "あなたの玉垣" : "Your Tamagaki"}}</span>
+            <span class="tamagaki-grid__number">玉垣 {{sbt.tokenId.toString().padStart(3, "0")}}</span>
+            <strong>{{sbt.displayName || `SBT #${sbt.tokenId}`}}</strong><small>{{locale === "ja" ? "所有者" : "Owner"}} {{short(sbt.owner)}}</small>
+            <code :title="sbt.globalId">{{sbt.globalId}}</code>
+            <div class="tamagaki-grid__actions"><a :href="explorer(sbt.network, 'token', sbt.network.sbtAddress, sbt.tokenId)" target="_blank" rel="noreferrer">Explorer ↗</a><button type="button" @click="copyPermalink(sbt)">{{copiedId === sbt.globalId ? (locale === "ja" ? "コピー済み" : "Copied") : (locale === "ja" ? "共有URL" : "Share")}}</button></div>
+          </article>
+        </div>
+        <div v-else class="support-trend__empty"><strong>{{locale === "ja" ? "該当する玉垣はありません" : "No matching Tamagaki"}}</strong><span>{{locale === "ja" ? "検索語または接続中のウォレットを確認してください。" : "Check the search term or connected wallet."}}</span></div>
       </div>
       <div v-else-if="!loading" class="support-trend__empty">{{locale === "ja" ? "発行済みSBTはまだありません。" : "No SBTs have been issued yet."}}</div>
     </section>
