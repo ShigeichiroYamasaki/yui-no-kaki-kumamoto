@@ -24,6 +24,7 @@ Ethereum SepoliaとBase Sepoliaへ同じデモを展開し、GitHub Pagesから�
 | 集計UI | 小さいselectとchain切替方式が発見しにくかった | Base Sepoliaが利用可能でもEthereum Sepoliaだけに見えた |
 | Faucet UI | オンチェーンの24時間cooldownを読まず、受取後もボタンが有効に見えた | 必ずrevertする操作を利用者へ提示した |
 | SBTプレビュー | 本人の編集画面に周囲のサンプル玉垣も表示した | 1支援につき1 SBTという単位を誤解させた |
+| RPC並列取得 | 全block範囲・複数eventを`Promise.all`で一斉取得した | Base public RPCとInfuraが429を返し、実在する支援・SBTが0件に置換された |
 
 秘密鍵、API key、復元フレーズなどのsecret値は障害記録、ADR、issue、ログへ転記しない。
 
@@ -61,6 +62,7 @@ addressだけをchainから切り離して識別しない。contractは`chainId:
 - デプロイ用RPC、ブラウザ公開用RPC、本番Indexer用RPCを分離する。
 - デプロイ用とIndexer用はSLA、rate limit、archive/log範囲を確認した専用providerを基本とする。
 - 公開デモはRPC上限以下のblock rangeへ分割して`eth_getLogs`を取得し、一部chunkの失敗を0件として扱わずエラーと最終成功blockを表示する。
+- block rangeは順次取得し、429／rate limitだけを指数backoff付きで再試行する。再同期失敗時はそのnetworkの直前の正常データを保持し、空配列で上書きしない。画面用エラーへAPI keyを含むRPC URLやrequest bodyを露出しない。
 - 複数RPCを用意する場合も、異なるchainのRPCをfallbackに混ぜない。fallbackごとに`eth_chainId`を検証する。
 - 本番ではブラウザ全履歴走査を採用せず、ADR-0006の再編成対応Indexer、検証可能DB、読み取り専用APIを使用する。
 

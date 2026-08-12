@@ -215,7 +215,7 @@ flowchart LR
   K -->|"受領・復興証憑"| IDX
 ```
 
-本番server、DB、Indexer、公開Web、Bitcoin Coreには資金移転可能なseedまたはxprvを置きません。LNDだけはchannel状態のためonline keyを必要とする限定例外です。実効inbound liquidity、未決済invoice予約額、hot balance、on-chain reserveを監視し、容量不足時は新規Lightning invoiceを止めてNative Bitcoinへ案内します。詳細は[ADR-0011](./adr/0011-bitcoin-lightning-and-base-sbt)と[ADR-0012](./adr/0012-lightning-inbound-liquidity-and-channel-capital)を参照してください。
+本番server、DB、Indexer、公開Web、Bitcoin Coreには資金移転可能なseedまたはxprvを置きません。LNDだけはchannel状態のためonline keyを必要とする限定例外ですが、長期保管庫にはしません。実効inbound liquidity、未決済invoice予約額、hot balance、on-chain reserveを監視し、容量不足時は新規Lightning invoiceを止めてNative Bitcoinへ案内します。Accepted BTCは金額または保管期限の上限で、固定allowlistの認定NPO管理Bitcoin hardware multisigへ移します。詳細は[ADR-0011](./adr/0011-bitcoin-lightning-and-base-sbt)、[ADR-0012](./adr/0012-lightning-inbound-liquidity-and-channel-capital)、[ADR-0013](./adr/0013-lightning-legal-classification-and-abuse-controls)を参照してください。
 
 ## 権限モデル
 
@@ -225,14 +225,14 @@ flowchart LR
 |---|---|---|
 | 支援者鍵 | 支援者自身のwallet | サイトはseed／private keyを要求しない |
 | EVM財務・管理鍵 | 複数組織のhardware wallet | Safe型multisig＋timelock。serverから署名しない |
-| Bitcoin保管鍵 | 複数組織のhardware wallet | watch-only descriptor＋PSBT。Bitcoin Coreにseedを入れない |
+| Bitcoin長期保管鍵 | 認定NPOの統制下で複数組織が保持するhardware wallet | 必須multisig。watch-only descriptor＋PSBT。Bitcoin Coreにseedを入れず、LNDからの固定sweep先とする |
 | アテステーション・Paymaster鍵 | 独立主体ごとのHSM/KMS | 抽出不能、最小権限、閾値署名。資金移転権限なし |
 | LND macaroon | 限定されたinvoice service | invoice RPCだけを許可し、admin権限を配布しない |
 | Lightning channel鍵 | remote signer／専用隔離環境 | 常時署名の限定例外。初期本番ではLightningを無効化 |
 
 Bitcoin出金ではserverが未署名PSBTを作成し、認定NPOの複数担当、共同運営団体、独立監査・協力団体等のhardware walletで送付先、金額、feeを確認して必要数を署名します。初期候補では熊本県職員へBitcoinまたはVaultの資金管理鍵を持たせません。完成PSBTだけをBitcoin Coreがbroadcastします。秘密鍵なしのserver侵害で画面停止や偽表示が起こり得るため、署名者はhardware wallet画面と別経路の送付指図を照合します。
 
-Lightning nodeはchannel状態をオンラインで署名する必要があり、この原則の完全な適用対象にはできません。そのため初期本番はNative Bitcoinのみを有効にし、Lightningはremote signerまたは外部事業者、hot balance上限、復旧訓練、限定macaroonを含む例外審査後に有効化します。受付可能額はwallet残高や額面channel容量ではなく実効inbound liquidityで管理し、容量不足時はinvoice発行を止めNative Bitcoinへ縮退します。詳細は[ADR-0011](./adr/0011-bitcoin-lightning-and-base-sbt)と[ADR-0012](./adr/0012-lightning-inbound-liquidity-and-channel-capital)を参照してください。
+Lightning nodeはchannel状態をオンラインで署名する必要があり、この原則の完全な適用対象にはできません。そのため初期本番はNative Bitcoinのみを有効にし、Lightningはremote signerまたは外部事業者、hot balance上限、固定hardware multisigへのsweep、復旧訓練、限定macaroonを含む例外審査後に有効化します。受付可能額はwallet残高や額面channel容量ではなく実効inbound liquidityで管理し、容量不足時はinvoice発行を止めNative Bitcoinへ縮退します。online keyの例外は、Accepted BTCの長期保管にhardware multisigを必須とする要件を緩和しません。詳細は[ADR-0011](./adr/0011-bitcoin-lightning-and-base-sbt)、[ADR-0012](./adr/0012-lightning-inbound-liquidity-and-channel-capital)、[ADR-0013](./adr/0013-lightning-legal-classification-and-abuse-controls)を参照してください。
 
 ## セキュリティ境界と重大な改善
 

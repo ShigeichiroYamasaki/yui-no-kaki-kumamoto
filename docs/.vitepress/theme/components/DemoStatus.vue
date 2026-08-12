@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref } from "vue";
 import {
-  createPublicClient, formatUnits, http, parseAbiItem, zeroAddress,
+  createPublicClient, fallback, formatUnits, http, parseAbiItem, zeroAddress,
   type Address, type EIP1193Provider, type Hash,
 } from "viem";
 import { availableDemoNetworks, type DemoNetwork } from "../testnetNetworks";
@@ -169,29 +169,72 @@ function applyDeepLink() {
   if (sbt) focusSbt(sbt);
 }
 
+function wait(milliseconds: number) {
+  return new Promise((resolve) => window.setTimeout(resolve, milliseconds));
+}
+
+function isRateLimit(cause: unknown) {
+  const message = cause instanceof Error ? cause.message : String(cause);
+  return /\b429\b|rate.?limit|too many requests/i.test(message);
+}
+
+function publicRpcError(cause: unknown) {
+  if (isRateLimit(cause)) {
+    return props.locale === "ja"
+      ? "公開RPCが混雑しています。取得済みデータを保持しました。少し待ってから更新してください。"
+      : "The public RPC is rate-limiting requests. Previously loaded data was retained; retry shortly.";
+  }
+  const message = cause instanceof Error ? cause.message : String(cause);
+  return message.replace(/https:\/\/[^\s]+/g, "[RPC URL]").slice(0, 500);
+}
+
+async function withRpcBackoff<T>(operation: () => Promise<T>): Promise<T> {
+  let lastError: unknown;
+  for (let attempt = 0; attempt < 5; attempt += 1) {
+    try { return await operation(); }
+    catch (cause) {
+      lastError = cause;
+      if (!isRateLimit(cause) || attempt === 4) throw cause;
+      await wait(750 * 2 ** attempt + Math.floor(Math.random() * 250));
+    }
+  }
+  throw lastError;
+}
+
 async function fetchNetwork(network: DemoNetwork) {
-  const client = createPublicClient({ chain: network.chain, transport: http(network.rpcUrl) });
-  const toBlock = await client.getBlockNumber();
+  const rpcUrls = [...new Set([network.rpcUrl, ...network.rpcFallbackUrls])];
+  const client = createPublicClient({
+    chain: network.chain,
+    transport: fallback(rpcUrls.map((url) => http(url)), { rank: true }),
+  });
+  const toBlock = await withRpcBackoff(() => client.getBlockNumber());
   const ranges: Array<{ fromBlock: bigint; toBlock: bigint }> = [];
-  const blockSpan = 2_000n;
+  const blockSpan = 10_000n;
   for (let fromBlock = network.deploymentBlock; fromBlock <= toBlock; fromBlock += blockSpan) {
     const chunkEnd = fromBlock + blockSpan - 1n;
     ranges.push({ fromBlock, toBlock: chunkEnd < toBlock ? chunkEnd : toBlock });
   }
-  const chunks = await Promise.all(ranges.map(async ({ fromBlock, toBlock: chunkToBlock }) => {
-    const [support, mint] = await Promise.all([
-      client.getLogs({ address: network.vaultAddress, event: supportEvent, fromBlock, toBlock: chunkToBlock }),
-      client.getLogs({
+  const chunks = [];
+  // Shared public RPCs reject bursts even when each block range is small. Keep
+  // log reads sequential and retry only explicit throttling responses.
+  for (const { fromBlock, toBlock: chunkToBlock } of ranges) {
+    const support = await withRpcBackoff(() => client.getLogs({
+      address: network.vaultAddress, event: supportEvent, fromBlock, toBlock: chunkToBlock,
+    }));
+    const mint = await withRpcBackoff(() => client.getLogs({
         address: network.sbtAddress, event: transferEvent, args: { from: zeroAddress },
         fromBlock, toBlock: chunkToBlock,
-      }),
-    ]);
-    return { support, mint };
-  }));
+    }));
+    chunks.push({ support, mint });
+    await wait(120);
+  }
   const supportLogs = chunks.flatMap((chunk) => chunk.support);
   const mintLogs = chunks.flatMap((chunk) => chunk.mint);
   const blockNumbers = [...new Set(supportLogs.map((log) => log.blockNumber))];
-  const blocks = await Promise.all(blockNumbers.map((blockNumber) => client.getBlock({ blockNumber })));
+  const blocks = [];
+  for (const blockNumber of blockNumbers) {
+    blocks.push(await withRpcBackoff(() => client.getBlock({ blockNumber })));
+  }
   const timestamps = new Map(blocks.map((block) => [block.number, Number(block.timestamp)]));
 
   const networkSupports = supportLogs.flatMap((log): SupportRow[] => {
@@ -234,8 +277,12 @@ async function refresh() {
   const results = await Promise.all(networks.value.map(async (network) => {
     try { return { network, ...(await fetchNetwork(network)) }; }
     catch (cause) {
-      errors.value[network.key] = cause instanceof Error ? cause.message : String(cause);
-      return { network, supports: [] as SupportRow[], sbts: [] as SbtRow[] };
+      errors.value[network.key] = publicRpcError(cause);
+      return {
+        network,
+        supports: supports.value.filter((row) => row.network.key === network.key),
+        sbts: sbts.value.filter((row) => row.network.key === network.key),
+      };
     }
   }));
   supports.value = results.flatMap((result) => result.supports).sort((a, b) => b.timestamp - a.timestamp);

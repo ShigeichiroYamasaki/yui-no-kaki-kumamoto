@@ -164,3 +164,5 @@ npm run contracts:deploy:bitcoin:base-sepolia
 このコードはBase側の証明・発行プロトタイプです。既存のEVM VaultへNative BTCを送ることはできません。Bitcoin Core watch-only受入、固有address導出、confirmation／再編成監視、PSBT、LND invoice service、Paymaster、Indexer、UIは未実装です。Native BitcoinはSignet/testnetとの端間試験と監査後、Lightningはonline signer例外の追加検証と別個の開始承認後にのみ有効化します。
 
 GitHub Pagesでは従来の`RECOVERY_*`変数をEthereum Sepoliaとして利用できます。Base Sepoliaを併用する場合は、`BASE_SEPOLIA_PUBLIC_RPC_URL`、`BASE_SEPOLIA_VAULT_ADDRESS`、`BASE_SEPOLIA_JPYC_ADDRESS`、`BASE_SEPOLIA_TAMAGAKI_SBT_ADDRESS`、`BASE_SEPOLIA_REGISTRY_ADDRESS`、`BASE_SEPOLIA_COUNCIL_ADDRESS`、`BASE_SEPOLIA_DEPLOYMENT_BLOCK`、`BASE_SEPOLIA_JPYC_DECIMALS`、`BASE_SEPOLIA_TAMAGAKI_METADATA_VERSION=2`をGitHub Actions Variablesへ追加します。三つの主要アドレスが揃うとBase Sepoliaパネルが有効になり、Ethereum Sepoliaと同時に表示されます。秘密鍵や書き込み権限はPagesへ設定しません。
+
+ブラウザ集計は`eth_getLogs`を10,000 block以下へ分割して順次取得し、429だけを指数backoff付きで再試行します。設定RPCが利用できない場合は同じchainの読み取り専用公開RPCへ縮退します。一つのnetworkがrate limitになっても他networkと前回の正常値を消去せず、RPC URLやrequest bodyを画面へ表示しません。Pagesへ渡すRPC URLは公開情報になるため、provider keyには許可domain、利用量上限、読み取り専用projectを設定してください。

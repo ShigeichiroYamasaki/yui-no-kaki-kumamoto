@@ -45,10 +45,11 @@
 | A-13 | **High** | Polygon validator/milestone/checkpoint/PoS Bridge障害、偽JPYC、JPYC EX償還停止 | 公式asset allowlist、pause、chain別集計 | Baseのescape hatchは利用できない。公式JPYCのchain ID・codehash固定、複数RPC、finalized block使用、JPYC EX直接償還とPoS Bridgeの優先順位、最大滞留額・停止基準が必要 |
 | A-14 | **Critical** | Bitcoin監視者の侵害・共謀により未入金outpointを証明し、Base SBTや会計を偽造 | Registryは閾値署名、検証者epoch、`txid:vout`／commitment重複拒否、EIP-712 domainを実装 | 独立Bitcoin node、検証者交代timelock、公開照合、外部監査が必要 |
 | A-15 | **High** | Bitcoin再編成、RBF、0-confirmation二重支払いを確定支援として処理 | RegistryはAccepted後にのみmintするが、Bitcoin監視は未実装 | 金額別confirmation、再編成検出、0-conf除外、監視不一致時pauseが必要 |
-| A-16 | **Critical** | Bitcoin xprv、multisig signer、Lightning macaroon／wallet鍵の侵害 | Base Registryは資金鍵を保持しない。Bitcoin Core/LND側は未実装。本番設計はwatch-only Bitcoin Core、PSBT、hardware multisig、HSM/KMS分離、初期Lightning無効化 | 署名者・閾値の法人決議、二拠点backup、復旧訓練、Sweep監視が必要。Lightning有効化時は限定macaroon、remote signerまたは外部事業者、hot balance上限を追加 |
+| A-16 | **Critical** | Bitcoin xprv、multisig signer、Lightning macaroon／wallet鍵の侵害 | Base Registryは資金鍵を保持しない。Bitcoin Core/LND側は未実装。本番設計はwatch-only Bitcoin Core、PSBT、hardware multisig、HSM/KMS分離、初期Lightning無効化 | Accepted BTCの長期保管には認定NPO管理hardware multisigを必須とし、署名者・閾値の法人決議、二拠点backup、復旧訓練、固定sweep先監視を要求する。Lightning有効化時は限定macaroon、remote signerまたは外部事業者、金額・保管期限のhot上限を追加 |
 | A-17 | **High** | Lightningのinbound liquidity枯渇、単一peer障害、未決済invoice集中により支援を受け取れない | 初期Lightning無効化、Native Bitcoin代替経路 | ADR-0012に従い複数peer、実効容量監視、invoice予約上限、Loop Out、fee budget、25%停止・40%警戒の提案値を限定運用で検証する |
 | A-18 | **High** | Bitcoin取引、Lightning `SETTLED`、Registry、SBT mintを別支援として二重計上、またはsatoshiとmillisatoshiを同じ桁で集計する | Registryのoutpoint／commitment一意制約 | 有効な`SupportAttested`だけを金額の正本とし、global IDで冪等化、route別整数単位を固定、`SupportInvalidated`を反映し、第三者が再計算できる集計fixtureをCIで検証する |
 | A-19 | **High** | 侵害された単一LND／invoice serviceが存在しないLightning settlementの証憑を作り、複数検証者が同じ偽情報へ署名する | 閾値アテステーション、初期Lightning無効化 | 閾値組織だけでは情報源の独立性を保証しない。限定settlement証憑、payment commitment、append-only log、外部事業者記録を分離照合し、不一致時停止、定期監査、hot exposure上限を要求する |
+| A-20 | **Critical** | Lightning受付が寄附の範囲を越えて第三者資金の保管・転送、交換媒介、制裁回避、犯罪収益の返金経路として運用される | 初期Lightning無効化、NPO自己勘定受領の設計 | ADR-0013に従い一般routing・支援者残高・自由返金・交換を禁止し、Accepted BTCを必須hardware multisigへ移す。法律意見、当局相談、AML／制裁統制、受領専用構成、異常案件訓練を開始条件にする |
 
 ## 当事者の操作ミス・内部不正
 
@@ -100,7 +101,7 @@
 - **訂正を履歴化**: 上書きや削除ではなく、取消と後継記録で誤りを訂正する。
 - **秘密情報を公開証跡へ含めない**: seed、秘密鍵、銀行口座番号、個人情報をhash前の公開文書にも含めない。
 
-具体的な操作は[認定NPO・熊本県向け運用ビュー](./prefecture-operations)を参照してください。設計判断は[ADR-0006](./adr/0006-security-boundaries-and-verifiable-batches)、[ADR-0007](./adr/0007-threat-model-and-human-error-controls)、[ADR-0008](./adr/0008-certified-npo-joint-operation)、[ADR-0009](./adr/0009-l2-selection-and-escape-hatch)、[ADR-0012](./adr/0012-lightning-inbound-liquidity-and-channel-capital)に記録しています。
+具体的な操作は[認定NPO・熊本県向け運用ビュー](./prefecture-operations)を参照してください。設計判断は[ADR-0006](./adr/0006-security-boundaries-and-verifiable-batches)、[ADR-0007](./adr/0007-threat-model-and-human-error-controls)、[ADR-0008](./adr/0008-certified-npo-joint-operation)、[ADR-0009](./adr/0009-l2-selection-and-escape-hatch)、[ADR-0012](./adr/0012-lightning-inbound-liquidity-and-channel-capital)、[ADR-0013](./adr/0013-lightning-legal-classification-and-abuse-controls)に記録しています。
 
 ## 法務・行政・プライバシー
 

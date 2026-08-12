@@ -215,7 +215,7 @@ flowchart LR
   K -->|"receipt and recovery evidence"| IDX
 ```
 
-Production servers, databases, indexers, the public Web application, and Bitcoin Core hold no seed or xprv capable of moving funds. LND is the narrow exception because channel state requires an online key. Effective inbound liquidity, outstanding invoice reservations, hot balance, and on-chain reserve are monitored; invoice issuance halts and falls back to Native Bitcoin when capacity is insufficient. See [ADR-0011](../adr/0011-bitcoin-lightning-and-base-sbt) and [ADR-0012](../adr/0012-lightning-inbound-liquidity-and-channel-capital).
+Production servers, databases, indexers, the public Web application, and Bitcoin Core hold no seed or xprv capable of moving funds. LND is the narrow online-key exception required by channel state, but it is never the long-term vault. Effective inbound liquidity, outstanding invoice reservations, hot balance, and on-chain reserve are monitored; invoice issuance halts and falls back to Native Bitcoin when capacity is insufficient. Accepted BTC moves at the amount or dwell-time threshold to the fixed allowlisted Bitcoin hardware multisig controlled by the certified NPO. See [ADR-0011](../adr/0011-bitcoin-lightning-and-base-sbt), [ADR-0012](../adr/0012-lightning-inbound-liquidity-and-channel-capital), and [ADR-0013](../adr/0013-lightning-legal-classification-and-abuse-controls).
 
 ## Permission model
 
@@ -225,14 +225,14 @@ Production administration will not rely on a single wallet. As a stronger rule, 
 |---|---|---|
 | Supporter key | The supporter's own wallet | The site never requests a seed or private key |
 | EVM treasury and administration keys | Hardware wallets held by separate organizations | Safe-style multisig and timelock; no server-side signing |
-| Bitcoin custody keys | Hardware wallets held by separate organizations | Watch-only descriptor and PSBT; no seed in Bitcoin Core |
+| Bitcoin long-term custody keys | Hardware wallets held by separate organizations under certified-NPO control | Mandatory multisig, watch-only descriptor and PSBT; no seed in Bitcoin Core; fixed LND sweep destination |
 | Attestation and Paymaster keys | HSM/KMS under independent operators | Non-exportable, least privilege, threshold approval, no treasury authority |
 | LND macaroon | Restricted invoice service | Invoice RPCs only; never distribute administrator authority |
 | Lightning channel key | Remote signer or dedicated isolated environment | A narrowly approved online-key exception; Lightning is disabled at initial production launch |
 
 For a Bitcoin withdrawal, a server prepares an unsigned PSBT. Hardware-wallet holders representing multiple certified-NPO staff, a joint operator, and independent audit or partner organizations verify the destination, amount, and fee and provide the required signatures. In the initial candidate, prefectural staff hold neither Bitcoin custody keys nor Vault transfer keys. Bitcoin Core broadcasts only the completed PSBT. Because a server compromise can still falsify a screen or interrupt service, signers compare the hardware-wallet display with transfer instructions delivered over a separate channel.
 
-A Lightning node must sign channel state while online, so it cannot fully satisfy the offline-key rule. Initial production therefore enables Native Bitcoin only. Lightning requires a separate exception review covering a remote signer or external provider, hot-balance limits, recovery drills, and restricted macaroons. Intake capacity is governed by effective inbound liquidity rather than wallet balance or nominal channel capacity; invoice issuance halts and falls back to Native Bitcoin when capacity is insufficient. See [ADR-0011](../adr/0011-bitcoin-lightning-and-base-sbt) and [ADR-0012](../adr/0012-lightning-inbound-liquidity-and-channel-capital).
+A Lightning node must sign channel state while online, so it cannot fully satisfy the offline-key rule. Initial production therefore enables Native Bitcoin only. Lightning requires a separate exception review covering a remote signer or external provider, hot-balance limits, sweep to the fixed hardware multisig, recovery drills, and restricted macaroons. Intake capacity is governed by effective inbound liquidity rather than wallet balance or nominal channel capacity; invoice issuance halts and falls back to Native Bitcoin when capacity is insufficient. The online-key exception never relaxes the mandatory hardware-multisig requirement for long-term custody of Accepted BTC. See [ADR-0011](../adr/0011-bitcoin-lightning-and-base-sbt), [ADR-0012](../adr/0012-lightning-inbound-liquidity-and-channel-capital), and [ADR-0013](../adr/0013-lightning-legal-classification-and-abuse-controls).
 
 ## Security boundaries and critical improvements
 

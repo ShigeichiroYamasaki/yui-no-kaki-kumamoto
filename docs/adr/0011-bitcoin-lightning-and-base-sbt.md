@@ -39,7 +39,7 @@ Bitcoin inscriptionを譲渡不能な参加証明として扱う方法、tokeniz
 
 ### 4. 確認とアテステーション
 
-- Bitcoin入金検出だけでは支援成立としない。`Detected → Confirmed → Accepted → SBTIssued → Included → Converted → Delivered → Reported`の状態を分離する。
+- Bitcoin入金検出だけでは支援成立としない。`Detected → Confirmed → ComplianceReview → Accepted → SBTIssued → Included → Converted → Delivered → Reported`の状態を分離する。Lightningは`Settled → ComplianceReview → Accepted / Held / Rejected`を経て、AcceptedだけをSBT発行・確定集計へ進める。
 - confirmation閾値は金額・再編成リスク・登録事業者要件に応じて定める。0-confirmationを確定支援、SBT発行、円転batchへ使用しない。
 - Lightningはinvoiceがsettledであることをpayment hashと受領nodeで確認し、preimageを公開台帳へ直接保存しない。
 - Baseの`BitcoinSupportRegistry`へ、支援ID、txidとvoutまたはdomain-separated payment commitment、satoshi／millisatoshi額、確認block heightまたはsettled時刻、SBT受取先、公開metadata hash、状態を登録する。元のLightning payment hashは限定監査領域だけでcommitmentとの対応を保持する。
@@ -64,7 +64,7 @@ Bitcoin inscriptionを譲渡不能な参加証明として扱う方法、tokeniz
 ### 6. 鍵管理とBitcoin資金管理
 
 - アプリケーション、DB、Indexer、公開Web、Bitcoin Coreに資金移転可能なprivate key、seed、xprvを保存しない。Bitcoin Coreはwatch-only descriptorのみを持つ。
-- Bitcoin受取walletと長期保管・円転walletを分離する。初期候補は認定NPOの複数担当、共同運営団体、独立監査・協力団体が別々に保持するhardware walletによる`3-of-5`とし、熊本県職員へ資金管理鍵を持たせない。最終的な署名者と閾値はADR-0003の未決事項として法人決議とリスク評価で確定する。
+- Bitcoin受取wallet、LND hot wallet、長期保管・円転walletを分離する。長期保管・円転には認定NPO管理のBitcoin hardware multisigを必須とし、単独EOA、単独hardware wallet、LND walletを長期保管先にしない。初期構成案は認定NPOの複数担当、共同運営団体、独立監査・協力団体が別々に保持するhardware walletによる`3-of-5`とするが、最終的な署名者と閾値はADR-0003の未決事項として法人決議とリスク評価で確定する。熊本県職員へ資金管理鍵を持たせない。
 - 出金はserverが未署名PSBTを作成し、複数当事者がhardware walletの画面で送付先・金額・feeを確認して署名する。完成PSBTだけをwatch-only nodeからbroadcastする。
 - EVM Vault管理、upgrade、送付先変更は単独EOAではなくhardware wallet署名者によるSafe型multisigとtimelockへ移管する。deploy用EOAの権限を本番開始前に除去する。
 - 自動アテステーション鍵とPaymaster鍵はアプリserverのfileへ置かず、抽出不能なHSM/KMSで署名する。単一cloud accountでは成立しない閾値とし、資金移転権限を付与しない。
@@ -77,7 +77,7 @@ Bitcoin inscriptionを譲渡不能な参加証明として扱う方法、tokeniz
 - Lightning nodeはchannel状態を常時署名するため、「オンライン署名鍵をどこにも置かない」方針とは両立しない。初期production releaseはNative Bitcoinのみを有効化し、Lightning受付を既定で無効にする。
 - Lightningを有効化するには、外部Lightning決済事業者またはremote signer／専用HSMを含む分離node構成、channel backup・復旧訓練、流動性・fee・障害監視、法務・会計確認を別途完了する。
 - 例外承認後もWeb/APIへ`admin.macaroon`を配布しない。invoice serviceには`AddInvoice`、`LookupInvoice`、`SubscribeInvoices`相当だけの制約付きmacaroonを与え、Secrets Manager、接続元制限、監査log、rotationを適用する。
-- LNDのonline channel keyはBitcoin長期保管multisig、EVM管理鍵、アテステーション鍵と兼用しない。Lightning hot balanceには上限を設け、超過分をhardware multisigへsweepする。
+- LNDのonline channel keyはBitcoin長期保管multisig、EVM管理鍵、アテステーション鍵と兼用しない。Lightning hot balanceには金額・保管期限の上限を設け、超過分を固定allowlistのhardware multisigへsweepする。LND online keyの例外は長期保管要件を緩和しない。
 
 ### 8. 可観測性と縮退
 
@@ -123,3 +123,4 @@ Bitcoinの国際性とBaseのSBT・DAO機能を両立できる一方、cross-cha
 - [ADR-0007](./0007-threat-model-and-human-error-controls.md): 攻撃・操作ミス対策
 - [ADR-0008](./0008-certified-npo-joint-operation.md): 法的主体と登録事業者
 - [ADR-0012](./0012-lightning-inbound-liquidity-and-channel-capital.md): Lightningのinbound liquidity、必要BTC、再調整、受付上限
+- [ADR-0013](./0013-lightning-legal-classification-and-abuse-controls.md): Lightning寄附の法的分類、AML・制裁、不当勧誘、悪用防止

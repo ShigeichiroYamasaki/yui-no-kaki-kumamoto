@@ -8,6 +8,7 @@ export type DemoNetwork = {
   label: string;
   chain: Chain;
   rpcUrl: string;
+  rpcFallbackUrls: string[];
   explorerUrl: string;
   faucetUrl: string;
   vaultAddress: Address;
@@ -38,6 +39,7 @@ export const demoNetworks: Record<DemoNetworkKey, DemoNetwork> = {
     label: "Ethereum Sepolia",
     chain: sepolia,
     rpcUrl: import.meta.env.VITE_SEPOLIA_RPC_URL || import.meta.env.VITE_RECOVERY_RPC_URL || "https://ethereum-sepolia-rpc.publicnode.com",
+    rpcFallbackUrls: ["https://ethereum-sepolia-rpc.publicnode.com", "https://rpc2.sepolia.org"],
     explorerUrl: "https://sepolia.etherscan.io",
     faucetUrl: "https://ethereum.org/developers/docs/networks/#sepolia",
     vaultAddress: sepoliaVault,
@@ -55,6 +57,7 @@ export const demoNetworks: Record<DemoNetworkKey, DemoNetwork> = {
     label: "Base Sepolia",
     chain: baseSepolia,
     rpcUrl: import.meta.env.VITE_BASE_SEPOLIA_RPC_URL || "https://sepolia.base.org",
+    rpcFallbackUrls: ["https://base-sepolia-rpc.publicnode.com"],
     explorerUrl: "https://sepolia.basescan.org",
     faucetUrl: "https://docs.base.org/base-chain/tools/network-faucets",
     vaultAddress: baseVault,

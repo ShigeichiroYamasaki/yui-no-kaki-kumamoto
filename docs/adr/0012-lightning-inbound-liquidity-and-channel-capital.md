@@ -81,7 +81,7 @@ $$
 
 ### 7. hot balanceと鍵管理
 
-- LND hot balance上限はinbound目標とは別に設定する。受領で増えたlocal balanceを放置せず、承認済みLoop Outまたはsweep手順でBitcoin hardware multisigへ移す。
+- LND hot balance上限はinbound目標とは別に設定する。受領で増えたlocal balanceを放置せず、金額または保管期限のいずれかが閾値へ達した時点で、承認済みLoop Outまたはsweep手順により固定allowlistのBitcoin hardware multisigへ移す。このmultisigをAccepted BTCの唯一の長期保管先とする。
 - LNDのonline channel key、wallet、限定macaroonをBitcoin長期保管multisig、EVM管理鍵、アテステーション鍵と分離する。
 - Web/APIへ`admin.macaroon`を置かず、invoice発行・照会・購読だけを許可する限定macaroonを使う。
 - channel backup、node停止、force close、peer消失、fee急騰、Loop障害を含む復旧訓練を行う。
@@ -97,7 +97,7 @@ $$
 - LND hot balance、on-chain reserve、hardware multisigへのsweep額
 - 最終Bitcoin block、LND同期、invoice購読cursor
 
-Lightning本番開始にはADR-0011の条件に加え、流動性提供者または決済事業者との契約、有限な各上限、容量不足時のNative Bitcoin縮退、再調整とforce-closeの訓練、会計・法務確認を必須とする。
+Lightning本番開始にはADR-0011・0013の条件に加え、流動性提供者または決済事業者との契約、有限な各上限、容量不足時のNative Bitcoin縮退、再調整とforce-closeの訓練、認定NPO管理のhardware multisigへのsweep試験、会計・法務確認を必須とする。
 
 ## 却下した案
 
@@ -125,3 +125,4 @@ Lightning受付の必要BTCを説明可能な運用指標として管理でき�
 - [ADR-0007](./0007-threat-model-and-human-error-controls.md): 攻撃・障害・操作ミス
 - [ADR-0008](./0008-certified-npo-joint-operation.md): 認定NPOと登録事業者
 - [ADR-0011](./0011-bitcoin-lightning-and-base-sbt.md): Lightning受付、鍵、SBTアテステーション
+- [ADR-0013](./0013-lightning-legal-classification-and-abuse-controls.md): Lightning寄附の法的分類と悪用防止
