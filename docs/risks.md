@@ -2,7 +2,7 @@
 
 ## 評価の前提
 
-この評価は2026年8月5日時点のプロトタイプコードと運用案を対象とします。外部監査、ペネトレーションテスト、熊本県・交換事業者との実運用試験に代わるものではありません。
+この評価は2026年8月12日時点のプロトタイプコードと運用案を対象とします。外部監査、ペネトレーションテスト、熊本県・交換事業者との実運用試験に代わるものではありません。
 
 重大度は次の基準です。
 
@@ -46,6 +46,9 @@
 | A-14 | **Critical** | Bitcoin監視者の侵害・共謀により未入金outpointを証明し、Base SBTや会計を偽造 | Registryは閾値署名、検証者epoch、`txid:vout`／commitment重複拒否、EIP-712 domainを実装 | 独立Bitcoin node、検証者交代timelock、公開照合、外部監査が必要 |
 | A-15 | **High** | Bitcoin再編成、RBF、0-confirmation二重支払いを確定支援として処理 | RegistryはAccepted後にのみmintするが、Bitcoin監視は未実装 | 金額別confirmation、再編成検出、0-conf除外、監視不一致時pauseが必要 |
 | A-16 | **Critical** | Bitcoin xprv、multisig signer、Lightning macaroon／wallet鍵の侵害 | Base Registryは資金鍵を保持しない。Bitcoin Core/LND側は未実装。本番設計はwatch-only Bitcoin Core、PSBT、hardware multisig、HSM/KMS分離、初期Lightning無効化 | 署名者・閾値の法人決議、二拠点backup、復旧訓練、Sweep監視が必要。Lightning有効化時は限定macaroon、remote signerまたは外部事業者、hot balance上限を追加 |
+| A-17 | **High** | Lightningのinbound liquidity枯渇、単一peer障害、未決済invoice集中により支援を受け取れない | 初期Lightning無効化、Native Bitcoin代替経路 | ADR-0012に従い複数peer、実効容量監視、invoice予約上限、Loop Out、fee budget、25%停止・40%警戒の提案値を限定運用で検証する |
+| A-18 | **High** | Bitcoin取引、Lightning `SETTLED`、Registry、SBT mintを別支援として二重計上、またはsatoshiとmillisatoshiを同じ桁で集計する | Registryのoutpoint／commitment一意制約 | 有効な`SupportAttested`だけを金額の正本とし、global IDで冪等化、route別整数単位を固定、`SupportInvalidated`を反映し、第三者が再計算できる集計fixtureをCIで検証する |
+| A-19 | **High** | 侵害された単一LND／invoice serviceが存在しないLightning settlementの証憑を作り、複数検証者が同じ偽情報へ署名する | 閾値アテステーション、初期Lightning無効化 | 閾値組織だけでは情報源の独立性を保証しない。限定settlement証憑、payment commitment、append-only log、外部事業者記録を分離照合し、不一致時停止、定期監査、hot exposure上限を要求する |
 
 ## 当事者の操作ミス・内部不正
 
@@ -67,6 +70,7 @@
 | H-12 | **Medium** | ニックネーム入力欄へ本名・第三者情報を誤公開する | 空欄から本人が名称を決め、不可逆性を直前表示。プレビュー、再確認、off-chain方式の選択肢を用意 |
 | H-13 | **Critical** | Bitcoin network、address、change output、PSBT feeを誤認して送金する | descriptorとnetwork固定、PSBT decode、送付先全文・fee・changeの四眼確認、少額先行 |
 | H-14 | **High** | 同じoutpoint／payment commitmentへ複数Claimを発行、または期限切れinvoiceを誤計上する | Registryの一意制約、標準の署名済みIntent、補助Claim tokenの一回性、限定監査領域でのpayment hash照合、invoice状態再読込、発行前の独立照合 |
+| H-15 | **High** | Native Bitcoinのsatoshi、Lightningのmillisatoshi、BTC表示値、円転額を取り違える | Registryのrouteとamountを署名対象に含める | route別decimals固定、raw integerと人間向け値の併記、型付き集計、境界値fixture、資産照合と円転後の円照合を別式にする |
 
 ## 現行コントラクトと本番要求の差
 
@@ -84,6 +88,8 @@
 | オンチェーン表示名 | UI同意は回避可能 | 本番採否を再判断し、採用時は受領署名と明確な警告 |
 | L2エスケープ | 未実装。Base Sepolia対応は接続・デモ設定のみ | L1緊急マルチシグ、Escape Controller、固定L1 Recovery Vault、cross-domain認証、完全退出訓練 |
 | Polygon JPYC / SBT | `ERC20Only`・chain ID `137`・公式JPYC固定module、global ID helperを実装。本番未デプロイ | milestone finality、停止・回収runbook、複数RPC本番Indexer、Polygon testnet端間試験、外部監査 |
+| Bitcoin Registry | Base側の署名検証、epoch、一意性、SBT発行、無効化を実装。`Accepted`と`SBTIssued`は同一transaction | Bitcoin Core受入、`Detected`／`Confirmed`永続化、独立証憑照合、再編成対応Indexer、公開集計、PSBT運用 |
+| Lightning受付 | 手動のローカルregtest操作とBase Registry部品のみ。受付serviceと統合集計は未実装 | 分離LND、限定macaroon、流動性制御、settlement購読、共通情報源リスク対策、端間自動試験、別個の開始承認 |
 
 ## 運用上の安全原則
 
@@ -94,7 +100,7 @@
 - **訂正を履歴化**: 上書きや削除ではなく、取消と後継記録で誤りを訂正する。
 - **秘密情報を公開証跡へ含めない**: seed、秘密鍵、銀行口座番号、個人情報をhash前の公開文書にも含めない。
 
-具体的な操作は[認定NPO・熊本県向け運用ビュー](./prefecture-operations)を参照してください。設計判断は[ADR-0006](./adr/0006-security-boundaries-and-verifiable-batches)、[ADR-0007](./adr/0007-threat-model-and-human-error-controls)、[ADR-0008](./adr/0008-certified-npo-joint-operation)、[ADR-0009](./adr/0009-l2-selection-and-escape-hatch)に記録しています。
+具体的な操作は[認定NPO・熊本県向け運用ビュー](./prefecture-operations)を参照してください。設計判断は[ADR-0006](./adr/0006-security-boundaries-and-verifiable-batches)、[ADR-0007](./adr/0007-threat-model-and-human-error-controls)、[ADR-0008](./adr/0008-certified-npo-joint-operation)、[ADR-0009](./adr/0009-l2-selection-and-escape-hatch)、[ADR-0012](./adr/0012-lightning-inbound-liquidity-and-channel-capital)に記録しています。
 
 ## 法務・行政・プライバシー
 

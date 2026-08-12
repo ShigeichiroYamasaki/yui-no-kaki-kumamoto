@@ -8,7 +8,7 @@
 |---|---|---|
 | 資産 | 画面内の疑似値・MockJPYC・Bitcoin／Lightning test資産 | 許可済みETH・公式JPYC・Native BTC。Lightning BTCは例外承認後に追加 |
 | ウォレット | UI説明デモは接続なし。統合デモはテスト専用walletで署名 | 本番専用の対応walletと署名 |
-| ネットワーク | Hardhatローカル、Sepolia、Base Sepolia、Bitcoin Signet/testnet、Lightning test環境 | ETHはBase、JPYCはPolygon、初期BTCはNative Bitcoin、Bitcoin由来SBTはBase、Base ETHにはEthereum L1回収経路。Lightningは後日有効化 |
+| ネットワーク | Hardhatローカル、Sepolia、Base Sepolia、ローカルBitcoin Core／LND regtest。Signet／testnetは次段階の統合試験 | ETHはBase、JPYCはPolygon、初期BTCはNative Bitcoin、Bitcoin由来SBTはBase、Base ETHにはEthereum L1回収経路。Lightningは後日有効化 |
 | 県受領 | デモ番号・疑似状態 | 正式受領先と証憑ハッシュ |
 | 復興報告 | ブラウザ内で疑似更新 | 権限付き報告者が追記 |
 | 表示 | 常時プロトタイプ表記 | 認定NPO、登録事業者、規約、資金帰属、状態を表示 |

@@ -143,13 +143,15 @@ mintWithMetadata(address to, bytes32 supportId, bytes32 publicMetadataHash,
 
 トップページはViemの読み取り専用Public Clientを使用し、`RecoverySupportVault`の`SupportReceived`イベントを30秒ごとに取得します。各イベントのブロック時刻と資産アドレスから、ETH・JPYCの累計額と支援件数を算出します。テストネットの集計とSBT一覧はデモ状況ページへ分離します。
 
-本番集計はBase ETH、Polygon JPYC、Native Bitcoinを切り替えず、単一表の3行で同時表示します。Bitcoin経路が未実装または未開始の間は数量を推測せず「受付開始前」と表示します。GitHub Actions VariablesにはBase用の`BASE_MAINNET_PUBLIC_RPC_URL`、`BASE_MAINNET_VAULT_ADDRESS`、`BASE_MAINNET_TAMAGAKI_SBT_ADDRESS`、`BASE_MAINNET_DEPLOYMENT_BLOCK`と、Polygon用の`POLYGON_MAINNET_PUBLIC_RPC_URL`、`POLYGON_MAINNET_VAULT_ADDRESS`、`POLYGON_MAINNET_TAMAGAKI_SBT_ADDRESS`、`POLYGON_MAINNET_JPYC_ADDRESS`、`POLYGON_MAINNET_DEPLOYMENT_BLOCK`、`POLYGON_MAINNET_JPYC_DECIMALS`を設定します。異なる資産額は換算合算せず、資産別に表示します。トップページの本番玉垣ブロックは現行EVM両chainのSBTを一つの垣根として表示し、将来はADR-0011のBitcoin由来Base SBTも統合します。
+本番集計はBase ETH、Polygon JPYC、Bitcoin BTCを切り替えず、単一表の3行で同時表示します。Bitcoin行はNative Bitcoinと有効化済みLightningをBTC換算で統合し、経路別内訳を表示します。Bitcoin受入・Indexerが未設定または受付未開始の間は数量を推測せず「受付開始前」と表示します。GitHub Actions VariablesにはBase用の`BASE_MAINNET_PUBLIC_RPC_URL`、`BASE_MAINNET_VAULT_ADDRESS`、`BASE_MAINNET_TAMAGAKI_SBT_ADDRESS`、`BASE_MAINNET_DEPLOYMENT_BLOCK`と、Polygon用の`POLYGON_MAINNET_PUBLIC_RPC_URL`、`POLYGON_MAINNET_VAULT_ADDRESS`、`POLYGON_MAINNET_TAMAGAKI_SBT_ADDRESS`、`POLYGON_MAINNET_JPYC_ADDRESS`、`POLYGON_MAINNET_DEPLOYMENT_BLOCK`、`POLYGON_MAINNET_JPYC_DECIMALS`を設定します。異なる資産額は換算合算せず、資産別に表示します。トップページの本番玉垣ブロックは現行EVM両chainのSBTを一つの垣根として表示し、将来はADR-0011のBitcoin由来Base SBTも統合します。
 
 ### Bitcoin／Lightning Base Registryプロトタイプ
 
 `BitcoinSupportRegistry`は、支援者が事前署名したEIP-712 `SupportIntent`と、独立検証者が署名した`Attestation`を検証し、同じBase transactionで玉垣SBTを発行します。Bitcoinはtxidとvout、Lightningはdomain-separated payment commitmentを一意キーとし、同じ支援からの二重発行を拒否します。検証者署名は設定threshold以上、署名者addressの昇順で渡します。検証者集合の更新ごとにepochを増やし、旧集合の署名を無効化します。
 
 Bitcoinの`amount`はsatoshi・小数8桁、Lightningはmillisatoshi・小数11桁です。Lightning payment hash、preimage、invoice、macaroonはRegistryへ渡しません。`lib/bitcoin-support.ts`はtxid検査、Lightning公開commitment、画像hash、署名順序の共通処理を提供します。
+
+確定集計では有効な`SupportAttested`だけを金額の正本とし、`BitcoinTamagakiIssued`とERC-721 mintを再加算しません。`SupportInvalidated`後は確定額・件数から除外します。現行contractは`None → Accepted → SBTIssued`を同一transactionで処理し、`Detected`／`Confirmed`／Lightning settlementの永続化と出典証憑の検証は未実装のIndexer・検証者serviceが担います。contract自身がBitcoinやLightningを直接検証するものではありません。
 
 Base Sepolia用moduleは`ignition/modules/BitcoinSupportBase.ts`、設定見本は`ignition/parameters/bitcoin-base-sepolia.example.json`です。見本を秘密情報を含まないローカル設定へコピーし、admin、2-of-3等のthreshold、異なる組織が管理するverifier addressを設定して次を実行します。
 

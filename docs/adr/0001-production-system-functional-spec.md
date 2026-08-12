@@ -2,7 +2,7 @@
 
 - 状態: Proposed
 - 日付: 2026-07-31
-- 更新日: 2026-08-05
+- 更新日: 2026-08-12
 
 ## 文脈
 
@@ -65,8 +65,8 @@
 
 ### P-07 可視化
 
-- 支援ウォレット数、件数、資産別数量、参考評価額、円転確定額、県送金額、残高を分離表示する。
-- 本番集計はBase ETH、Polygon JPYC、Native Bitcoinと、有効化済みの場合のLightningを同じ画面へ表示し、異なる資産やnetworkを換算根拠なく合算しない。無効な経路は「受付未開始」とする。
+- 支援件数、参考値としてのEVMウォレット数、資産別数量、参考評価額、円転確定額、県送金額、残高を分離表示する。chainをまたぐ同一人物を判定できないため、ウォレット数やIntent数を「支援者数」と断定しない。
+- 本番集計はBase ETH、Polygon JPYC、Bitcoin BTCを同じ画面の3行へ表示する。Bitcoin行はNative Bitcoinと、有効化済みの場合のLightningをBTC換算で統合し、内訳を経路別に表示する。ETH、JPYC、BTCを換算根拠なく合算しない。無効な経路は「受付未開始」とする。
 - 全chainの玉垣SBTを一つのギャラリーへ統合し、各玉垣にはchain名と`chainId:sbtContract:tokenId` global IDを付ける。
 - 玉垣表示は、熊本城を囲む全体俯瞰、100本単位の区画、個別玉垣の3段階とする。支援者はウォレット接続、表示名、通し番号、wallet address、transaction hash、global IDから自分の玉垣へ到達できる。
 - 個別玉垣にはglobal IDを含む恒久的な共有URLを付け、全体の中で本人の玉垣を強調する。支援額によって玉垣の大きさや配置上の優劣を変えない。
@@ -76,7 +76,10 @@
 - 国別集計は本人の任意申告に基づく。
 - ネットワークごとに定めた確認ブロック数へ達する前の取引は「確認中」として確定値から除外する。
 - 確定集計、確認中集計、最終同期ブロック、最終同期時刻を表示する。
-- 集計式は`受領 = 県送金済み + 処理中 + 残高 + 明示手数料`とする。
+- EVMは公式Vaultの`SupportReceived`、Bitcoin／LightningはBase Registryの有効な`SupportAttested`を確定集計の正本とする。SBT mint、`BitcoinTamagakiIssued`、Bitcoin取引検出、Lightning invoice `SETTLED`を同じ支援額として重ねて加算しない。`SupportInvalidated`後の支援は確定値から除外し、訂正履歴を残す。
+- 支援global IDを集計の一意キーとする。EVMは`chainId:vault:supportId`、Native Bitcoinは`bitcoin:network:txid:vout`、Lightningは`lightning:network:domain-separated-payment-commitment`を使用する。
+- Bitcoin Registryの`amount`はNative Bitcoinではsatoshi、Lightningではmillisatoshiである。Bitcoin行は`Native BTC = Σsatoshi / 10^8`、`Lightning BTC = Σmillisatoshi / 10^11`、`Bitcoin BTC = Native BTC + Lightning BTC`で算出する。
+- 資産照合は資産・経路ごとに、`確定受領量 = 未集約残高 + 事業者へ移転済み量 + 資産建て明示手数料 + 訂正差額`とする。円転後はbatchごとに、`円転総額 = 県送金済み円額 + 円貨処理中額 + 円建て明示手数料`で別途照合する。暗号資産数量と円額を一つの等式へ直接混在させない。
 
 ### P-08 セキュリティと運用
 
@@ -94,11 +97,11 @@
 
 ## 本番移行ゲート
 
-具体的な認定NPOの理事会承認、熊本県との覚書、熊本県災害支援口座、対象資産・経路に対応する登録金融・決済事業者、会計処理、規約、プライバシー方針、監査完了が揃うまで、その資産経路の本番受付を開始しない。Native BitcoinにはBitcoin multisigと閾値アテステーションを必須とする。Lightning運用はシステム全体の初期開始条件にはせず、ADR-0011の限定例外条件を満たした後に別途有効化する。ADR-0007、ADR-0008、ADR-0011の該当する本番移行条件を満たし、Critical/Highリスクが未解決でないことを各経路の開始承認の必須資料とする。
+具体的な認定NPOの理事会承認、熊本県との覚書、熊本県災害支援口座、対象資産・経路に対応する登録金融・決済事業者、会計処理、規約、プライバシー方針、監査完了が揃うまで、その資産経路の本番受付を開始しない。Native BitcoinにはBitcoin multisigと閾値アテステーションを必須とする。Lightning運用はシステム全体の初期開始条件にはせず、ADR-0011の限定例外条件とADR-0012の流動性・受付制御条件を満たした後に別途有効化する。ADR-0007、ADR-0008、ADR-0011、ADR-0012の該当する本番移行条件を満たし、Critical/Highリスクが未解決でないことを各経路の開始承認の必須資料とする。
 
 ## プロトタイプとの境界
 
-現在のHardhat実装とEthereum Sepoliaデモは、本ADRの概念とトランザクションフローを検証するためのプロトタイプであり、本番移行ゲートを満たしたシステムではない。プロトタイプでは単一EOAを初期ロールへ設定できるが、本番では禁止する。画像付きSepoliaデモで同意の上オンチェーンSVGへ表示名・メッセージを埋め込む機能も技術実証に限定し、本番採用にはADR-0005に定める追加判断を必要とする。マルチシグ、タイムロック、確認ブロック分離、SBTと集約送金バッチの検証可能な関連付け、鍵紛失時の失効・再発行は本番開始前の必須実装とする。
+現在のHardhat実装とEthereum Sepoliaデモは、本ADRの概念とトランザクションフローを検証するためのプロトタイプであり、本番移行ゲートを満たしたシステムではない。プロトタイプでは単一EOAを初期ロールへ設定できるが、本番では禁止する。画像付きSepoliaデモで同意の上オンチェーンSVGへ表示名・メッセージを埋め込む機能も技術実証に限定し、本番採用にはADR-0005に定める追加判断を必要とする。Bitcoin RegistryはBase側の署名検証・重複防止・SBT発行のみ実装済みで、Bitcoin Core／LNDの監視、`Detected`／`Confirmed`の永続化、統合Indexer、公開集計は未実装である。マルチシグ、タイムロック、確認ブロック分離、SBTと集約送金バッチの検証可能な関連付け、鍵紛失時の失効・再発行は本番開始前の必須実装とする。
 
 ## 結果
 

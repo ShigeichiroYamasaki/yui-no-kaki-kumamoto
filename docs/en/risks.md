@@ -2,7 +2,7 @@
 
 ## Assessment basis
 
-This assessment covers the prototype code and proposed operations as of August 5, 2026. It does not replace an external audit, penetration test, or an end-to-end operational exercise with Kumamoto Prefecture and settlement providers.
+This assessment covers the prototype code and proposed operations as of August 12, 2026. It does not replace an external audit, penetration test, or an end-to-end operational exercise with Kumamoto Prefecture and settlement providers.
 
 | Severity | Criterion |
 |---|---|
@@ -44,6 +44,9 @@ The current implementation is suitable for a Sepolia technical demonstration, no
 | A-14 | **Critical** | Compromised or colluding Bitcoin watchers attest a nonexistent outpoint and falsify Base SBT or accounting state | Registry implements threshold signatures, verifier epochs, `txid:vout`/commitment uniqueness, and an EIP-712 domain | Require independent Bitcoin nodes, timelocked verifier rotation, public reconciliation, and external audit |
 | A-15 | **High** | Bitcoin reorganization, RBF, or zero-confirmation double spend is treated as final support | Registry mints only after Accepted, but Bitcoin monitoring is unimplemented | Require value-based confirmation thresholds, reorganization detection, zero-conf exclusion, and pause on watcher disagreement |
 | A-16 | **Critical** | Compromise of a Bitcoin xprv, multisig signer, Lightning macaroon, or wallet key | The Base Registry holds no fund key; Bitcoin Core/LND components remain unimplemented. Production design uses watch-only Bitcoin Core, PSBT, hardware multisig, HSM/KMS separation, and disables Lightning initially | Complete organizational approval of signers and threshold, two-site backup, recovery drills, and sweep monitoring; when enabling Lightning add restricted macaroons, a remote signer or external provider, and a hot-balance cap |
+| A-17 | **High** | Exhausted Lightning inbound liquidity, a single-peer outage, or simultaneous settlement of outstanding invoices prevents support intake | Lightning is initially disabled and Native Bitcoin remains the fallback path | Under ADR-0012, validate multiple peers, effective-capacity monitoring, invoice reservations, Loop Out, fee budgets, and the proposed 40% warning and 25% halt thresholds during limited operation |
+| A-18 | **High** | A Bitcoin transaction, Lightning `SETTLED`, Registry event, and SBT mint are counted as separate contributions, or satoshis and millisatoshis are aggregated at the same scale | Registry enforces unique outpoint/commitment evidence | Use only valid `SupportAttested` as the monetary source of truth, deduplicate by canonical global ID, pin route-specific integer units, apply `SupportInvalidated`, and test public aggregation fixtures in CI |
+| A-19 | **High** | A compromised single LND or invoice service fabricates Lightning settlement evidence and multiple verifiers sign the same false source | Threshold attestation and Lightning disabled initially | Organizational threshold does not make the source independent; reconcile restricted settlement evidence, payment commitment, append-only logs, and provider records, halt on disagreement, audit periodically, and cap hot exposure |
 
 ## Human error and insider misuse
 
@@ -63,6 +66,7 @@ The current implementation is suitable for a Sepolia technical demonstration, no
 | H-12 | **Medium** | Real or third-party identity entered as permanent nickname | Start blank, allow self-chosen nickname, show irreversibility immediately before signing, retain preview and off-chain option |
 | H-13 | **Critical** | Wrong Bitcoin network, address, change output, or PSBT fee | Pin descriptor and network; independently decode destination, fee, and change; run a small first transfer |
 | H-14 | **High** | Duplicate claims for one outpoint/payment commitment or an expired invoice counted as paid | Registry uniqueness, signed intent as the standard path, one-time recovery claim tokens, payment-hash reconciliation in a restricted audit domain, invoice-state reload, and independent pre-mint reconciliation |
+| H-15 | **High** | Native Bitcoin satoshis, Lightning millisatoshis, displayed BTC, or converted yen are confused | Registry signatures bind route and amount | Pin route-specific decimals, show raw and human-readable values, use typed aggregation and boundary fixtures, and separate asset reconciliation from post-conversion yen reconciliation |
 
 ## Prototype-to-production gap
 
@@ -80,6 +84,8 @@ The current implementation is suitable for a Sepolia technical demonstration, no
 | On-chain name | UI consent can be bypassed | Reconsider production use; require recipient consent if retained |
 | L2 escape | Not implemented; Base Sepolia support is connectivity and demo configuration only | L1 emergency multisig, Escape Controller, fixed L1 Recovery Vault, cross-domain authentication, and a complete withdrawal exercise |
 | Polygon JPYC/SBT | `ERC20Only`, chain ID `137`, official-JPYC module, and global-ID helper implemented; not deployed to production | Milestone finality, recovery runbook, multi-RPC production indexer, Polygon testnet exercise, and external audit |
+| Bitcoin Registry | Base signature, epoch, uniqueness, SBT issuance, and invalidation are implemented; `Accepted` and `SBTIssued` occur in one transaction | Bitcoin Core intake, persistent `Detected`/`Confirmed`, independent evidence reconciliation, reorg-aware indexer, public aggregation, and PSBT operations |
+| Lightning intake | Only manual local-regtest operations and Base Registry components exist; intake service and unified aggregation are absent | Isolated LND, restricted macaroon, liquidity controls, settlement subscription, common-source controls, automated end-to-end tests, and separate launch approval |
 
 ## Operating principles
 

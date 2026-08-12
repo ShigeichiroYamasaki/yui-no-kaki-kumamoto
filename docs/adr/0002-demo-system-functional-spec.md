@@ -2,7 +2,7 @@
 
 - 状態: Accepted
 - 日付: 2026-07-31
-- 更新日: 2026-08-04
+- 更新日: 2026-08-12
 
 ## 文脈
 
@@ -10,7 +10,7 @@
 
 ## 決定
 
-デモ系は本番と同じ概念モデルを用いるが、実資産・実行政システムから完全に分離する。目的に応じて「UI説明デモ」と「Ethereum Sepolia / Base Sepolia統合デモ」の2モードを提供する。
+デモ系は本番と同じ概念モデルを用いるが、実資産・実行政システムから完全に分離する。目的に応じて「UI説明デモ」「Ethereum Sepolia / Base Sepolia統合デモ」「ローカルBitcoin／LND開発デモ」を区別する。
 
 ### D-01 UI説明デモ
 
@@ -62,6 +62,14 @@
 - 既存デプロイとのABI不一致による誤送信を防ぐため、画像メタデータ対応デプロイには新しいdeployment IDを使用し、フロントエンドはメタデータ版が明示された場合だけ新関数を有効にする。
 - デモ用鍵、アドレス、取引を本番へ流用しない。
 - Ethereum Sepoliaの管理者、受領先、報告者が同一EOAでもよいが、これはデモ限定とし、本番構成の安全性を表さない。
+
+### D-07 ローカルBitcoin／LND開発デモ
+
+- Bitcoin Core `regtest`、miner wallet、Alice／BobのLND nodeを隔離されたローカル環境で使用し、block生成、node同期、peer接続、channel開設、BOLT 11 invoice、`SETTLED`までを無価値の試験BTCで再現する。
+- Base側の`BitcoinSupportRegistry`はHardhatまたはBase Sepoliaで、署名済みIntent、閾値署名、outpoint／Lightning commitmentの一意性、SBT発行、無効化を検証する。
+- 現時点ではDocker Compose定義、LND settlement購読、検証者service、Registry送信、統合Indexer、公開UIを一つに結ぶ端間自動化はリポジトリへ同梱していない。手動開発環境を公開デモまたは本番実装済みと表現しない。
+- `regtest`のseed、macaroon、address、channel、BTCをpublic testnetまたは本番へ転用しない。Signet／testnetとBase Sepoliaの統合試験は次段階とする。
+- ローカル集計でも、invoice `SETTLED`、Registry `SupportAttested`、SBT mintを同じ支援額として複数回加算しない。
 
 ## 受入条件
 

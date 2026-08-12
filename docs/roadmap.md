@@ -36,7 +36,7 @@
 - NPOへのJPYC支援から円転、熊本県への円貨寄附までの少額端間試験
 - Base ETHとPolygon JPYCを同一会計batchへ統合しないchain別照合試験
 - Native BTCからNPO Bitcoin multisig、登録事業者の少額円転、Base SBT、県送金batchまでの端間照合試験
-- Lightningは実資金を受けず、remote signerまたは外部事業者、限定macaroon、hot balance上限、復旧手順、payment commitmentをtest環境で独立検証
+- Lightningは実資金を受けず、remote signerまたは外部事業者、限定macaroon、hot balance上限、実効inbound監視、invoice予約上限、Loop Out・Native Bitcoin縮退、復旧手順、payment commitmentをtest環境で独立検証
 - 金額・期間を限定した運用と照合
 - 支援者・熊本県・事業者からのフィードバック
 
@@ -48,6 +48,6 @@
 - 半期ごと、およびL2・bridgeのupgrade後のエスケープハッチ訓練
 - 公開コミュニティによる改善提案
 - Native Bitcoin受付とBitcoin由来Base玉垣の継続運用
-- LightningはADR-0011の限定例外条件と別個の開始承認を満たした場合に限り、後続リリースで有効化
+- LightningはADR-0011の限定例外条件、ADR-0012の流動性・受付制御条件、別個の開始承認を満たした場合に限り、後続リリースで有効化
 
 各フェーズの移行は日付ではなく、合意、監査、運用能力が満たされたかで判断します。

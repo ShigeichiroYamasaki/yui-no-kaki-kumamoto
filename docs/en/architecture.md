@@ -93,6 +93,130 @@ This is the production principle. The image-enabled Sepolia demo also evaluates 
 
 Native BTC is not bridged into an EVM Vault. A unique Bitcoin address or one-time Lightning invoice maps to a signed donation intent. Independent verifiers confirm the required confirmations or settlement and submit a threshold attestation to a Base Registry. The ERC-721 and ERC-5192 Tamagaki SBT is then minted to the Base address selected before payment. For Lightning, the Registry receives a domain-separated commitment rather than the underlying payment hash. Bitcoin private keys, xprvs, Lightning macaroons, payment hashes, and preimages never enter Base or the public indexer. See [ADR-0011](../adr/0011-bitcoin-lightning-and-base-sbt).
 
+## Bitcoin and LND demo architecture
+
+The demo uses no real funds. Bitcoin `regtest` and two LND nodes run under a developer-provided Docker Compose environment. The `miner` wallet supplies test BTC and creates blocks; Alice acts as the supporter and Bob as the receiver. This reproduces channel opening, BOLT 11 invoice payment, and `SETTLED` verification. On the Base side, Hardhat or Base Sepolia exercises the signed intent, threshold attestation, duplicate prevention, and Tamagaki SBT minting in `BitcoinSupportRegistry`. The repository does not yet bundle that Compose definition or end-to-end automation.
+
+```mermaid
+flowchart LR
+  subgraph D["Developer workstation"]
+    OP["Developer・manual operations"]
+    UI["Support UI<br/>Tamagaki preview・Base address"]
+    H["Hardhat tests<br/>signatures・uniqueness・SBT"]
+    HELPER["bitcoin-support helper<br/>metadata hash・public commitment"]
+  end
+
+  subgraph C["Docker Compose・no real funds"]
+    BC["Bitcoin Core<br/>regtest"]
+    M["miner wallet<br/>test BTC・block generation"]
+    A["LND Alice<br/>supporter and payer"]
+    B["LND Bob<br/>invoice receiver"]
+    CH["Lightning channel<br/>Alice → Bob"]
+    M -->|"regtest BTC"| A
+    M -->|"generatetoaddress"| BC
+    BC -->|"RPC・ZMQ・confirmations"| A
+    BC -->|"RPC・ZMQ・confirmations"| B
+    A --> CH
+    CH -->|"BOLT 11 payment"| B
+  end
+
+  subgraph E["EVM test environment"]
+    REG["BitcoinSupportRegistry<br/>Hardhat / Base Sepolia"]
+    SBT["Base TamagakiSBT<br/>ERC-721 + ERC-5192"]
+    REG -->|"mint"| SBT
+  end
+
+  OP --> C
+  UI -.->|"EIP-712 SupportIntent"| H
+  B -.->|"manually verify SETTLED"| OP
+  OP -.->|"do not publish payment hash"| HELPER
+  HELPER -.->|"domain-separated commitment"| H
+  H -.->|"test verifier signatures"| REG
+```
+
+Solid lines are the locally operable Bitcoin and Lightning path; dotted lines are boundaries currently connected through tests or manual operations. Automatic invoice settlement subscription, the intake API that submits to the Registry, independent verifier services, Paymaster, indexer, and public-UI integration remain unimplemented. Demo seeds, BTC, macaroons, addresses, and channels are never reused in production.
+
+## Bitcoin and LND production architecture
+
+Production separates intake, custody, evidence, and public-read boundaries. Native Bitcoin intake derives a unique address per signed intent from a watch-only descriptor. Lightning remains disabled at initial production launch. If separately approved, only a restricted macaroon reaches the invoice service, and the LND online channel key is never shared with long-term custody or attestation keys.
+
+```mermaid
+flowchart LR
+  U["International supporter"]
+  BW["Bitcoin wallet"]
+  LW["Lightning wallet"]
+  BASEW["Base wallet<br/>EIP-712 intent signature"]
+
+  subgraph I["Intake boundary"]
+    API["Support Intent API<br/>single-use intent・limits"]
+    ADDR["Bitcoin intake service<br/>watch-only descriptor・unique address"]
+    INV["Invoice service<br/>Add・Lookup・Subscribe only"]
+    LND["Isolated LND / remote signer<br/>hot-balance cap"]
+    LIQ["Multiple peers and providers<br/>inbound liquidity"]
+    COM["Restricted audit domain<br/>payment hash → public commitment"]
+    API --> ADDR
+    API --> INV
+    INV -->|"restricted macaroon"| LND
+    LIQ -->|"receiving capacity"| LND
+    LND --> COM
+  end
+
+  subgraph V["Independent verification boundary"]
+    N1["Verifier organization A<br/>independent Bitcoin node / restricted LN evidence"]
+    N2["Verifier organization B<br/>independent Bitcoin node / restricted LN evidence"]
+    N3["Verifier organization C<br/>independent Bitcoin node / restricted LN evidence"]
+    T["Threshold attestation<br/>example 2-of-3"]
+    N1 --> T
+    N2 --> T
+    N3 --> T
+  end
+
+  subgraph F["Custody boundary"]
+    CORE["Watch-only Bitcoin Core<br/>UTXO monitoring・PSBT・broadcast"]
+    MS["Bitcoin hardware multisig<br/>receiving descriptor・candidate 3-of-5"]
+    X["Registered exchange or payment provider"]
+    K["Kumamoto Disaster Support Account"]
+    CORE -->|"unsigned PSBT"| MS
+    MS -->|"dual-controlled signed PSBT"| CORE
+    CORE -->|"completed transaction"| X
+    X -->|"yen bank remittance"| K
+  end
+
+  subgraph E["Base evidence boundary"]
+    REG["BitcoinSupportRegistry<br/>intent・threshold・uniqueness"]
+    SBT["Base TamagakiSBT"]
+    REG --> SBT
+  end
+
+  subgraph P["Public read boundary"]
+    IDX["Reorganization-aware indexer"]
+    DASH["Unified totals and Tamagaki gallery"]
+    IDX --> DASH
+  end
+
+  U --> BW
+  U --> LW
+  U --> BASEW
+  BASEW -->|"signed intent"| API
+  BW -->|"Native BTC"| ADDR
+  LW -->|"BOLT 11 payment"| LND
+  ADDR -->|"outpoint to verify"| N1
+  ADDR -->|"outpoint to verify"| N2
+  ADDR -->|"outpoint to verify"| N3
+  COM -->|"payment commitment"| N1
+  COM -->|"payment commitment"| N2
+  COM -->|"payment commitment"| N3
+  T -->|"HSM/KMS signatures"| REG
+  API -->|"supporter intent"| REG
+  ADDR -->|"received UTXO"| CORE
+  LND -->|"approved Loop Out or sweep"| MS
+  REG --> IDX
+  SBT --> IDX
+  K -->|"receipt and recovery evidence"| IDX
+```
+
+Production servers, databases, indexers, the public Web application, and Bitcoin Core hold no seed or xprv capable of moving funds. LND is the narrow exception because channel state requires an online key. Effective inbound liquidity, outstanding invoice reservations, hot balance, and on-chain reserve are monitored; invoice issuance halts and falls back to Native Bitcoin when capacity is insufficient. See [ADR-0011](../adr/0011-bitcoin-lightning-and-base-sbt) and [ADR-0012](../adr/0012-lightning-inbound-liquidity-and-channel-capital).
+
 ## Permission model
 
 Production administration will not rely on a single wallet. As a stronger rule, **application servers, databases, indexers, public Web servers, and Bitcoin Core never store a private key capable of moving funds**. Administration, treasury transfers, and reporting are separated across hardware wallets, multisignature approval, timelocks, HSM/KMS signing, and emergency pausing. The destination is restricted to the registered provider address contractually linked to a yen donation into the Kumamoto Disaster Support Account and cannot be changed by DAO voting.
@@ -108,7 +232,7 @@ Production administration will not rely on a single wallet. As a stronger rule, 
 
 For a Bitcoin withdrawal, a server prepares an unsigned PSBT. Hardware-wallet holders representing multiple certified-NPO staff, a joint operator, and independent audit or partner organizations verify the destination, amount, and fee and provide the required signatures. In the initial candidate, prefectural staff hold neither Bitcoin custody keys nor Vault transfer keys. Bitcoin Core broadcasts only the completed PSBT. Because a server compromise can still falsify a screen or interrupt service, signers compare the hardware-wallet display with transfer instructions delivered over a separate channel.
 
-A Lightning node must sign channel state while online, so it cannot fully satisfy the offline-key rule. Initial production therefore enables Native Bitcoin only. Lightning requires a separate exception review covering a remote signer or external provider, hot-balance limits, recovery drills, and restricted macaroons. See [ADR-0011](../adr/0011-bitcoin-lightning-and-base-sbt).
+A Lightning node must sign channel state while online, so it cannot fully satisfy the offline-key rule. Initial production therefore enables Native Bitcoin only. Lightning requires a separate exception review covering a remote signer or external provider, hot-balance limits, recovery drills, and restricted macaroons. Intake capacity is governed by effective inbound liquidity rather than wallet balance or nominal channel capacity; invoice issuance halts and falls back to Native Bitcoin when capacity is insufficient. See [ADR-0011](../adr/0011-bitcoin-lightning-and-base-sbt) and [ADR-0012](../adr/0012-lightning-inbound-liquidity-and-channel-capital).
 
 ## Security boundaries and critical improvements
 

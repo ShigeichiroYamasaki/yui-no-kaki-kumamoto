@@ -2,7 +2,7 @@
 
 - 状態: Proposed
 - 日付: 2026-08-05
-- 更新日: 2026-08-05
+- 更新日: 2026-08-12
 
 ## 文脈
 
@@ -43,8 +43,16 @@ Bitcoin inscriptionを譲渡不能な参加証明として扱う方法、tokeniz
 - confirmation閾値は金額・再編成リスク・登録事業者要件に応じて定める。0-confirmationを確定支援、SBT発行、円転batchへ使用しない。
 - Lightningはinvoiceがsettledであることをpayment hashと受領nodeで確認し、preimageを公開台帳へ直接保存しない。
 - Baseの`BitcoinSupportRegistry`へ、支援ID、txidとvoutまたはdomain-separated payment commitment、satoshi／millisatoshi額、確認block heightまたはsettled時刻、SBT受取先、公開metadata hash、状態を登録する。元のLightning payment hashは限定監査領域だけでcommitmentとの対応を保持する。
-- 単一bridgeまたは単一backendの判断でSBTをmintしない。認定NPO、技術運営者、独立監査・監視者等の独立Bitcoin nodeによる閾値アテステーションを要求する。
+- 単一bridgeまたは単一backendの判断でSBTをmintしない。Native Bitcoinは認定NPO、技術運営者、独立監査・監視者等が管理する独立Bitcoin nodeによる閾値アテステーションを要求する。Lightningは公開chainだけでsettlementを独立再現できないため、分離された検証組織が受領nodeの限定証憑、payment commitment、append-only監査log、可能な場合は外部事業者の記録を突合して署名する。共通のLNDを情報源とする残余リスクを明示する。
 - `txid:vout`およびpayment commitmentごとに有効な玉垣SBTを最大1枚とし、chain ID、Registry address、期限を署名domainへ含める。
+
+### 4.1 集計の正本
+
+- Bitcoin／Lightningの確定支援額と確定件数は、Base Registryの有効な`SupportAttested`を正本とする。Bitcoin取引検出、Lightning invoice `SETTLED`、`BitcoinTamagakiIssued`、ERC-721 mintは同じ支援の別状態であり、金額を再加算しない。
+- `SupportInvalidated`後の記録は確定集計から除外するが、原記録、無効化理由、SBT状態を訂正履歴として残す。`Detected`／`Confirmed`／`PaymentPending`は確認中として別表示する。
+- 支援件数は有効なglobal IDの件数であり、chain横断の人物数ではない。国別集計は任意申告だけを用いる。
+- Native Bitcoinは`amount`をsatoshiとして`Σamount / 10^8 BTC`、Lightningはmillisatoshiとして`Σamount / 10^11 BTC`へ正規化する。統合画面のBitcoin行は両者のBTC量を合算し、Native／Lightning内訳とraw integerを併記する。
+- 時系列には`observedAt`とBase登録block timeを保持する。Indexerは出典証憑と照合し、検証不一致時は新規確定反映を停止する。
 
 ### 5. 玉垣SBT
 
@@ -103,6 +111,8 @@ Bitcoinの国際性とBaseのSBT・DAO機能を両立できる一方、cross-cha
 - 支援者署名と検証者署名はEIP-712 domainにBase chain IDとRegistry addressを含む。検証者集合を変更するとepochが増え、旧epochの未確定署名は使えない。
 - 現行の検証者集合変更はadminによる即時操作であり、本番前にSafe型multisigとtimelockへ移管する必要がある。
 - `Invalidated`は証跡とSBTを削除せず無効状態にする。使用済みoutpoint／commitmentを再発行可能には戻さない。
+- 現行contractの状態は`None → Accepted → SBTIssued`を同一Base transaction内で進め、必要時に`Invalidated`へ変更する。設計上の`Detected`、`Confirmed`、Lightningの`PaymentPending`／`Settled`はオフチェーン受入・Indexer層の状態であり、現行Registryには永続化されない。したがってプロトタイプは状態遷移全体を実装済みとはみなさない。
+- Registry contractが直接検証するのは支援者Intent、閾値署名、epoch、期限、一意性である。Bitcoin confirmation、Lightning settlement、`observedAt`の真実性は検証者とIndexerの責任であり、本番では独立証憑照合と監査が必要である。
 
 ## 関連ADR
 
@@ -112,3 +122,4 @@ Bitcoinの国際性とBaseのSBT・DAO機能を両立できる一方、cross-cha
 - [ADR-0006](./0006-security-boundaries-and-verifiable-batches.md): 資金境界と検証可能batch
 - [ADR-0007](./0007-threat-model-and-human-error-controls.md): 攻撃・操作ミス対策
 - [ADR-0008](./0008-certified-npo-joint-operation.md): 法的主体と登録事業者
+- [ADR-0012](./0012-lightning-inbound-liquidity-and-channel-capital.md): Lightningのinbound liquidity、必要BTC、再調整、受付上限

@@ -15,6 +15,7 @@
 | [ADR-0009](./0009-l2-selection-and-escape-hatch.md) | Proposed | L2の選定基準、finality表示、L1からの資金退出と訓練 |
 | [ADR-0010](./0010-multichain-demo-deployment-and-observability.md) | Accepted | マルチチェーンデモのデプロイ、RPC、Faucet、Pages、集計UIの再発防止 |
 | [ADR-0011](./0011-bitcoin-lightning-and-base-sbt.md) | Proposed | Native Bitcoin・Lightning支援、閾値アテステーション、Base玉垣SBT |
+| [ADR-0012](./0012-lightning-inbound-liquidity-and-channel-capital.md) | Proposed | Lightning募金受付のinbound liquidity、必要BTC、再調整、縮退制御 |
 
 ## 状態の意味
 

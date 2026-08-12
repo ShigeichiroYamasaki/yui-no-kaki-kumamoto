@@ -93,6 +93,130 @@ flowchart TB
 
 Native BTCはEVM Vaultへbridgeしません。Bitcoin側で固有addressまたは一回限りのLightning invoiceを署名済み支援Intentへ対応させ、必要なconfirmationまたはsettlementを独立検証者が確認します。閾値アテステーションをBase Registryへ登録した後、支払い前に指定したBase addressへERC-721＋ERC-5192玉垣SBTを発行します。Lightningでは元のpayment hashではなくdomain-separated commitmentをRegistryへ登録します。Bitcoin private key、xprv、Lightning macaroon、payment hash、preimageをBaseまたは公開Indexerへ渡しません。詳細は[ADR-0011](./adr/0011-bitcoin-lightning-and-base-sbt)に従います。
 
+## Bitcoin・LNDデモ系の構成
+
+デモ系は実資金を使わず、開発者が用意するDocker Compose上のBitcoin `regtest`と2台のLND nodeで支払いを再現します。`miner` walletは試験資金とblock生成だけに使用し、Aliceを支援者、Bobを受付nodeとしてchannel開設、BOLT 11 invoice、`SETTLED`確認までを検証します。Base側はHardhatまたはBase Sepoliaの`BitcoinSupportRegistry`で支援Intent、閾値署名、重複防止、玉垣SBT発行を検証します。現時点のリポジトリはこのCompose定義と端間自動化を同梱していません。
+
+```mermaid
+flowchart LR
+  subgraph D["開発端末"]
+    OP["開発者・手動操作"]
+    UI["支援UI<br/>玉垣preview・Base address"]
+    H["Hardhat tests<br/>署名・重複・SBT検証"]
+    HELPER["bitcoin-support helper<br/>metadata hash・公開commitment"]
+  end
+
+  subgraph C["Docker Compose・実資金禁止"]
+    BC["Bitcoin Core<br/>regtest"]
+    M["miner wallet<br/>試験BTC・block生成"]
+    A["LND Alice<br/>支援者・支払側"]
+    B["LND Bob<br/>invoice受付側"]
+    CH["Lightning channel<br/>Alice → Bob"]
+    M -->|"regtest BTC"| A
+    M -->|"generatetoaddress"| BC
+    BC -->|"RPC・ZMQ・confirmation"| A
+    BC -->|"RPC・ZMQ・confirmation"| B
+    A --> CH
+    CH -->|"BOLT 11支払い"| B
+  end
+
+  subgraph E["EVM試験環境"]
+    REG["BitcoinSupportRegistry<br/>Hardhat / Base Sepolia"]
+    SBT["Base TamagakiSBT<br/>ERC-721 + ERC-5192"]
+    REG -->|"mint"| SBT
+  end
+
+  OP --> C
+  UI -.->|"EIP-712 SupportIntent"| H
+  B -.->|"SETTLEDを手動確認"| OP
+  OP -.->|"payment hashを公開しない"| HELPER
+  HELPER -.->|"domain-separated commitment"| H
+  H -.->|"test verifier signatures"| REG
+```
+
+実線は現在ローカルで操作できるBitcoin／Lightning経路、破線はテストコードまたは手動で接続する境界です。invoiceの`SETTLED`を自動購読してRegistryへ送る受付API、独立検証者service、Paymaster、Indexer、公開画面との端間連携は未実装です。デモのseed、BTC、macaroon、address、channelを本番へ転用しません。
+
+## Bitcoin・LND本番系の構成
+
+本番系では資金面、受付面、証明面、公開面を分離します。Native Bitcoin受取基盤はwatch-only descriptorから支援Intentごとの固有addressを払い出します。Lightning受付は初期本番では無効であり、例外承認後もinvoice専用serviceへ限定macaroonだけを与え、LNDのonline channel keyを長期保管鍵やアテステーション鍵と共有しません。
+
+```mermaid
+flowchart LR
+  U["国外支援者"]
+  BW["Bitcoin wallet"]
+  LW["Lightning wallet"]
+  BASEW["Base wallet<br/>EIP-712 Intent署名"]
+
+  subgraph I["受付境界"]
+    API["Support Intent API<br/>一回限りIntent・上限確認"]
+    ADDR["Bitcoin受入service<br/>watch-only descriptor・固有address"]
+    INV["Invoice service<br/>Add・Lookup・Subscribeのみ"]
+    LND["隔離LND / remote signer<br/>hot balance上限"]
+    LIQ["複数peer・流動性事業者<br/>inbound liquidity"]
+    COM["限定監査領域<br/>payment hash → 公開commitment"]
+    API --> ADDR
+    API --> INV
+    INV -->|"限定macaroon"| LND
+    LIQ -->|"受取方向の容量"| LND
+    LND --> COM
+  end
+
+  subgraph V["独立検証境界"]
+    N1["検証組織A<br/>独立Bitcoin node／限定LN証憑"]
+    N2["検証組織B<br/>独立Bitcoin node／限定LN証憑"]
+    N3["検証組織C<br/>独立Bitcoin node／限定LN証憑"]
+    T["閾値アテステーション<br/>例 2-of-3"]
+    N1 --> T
+    N2 --> T
+    N3 --> T
+  end
+
+  subgraph F["資金管理境界"]
+    CORE["watch-only Bitcoin Core<br/>UTXO監視・PSBT作成・broadcast"]
+    MS["Bitcoin hardware multisig<br/>受取descriptor・候補 3-of-5"]
+    X["登録交換・決済事業者"]
+    K["熊本県災害支援口座"]
+    CORE -->|"未署名PSBT"| MS
+    MS -->|"四眼確認済み署名PSBT"| CORE
+    CORE -->|"完成transaction"| X
+    X -->|"円貨銀行送金"| K
+  end
+
+  subgraph E["Base証明境界"]
+    REG["BitcoinSupportRegistry<br/>Intent・閾値・一意性検証"]
+    SBT["Base TamagakiSBT"]
+    REG --> SBT
+  end
+
+  subgraph P["公開読み取り境界"]
+    IDX["再編成対応Indexer"]
+    DASH["統合支援状況・玉垣ギャラリー"]
+    IDX --> DASH
+  end
+
+  U --> BW
+  U --> LW
+  U --> BASEW
+  BASEW -->|"署名済みIntent"| API
+  BW -->|"Native BTC"| ADDR
+  LW -->|"BOLT 11支払い"| LND
+  ADDR -->|"確認対象outpoint"| N1
+  ADDR -->|"確認対象outpoint"| N2
+  ADDR -->|"確認対象outpoint"| N3
+  COM -->|"payment commitment"| N1
+  COM -->|"payment commitment"| N2
+  COM -->|"payment commitment"| N3
+  T -->|"HSM/KMS署名"| REG
+  API -->|"支援者Intent"| REG
+  ADDR -->|"受領UTXO"| CORE
+  LND -->|"承認済みLoop Out・sweep"| MS
+  REG --> IDX
+  SBT --> IDX
+  K -->|"受領・復興証憑"| IDX
+```
+
+本番server、DB、Indexer、公開Web、Bitcoin Coreには資金移転可能なseedまたはxprvを置きません。LNDだけはchannel状態のためonline keyを必要とする限定例外です。実効inbound liquidity、未決済invoice予約額、hot balance、on-chain reserveを監視し、容量不足時は新規Lightning invoiceを止めてNative Bitcoinへ案内します。詳細は[ADR-0011](./adr/0011-bitcoin-lightning-and-base-sbt)と[ADR-0012](./adr/0012-lightning-inbound-liquidity-and-channel-capital)を参照してください。
+
 ## 権限モデル
 
 本番では単独ウォレットを管理者にしません。さらに、**アプリケーション、DB、Indexer、公開Web、Bitcoin Coreには資金移転可能な秘密鍵を置かない**ことを設計原則とします。管理、送金、報告を分離し、ハードウェアウォレット、マルチシグ、タイムロック、HSM/KMS、緊急停止を用途に応じて組み合わせます。Vaultの送金先は、熊本県災害支援口座への円貨送金契約と結び付いた登録済み事業者入金先に限定し、DAO投票から変更できない構造とします。
@@ -108,7 +232,7 @@ Native BTCはEVM Vaultへbridgeしません。Bitcoin側で固有addressまた�
 
 Bitcoin出金ではserverが未署名PSBTを作成し、認定NPOの複数担当、共同運営団体、独立監査・協力団体等のhardware walletで送付先、金額、feeを確認して必要数を署名します。初期候補では熊本県職員へBitcoinまたはVaultの資金管理鍵を持たせません。完成PSBTだけをBitcoin Coreがbroadcastします。秘密鍵なしのserver侵害で画面停止や偽表示が起こり得るため、署名者はhardware wallet画面と別経路の送付指図を照合します。
 
-Lightning nodeはchannel状態をオンラインで署名する必要があり、この原則の完全な適用対象にはできません。そのため初期本番はNative Bitcoinのみを有効にし、Lightningはremote signerまたは外部事業者、hot balance上限、復旧訓練、限定macaroonを含む例外審査後に有効化します。詳細は[ADR-0011](./adr/0011-bitcoin-lightning-and-base-sbt)を参照してください。
+Lightning nodeはchannel状態をオンラインで署名する必要があり、この原則の完全な適用対象にはできません。そのため初期本番はNative Bitcoinのみを有効にし、Lightningはremote signerまたは外部事業者、hot balance上限、復旧訓練、限定macaroonを含む例外審査後に有効化します。受付可能額はwallet残高や額面channel容量ではなく実効inbound liquidityで管理し、容量不足時はinvoice発行を止めNative Bitcoinへ縮退します。詳細は[ADR-0011](./adr/0011-bitcoin-lightning-and-base-sbt)と[ADR-0012](./adr/0012-lightning-inbound-liquidity-and-channel-capital)を参照してください。
 
 ## セキュリティ境界と重大な改善
 

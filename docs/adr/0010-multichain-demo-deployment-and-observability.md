@@ -66,7 +66,7 @@ addressだけをchainから切り離して識別しない。contractは`chainId:
 
 ### 5. マルチチェーン集計UI
 
-- 集計ページは独立したchainカードを並べず、Ethereum SepoliaとBase Sepoliaを単一表の2行として同時表示する。本番はBase ETH、Polygon JPYC、Native Bitcoinを単一表の3行として表示する。Bitcoin受付が未実装または未開始の間は、推測値を表示せず状態を「受付開始前」とする。
+- 集計ページは独立したchainカードを並べず、Ethereum SepoliaとBase Sepoliaを単一表の2行として同時表示する。本番はBase ETH、Polygon JPYC、Bitcoin BTCを単一表の3行として表示する。Bitcoin行はNative Bitcoinと有効化済みLightningをBTC換算で統合し、経路別内訳を表示する。Bitcoin受入・Indexerが未設定または受付未開始の間は、推測値を表示せず状態を「受付開始前」とする。
 - 玉垣SBTはchain別ギャラリーに分割せず、全chain共通の一つのギャラリーへ統合する。各項目にchain名とglobal IDを表示する。
 - chain別の金額、件数、最終同期block、同期時刻、エラー、finalityを明示する。
 - ETHとJPYCを根拠のない為替レートで単一金額へ合算しない。必要な場合は数量を別々に表示し、合計参加件数にはchain横断重複の定義を明記する。

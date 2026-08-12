@@ -17,7 +17,7 @@ The production contracts have not been deployed to mainnet, and operating agreem
 
 ## Production totals by chain
 
-After launch, Base ETH, Polygon JPYC, and Bitcoin Mainnet BTC will appear as three rows of one table without a network switch. Amounts are reported separately instead of being combined through an arbitrary exchange rate, while contribution counts remain independently verifiable per network. Until Bitcoin intake is implemented and enabled, it is labeled “Not launched” rather than shown as zero BTC.
+After launch, Base ETH, Polygon JPYC, and Bitcoin BTC will appear as three rows of one table without a network switch. The Bitcoin row combines Native Bitcoin and, when enabled, Lightning in BTC while retaining a route breakdown. Assets are not combined through an arbitrary exchange rate. Until Bitcoin intake and the indexer are configured and enabled, the row is labeled “Not launched” rather than shown as zero BTC.
 
 <MainnetSupportTrend locale="en" />
 

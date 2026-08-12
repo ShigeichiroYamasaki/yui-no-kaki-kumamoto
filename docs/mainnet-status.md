@@ -17,7 +17,7 @@
 
 ## チェーン別の本番集計
 
-本番開始後は切替操作を必要とせず、BaseのETH、PolygonのJPYC、Bitcoin MainnetのBTCを一つの表の3行として常時表示します。異なる資産を恣意的な換算レートで合算せず、資産額と支援件数をネットワーク別に検証できます。Bitcoin受付が未実装・無効な間は、0 BTCではなく「受付開始前」と表示します。
+本番開始後は切替操作を必要とせず、BaseのETH、PolygonのJPYC、BitcoinのBTCを一つの表の3行として常時表示します。Bitcoin行はNative Bitcoinと、有効化済みの場合のLightningをBTC単位で統合し、経路別内訳を表示します。異なる資産を恣意的な換算レートで合算しません。Bitcoin受入・Indexerが未設定または受付が無効な間は、0 BTCではなく「受付開始前」と表示します。
 
 <MainnetSupportTrend locale="ja" />
 

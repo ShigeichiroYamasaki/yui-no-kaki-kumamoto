@@ -36,7 +36,7 @@
 - Run a small end-to-end test from JPYC support to conversion and a separate yen donation to the Prefecture
 - Verify that Base ETH and Polygon JPYC remain separately reconciled rather than being mixed into one on-chain accounting batch
 - Test end-to-end reconciliation from Native BTC through the NPO Bitcoin multisig, a small registered-provider conversion, Base SBT, and prefectural transfer batch
-- Without real funds, separately validate the Lightning remote signer or external provider, restricted macaroons, hot-balance cap, recovery procedure, and payment commitments
+- Without real funds, separately validate the Lightning remote signer or external provider, restricted macaroons, hot-balance cap, effective-inbound monitoring, invoice reservations, Loop Out and Native Bitcoin fallback, recovery procedure, and payment commitments
 - Operate and reconcile within limited amounts and periods
 - Gather feedback from supporters, Kumamoto Prefecture, and providers
 
@@ -48,6 +48,6 @@
 - Exercise the escape hatch every six months and after an L2 or bridge upgrade
 - Accept improvement proposals from the public community
 - Operate Native Bitcoin intake with Bitcoin-derived Base Tamagaki
-- Enable Lightning only in a later release after the ADR-0011 exception conditions and a separate launch approval are complete
+- Enable Lightning only in a later release after the ADR-0011 exception conditions, ADR-0012 liquidity and intake controls, and a separate launch approval are complete
 
 Movement between phases is determined not by dates but by whether agreement, audit, and operational-readiness conditions have been met.
