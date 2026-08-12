@@ -16,6 +16,10 @@ export type DemoNetwork = {
   sbtAddress: Address;
   registryAddress: Address;
   councilAddress: Address;
+  bitcoinRegistryAddress: Address;
+  bitcoinSbtAddress: Address;
+  bitcoinDeploymentBlock: bigint;
+  bitcoinConfigured: boolean;
   deploymentBlock: bigint;
   jpycDecimals: number;
   metadataVersion?: string;
@@ -47,6 +51,10 @@ export const demoNetworks: Record<DemoNetworkKey, DemoNetwork> = {
     sbtAddress: sepoliaSbt,
     registryAddress: address(import.meta.env.VITE_SEPOLIA_REGISTRY_ADDRESS, "0x4378586fE4835C4dEbe86084426f4ac98fBfcCc3"),
     councilAddress: address(import.meta.env.VITE_SEPOLIA_COUNCIL_ADDRESS, "0x42d2B3A45C4Ce37De7960642eBD52aBd450B593b"),
+    bitcoinRegistryAddress: zeroAddress,
+    bitcoinSbtAddress: zeroAddress,
+    bitcoinDeploymentBlock: 0n,
+    bitcoinConfigured: false,
     deploymentBlock: BigInt(import.meta.env.VITE_SEPOLIA_DEPLOYMENT_BLOCK || import.meta.env.VITE_RECOVERY_DEPLOYMENT_BLOCK || "11395458"),
     jpycDecimals: Number(import.meta.env.VITE_SEPOLIA_JPYC_DECIMALS || import.meta.env.VITE_JPYC_DECIMALS || "18"),
     metadataVersion: import.meta.env.VITE_SEPOLIA_TAMAGAKI_METADATA_VERSION || import.meta.env.VITE_TAMAGAKI_METADATA_VERSION,
@@ -65,6 +73,10 @@ export const demoNetworks: Record<DemoNetworkKey, DemoNetwork> = {
     sbtAddress: baseSbt,
     registryAddress: address(import.meta.env.VITE_BASE_SEPOLIA_REGISTRY_ADDRESS),
     councilAddress: address(import.meta.env.VITE_BASE_SEPOLIA_COUNCIL_ADDRESS),
+    bitcoinRegistryAddress: address(import.meta.env.VITE_BASE_SEPOLIA_BITCOIN_REGISTRY_ADDRESS),
+    bitcoinSbtAddress: address(import.meta.env.VITE_BASE_SEPOLIA_BITCOIN_SBT_ADDRESS),
+    bitcoinDeploymentBlock: BigInt(import.meta.env.VITE_BASE_SEPOLIA_BITCOIN_DEPLOYMENT_BLOCK || "0"),
+    bitcoinConfigured: configured(address(import.meta.env.VITE_BASE_SEPOLIA_BITCOIN_REGISTRY_ADDRESS), address(import.meta.env.VITE_BASE_SEPOLIA_BITCOIN_SBT_ADDRESS)) && Boolean(import.meta.env.VITE_BASE_SEPOLIA_BITCOIN_DEPLOYMENT_BLOCK),
     deploymentBlock: BigInt(import.meta.env.VITE_BASE_SEPOLIA_DEPLOYMENT_BLOCK || "0"),
     jpycDecimals: Number(import.meta.env.VITE_BASE_SEPOLIA_JPYC_DECIMALS || "18"),
     metadataVersion: import.meta.env.VITE_BASE_SEPOLIA_TAMAGAKI_METADATA_VERSION,

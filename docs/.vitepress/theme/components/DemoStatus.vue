@@ -4,7 +4,7 @@ import {
   createPublicClient, fallback, formatUnits, http, parseAbiItem, zeroAddress,
   type Address, type EIP1193Provider, type Hash,
 } from "viem";
-import { availableDemoNetworks, type DemoNetwork } from "../testnetNetworks";
+import { availableDemoNetworks, demoNetworks, type DemoNetwork } from "../testnetNetworks";
 import { tamagakiGlobalId } from "../multichainIdentity";
 
 const props = defineProps<{ locale: "ja" | "en" }>();
@@ -12,6 +12,9 @@ const supportEvent = parseAbiItem(
   "event SupportReceived(bytes32 indexed supportId, address indexed supporter, address indexed asset, uint256 amount, bytes32 countryCodeHash, bytes32 messageHash, uint256 tokenId)",
 );
 const transferEvent = parseAbiItem("event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)");
+const bitcoinAttestedEvent = parseAbiItem("event SupportAttested(bytes32 indexed intentHash, uint8 indexed route, bytes32 indexed sourceId, uint32 sourceIndex, uint256 amount, address recipient, uint64 observedAt, uint64 confirmationReference, uint64 verifierEpoch)");
+const bitcoinIssuedEvent = parseAbiItem("event BitcoinTamagakiIssued(bytes32 indexed intentHash, uint256 indexed tokenId, address indexed recipient)");
+const bitcoinInvalidatedEvent = parseAbiItem("event SupportInvalidated(bytes32 indexed intentHash, uint256 indexed tokenId, bytes32 reasonHash)");
 const sbtAbi = [{
   type: "function", name: "tokenURI", stateMutability: "view",
   inputs: [{ name: "tokenId", type: "uint256" }], outputs: [{ type: "string" }],
@@ -32,9 +35,12 @@ type SupportRow = {
   blockNumber: bigint;
   timestamp: number;
   supporter: Address;
-  asset: "ETH" | "MockJPYC";
+  asset: "ETH" | "MockJPYC" | "BTC";
   amount: bigint;
+  decimals?: number;
+  route?: "Native Bitcoin" | "Lightning";
   tokenId: bigint;
+  sbtAddress: Address;
 };
 type SbtRow = {
   network: DemoNetwork;
@@ -43,6 +49,8 @@ type SbtRow = {
   txHash: Hash;
   blockNumber: bigint;
   globalId: string;
+  sbtAddress: Address;
+  route?: "Native Bitcoin" | "Lightning";
   image?: string;
   displayName?: string;
   dedicationMessage?: string;
@@ -79,12 +87,6 @@ const districtSbts = computed(() => {
   const start = selectedDistrict.value * districtSize;
   return sbts.value.slice(start, start + districtSize);
 });
-const overviewSbts = computed(() => {
-  const source = matchingSbts.value;
-  if (source.length <= 600) return source;
-  const step = source.length / 600;
-  return Array.from({ length: 600 }, (_, index) => source[Math.floor(index * step)]);
-});
 const resultLabel = computed(() => {
   if (onlyMine.value) return props.locale === "ja" ? `自分の玉垣 ${districtSbts.value.length}本` : `${districtSbts.value.length} of my Tamagaki`;
   if (search.value.trim()) return props.locale === "ja" ? `検索結果 ${districtSbts.value.length}本` : `${districtSbts.value.length} results`;
@@ -108,9 +110,15 @@ function formattedTotal(network: DemoNetwork, asset: SupportRow["asset"]) {
     maximumFractionDigits: asset === "ETH" ? 6 : 2,
   });
 }
+function bitcoinSupports() { return supports.value.filter((row) => row.asset === "BTC"); }
+function bitcoinTotal(route?: SupportRow["route"]) {
+  return bitcoinSupports().filter((row) => !route || row.route === route)
+    .reduce((sum, row) => sum + Number(formatUnits(row.amount, row.decimals ?? 8)), 0)
+    .toLocaleString(undefined, { maximumFractionDigits: 8 });
+}
 function short(value: string) { return `${value.slice(0, 8)}…${value.slice(-6)}`; }
 function amount(row: SupportRow) {
-  const decimals = row.asset === "ETH" ? 18 : row.network.jpycDecimals;
+  const decimals = row.decimals ?? (row.asset === "ETH" ? 18 : row.network.jpycDecimals);
   return Number(formatUnits(row.amount, decimals)).toLocaleString(undefined, {
     maximumFractionDigits: row.asset === "ETH" ? 6 : 2,
   });
@@ -245,7 +253,7 @@ async function fetchNetwork(network: DemoNetwork) {
     return [{
       network, txHash: log.transactionHash, blockNumber: log.blockNumber,
       timestamp: timestamps.get(log.blockNumber) ?? 0, supporter,
-      asset: normalized === zeroAddress ? "ETH" : "MockJPYC", amount: value, tokenId,
+      asset: normalized === zeroAddress ? "ETH" : "MockJPYC", amount: value, tokenId, sbtAddress: network.sbtAddress,
     }];
   });
   const minted = mintLogs.flatMap((log): SbtRow[] => {
@@ -253,7 +261,7 @@ async function fetchNetwork(network: DemoNetwork) {
     if (!to || tokenId === undefined || !log.transactionHash) return [];
     return [{
       network, tokenId, owner: to, txHash: log.transactionHash, blockNumber: log.blockNumber,
-      globalId: tamagakiGlobalId(network.chain.id, network.sbtAddress, tokenId),
+      globalId: tamagakiGlobalId(network.chain.id, network.sbtAddress, tokenId), sbtAddress: network.sbtAddress,
     }];
   });
   const networkSbts = await Promise.all(minted.map(async (sbt) => {
@@ -271,11 +279,59 @@ async function fetchNetwork(network: DemoNetwork) {
   return { supports: networkSupports, sbts: networkSbts };
 }
 
+async function fetchBitcoinRegistry(network: DemoNetwork) {
+  if (!network.bitcoinConfigured) return { supports: [] as SupportRow[], sbts: [] as SbtRow[] };
+  const rpcUrls = [...new Set([network.rpcUrl, ...network.rpcFallbackUrls])];
+  const client = createPublicClient({ chain: network.chain, transport: fallback(rpcUrls.map((url) => http(url)), { rank: true }) });
+  const toBlock = await withRpcBackoff(() => client.getBlockNumber());
+  const attested = [];
+  const issued = [];
+  const invalidated = [];
+  for (let fromBlock = network.bitcoinDeploymentBlock; fromBlock <= toBlock; fromBlock += 10_000n) {
+    const to = fromBlock + 9_999n < toBlock ? fromBlock + 9_999n : toBlock;
+    attested.push(...await withRpcBackoff(() => client.getLogs({ address: network.bitcoinRegistryAddress, event: bitcoinAttestedEvent, fromBlock, toBlock: to })));
+    issued.push(...await withRpcBackoff(() => client.getLogs({ address: network.bitcoinRegistryAddress, event: bitcoinIssuedEvent, fromBlock, toBlock: to })));
+    invalidated.push(...await withRpcBackoff(() => client.getLogs({ address: network.bitcoinRegistryAddress, event: bitcoinInvalidatedEvent, fromBlock, toBlock: to })));
+    await wait(120);
+  }
+  const invalidIds = new Set(invalidated.map((log) => log.args.intentHash));
+  const issuedByIntent = new Map(issued.map((log) => [log.args.intentHash, log]));
+  const rows = attested.flatMap((log): SupportRow[] => {
+    const { intentHash, route, amount: value, recipient, observedAt } = log.args;
+    const mint = intentHash ? issuedByIntent.get(intentHash) : undefined;
+    if (!intentHash || invalidIds.has(intentHash) || route === undefined || value === undefined || !recipient || observedAt === undefined || !mint?.args.tokenId || !log.transactionHash) return [];
+    const lightning = route === 1;
+    return [{
+      network, txHash: log.transactionHash, blockNumber: log.blockNumber, timestamp: Number(observedAt), supporter: recipient,
+      asset: "BTC", amount: value, decimals: lightning ? 11 : 8, route: lightning ? "Lightning" : "Native Bitcoin",
+      tokenId: mint.args.tokenId, sbtAddress: network.bitcoinSbtAddress,
+    }];
+  });
+  const bitcoinSbts: SbtRow[] = rows.map((row) => ({
+    network, tokenId: row.tokenId, owner: row.supporter, txHash: row.txHash, blockNumber: row.blockNumber,
+    globalId: tamagakiGlobalId(network.chain.id, network.bitcoinSbtAddress, row.tokenId), sbtAddress: network.bitcoinSbtAddress, route: row.route,
+  }));
+  const enriched = await Promise.all(bitcoinSbts.map(async (sbt) => {
+    try {
+      const [uri, artwork] = await Promise.all([
+        client.readContract({ address: sbt.sbtAddress, abi: sbtAbi, functionName: "tokenURI", args: [sbt.tokenId] }),
+        client.readContract({ address: sbt.sbtAddress, abi: sbtAbi, functionName: "artwork", args: [sbt.tokenId] }),
+      ]);
+      const metadata = uri.startsWith("data:application/json;base64,") ? JSON.parse(atob(uri.slice(uri.indexOf(",") + 1))) as { image?: string } : {};
+      return { ...sbt, displayName: artwork.displayName, dedicationMessage: artwork.dedicationMessage, image: metadata.image };
+    } catch { return sbt; }
+  }));
+  return { supports: rows, sbts: enriched };
+}
+
 async function refresh() {
   loading.value = true;
   errors.value = {};
   const results = await Promise.all(networks.value.map(async (network) => {
-    try { return { network, ...(await fetchNetwork(network)) }; }
+    try {
+      const [evm, bitcoin] = await Promise.all([fetchNetwork(network), fetchBitcoinRegistry(network)]);
+      return { network, supports: [...evm.supports, ...bitcoin.supports], sbts: [...evm.sbts, ...bitcoin.sbts] };
+    }
     catch (cause) {
       errors.value[network.key] = publicRpcError(cause);
       return {
@@ -299,7 +355,7 @@ onMounted(() => void refresh());
 
 <template>
   <div class="demo-status demo-status--combined">
-    <div class="demo-warning"><b>MULTICHAIN TESTNET</b>{{ locale === "ja" ? "表示されるETH・MockJPYC・SBTに実資産としての価値はありません。" : "The displayed ETH, MockJPYC, and SBTs have no real-world asset value." }}</div>
+    <div class="demo-warning"><b>MULTICHAIN TESTNET</b>{{ locale === "ja" ? "表示されるETH・MockJPYC・Bitcoin／Lightning記録・SBTに実資産としての価値はありません。" : "The displayed ETH, MockJPYC, Bitcoin/Lightning records, and SBTs have no real-world asset value." }}</div>
 
     <section class="demo-status__section">
       <div class="demo-status__heading">
@@ -312,6 +368,13 @@ onMounted(() => void refresh());
           <strong>{{network.label}}<small>Chain ID {{network.chain.id}}</small></strong>
           <span><small>ETH</small>{{formattedTotal(network, "ETH")}}</span><span><small>MockJPYC</small>{{formattedTotal(network, "MockJPYC")}}</span>
           <span><small>{{locale === "ja" ? "支援" : "Contributions"}}</small>{{supportsFor(network).length}}</span><span><small>SBT</small>{{sbtsFor(network).length}}</span>
+        </div>
+        <div v-if="demoNetworks.baseSepolia.bitcoinConfigured" class="multichain-summary__row" role="row">
+          <strong>Bitcoin / Lightning Demo<small>Registry on Base Sepolia</small></strong>
+          <span><small>BTC</small>{{bitcoinTotal()}}<small>Native {{bitcoinTotal("Native Bitcoin")}} / LN {{bitcoinTotal("Lightning")}}</small></span>
+          <span><small>Route</small>Native BTC + Lightning</span>
+          <span><small>{{locale === "ja" ? "支援" : "Contributions"}}</small>{{bitcoinSupports().length}}</span>
+          <span><small>SBT</small>{{sbts.filter((sbt) => sbt.sbtAddress === demoNetworks.baseSepolia.bitcoinSbtAddress).length}}</span>
         </div>
       </div>
       <div class="demo-status__totals demo-status__totals--overall">
@@ -326,19 +389,11 @@ onMounted(() => void refresh());
     <section class="demo-status__section">
       <p class="whitepaper-hero__eyebrow">TAMAGAKI SBT / ALL CHAINS</p>
       <div class="tamagaki-explorer__heading">
-        <div><h2>{{locale === "ja" ? "熊本城を囲む支援の玉垣" : "A fence of support around Kumamoto Castle"}}</h2><p>{{locale === "ja" ? "遠景で支援の広がりを見渡し、区画または検索から一本ずつ確認できます。" : "See the breadth of support, then inspect an individual Tamagaki by district or search."}}</p></div>
+        <div><h2>{{locale === "ja" ? "すべての支援の玉垣" : "Tamagaki from all support routes"}}</h2><p>{{locale === "ja" ? "Ethereum、Base、Bitcoin／Lightning由来の玉垣を統合し、区画または検索から一本ずつ確認できます。" : "Browse Ethereum-, Base-, and Bitcoin/Lightning-derived Tamagaki together by district or search."}}</p></div>
         <strong>{{sbts.length.toLocaleString()}}<small>{{locale === "ja" ? "本" : " Tamagaki"}}</small></strong>
       </div>
 
       <div v-if="sbts.length" class="tamagaki-explorer">
-        <div class="tamagaki-overview" :aria-label="locale === 'ja' ? '全玉垣の俯瞰図' : 'Overview of all Tamagaki'">
-          <div class="tamagaki-overview__castle" aria-hidden="true"><span>熊本城</span><small>KUMAMOTO CASTLE</small></div>
-          <div class="tamagaki-overview__fence">
-            <button v-for="sbt in overviewSbts" :key="sbt.globalId" type="button" class="tamagaki-overview__stake" :class="{'is-mine': isMine(sbt)}" :title="sbt.displayName || `SBT #${sbt.tokenId}`" @click="focusSbt(sbt)"><span></span></button>
-          </div>
-          <p v-if="sbts.length > overviewSbts.length">{{locale === "ja" ? `${sbts.length.toLocaleString()}本を密度表示しています` : `Density view of ${sbts.length.toLocaleString()} Tamagaki`}}</p>
-        </div>
-
         <div class="tamagaki-finder">
           <label><span>{{locale === "ja" ? "玉垣を探す" : "Find a Tamagaki"}}</span><input v-model="search" type="search" :placeholder="locale === 'ja' ? '名前・番号・ウォレット・グローバルID' : 'Name, number, wallet, or global ID'" @input="onlyMine = false"></label>
           <button type="button" class="tamagaki-finder__wallet" @click="connectAndFindMine">{{connectedAccount ? (locale === "ja" ? "自分の玉垣を再表示" : "Show mine again") : (locale === "ja" ? "ウォレットで自分の玉垣を探す" : "Find mine with wallet")}}</button>
@@ -355,11 +410,12 @@ onMounted(() => void refresh());
             <img v-if="sbt.image" :src="sbt.image" :alt="`Tamagaki SBT #${sbt.tokenId}`">
             <span v-else class="tamagaki-grid__placeholder" aria-hidden="true">熊本<br>災害支援</span>
             <span class="tamagaki-grid__chain">{{sbt.network.label}}</span>
+            <span v-if="sbt.route" class="tamagaki-grid__chain">{{sbt.route}}</span>
             <span v-if="isMine(sbt)" class="tamagaki-grid__mine">{{locale === "ja" ? "あなたの玉垣" : "Your Tamagaki"}}</span>
             <span class="tamagaki-grid__number">玉垣 {{sbt.tokenId.toString().padStart(3, "0")}}</span>
             <strong>{{sbt.displayName || `SBT #${sbt.tokenId}`}}</strong><small>{{locale === "ja" ? "所有者" : "Owner"}} {{short(sbt.owner)}}</small>
             <code :title="sbt.globalId">{{sbt.globalId}}</code>
-            <div class="tamagaki-grid__actions"><a :href="explorer(sbt.network, 'token', sbt.network.sbtAddress, sbt.tokenId)" target="_blank" rel="noreferrer">Explorer ↗</a><button type="button" @click="copyPermalink(sbt)">{{copiedId === sbt.globalId ? (locale === "ja" ? "コピー済み" : "Copied") : (locale === "ja" ? "共有URL" : "Share")}}</button></div>
+            <div class="tamagaki-grid__actions"><a :href="explorer(sbt.network, 'token', sbt.sbtAddress, sbt.tokenId)" target="_blank" rel="noreferrer">Explorer ↗</a><button type="button" @click="copyPermalink(sbt)">{{copiedId === sbt.globalId ? (locale === "ja" ? "コピー済み" : "Copied") : (locale === "ja" ? "共有URL" : "Share")}}</button></div>
           </article>
         </div>
         <div v-else class="support-trend__empty"><strong>{{locale === "ja" ? "該当する玉垣はありません" : "No matching Tamagaki"}}</strong><span>{{locale === "ja" ? "検索語または接続中のウォレットを確認してください。" : "Check the search term or connected wallet."}}</span></div>
@@ -370,7 +426,7 @@ onMounted(() => void refresh());
     <section class="demo-status__section">
       <p class="whitepaper-hero__eyebrow">SUPPORT EVENTS / ALL CHAINS</p><h2>{{locale === "ja" ? "支援履歴" : "Contribution history"}}</h2>
       <div class="demo-status__table-wrap"><table><thead><tr><th>{{locale === "ja" ? "日時" : "Date"}}</th><th>Chain</th><th>{{locale === "ja" ? "支援者" : "Supporter"}}</th><th>{{locale === "ja" ? "金額" : "Amount"}}</th><th>SBT</th><th>Tx</th></tr></thead><tbody>
-        <tr v-for="row in supports" :key="`${row.network.key}:${row.txHash}`"><td>{{date(row.timestamp)}}</td><td>{{row.network.label}}</td><td><a :href="explorer(row.network, 'address', row.supporter)" target="_blank" rel="noreferrer"><code>{{short(row.supporter)}}</code></a></td><td><strong>{{amount(row)}}</strong> {{row.asset}}</td><td><a :href="explorer(row.network, 'token', row.network.sbtAddress, row.tokenId)" target="_blank" rel="noreferrer">#{{row.tokenId}}</a></td><td><a :href="explorer(row.network, 'tx', row.txHash)" target="_blank" rel="noreferrer">{{short(row.txHash)}} ↗</a></td></tr>
+        <tr v-for="row in supports" :key="`${row.network.key}:${row.txHash}`"><td>{{date(row.timestamp)}}</td><td>{{row.route || row.network.label}}</td><td><a :href="explorer(row.network, 'address', row.supporter)" target="_blank" rel="noreferrer"><code>{{short(row.supporter)}}</code></a></td><td><strong>{{amount(row)}}</strong> {{row.asset}}</td><td><a :href="explorer(row.network, 'token', row.sbtAddress, row.tokenId)" target="_blank" rel="noreferrer">#{{row.tokenId}}</a></td><td><a :href="explorer(row.network, 'tx', row.txHash)" target="_blank" rel="noreferrer">{{short(row.txHash)}} ↗</a></td></tr>
       </tbody></table></div>
     </section>
 

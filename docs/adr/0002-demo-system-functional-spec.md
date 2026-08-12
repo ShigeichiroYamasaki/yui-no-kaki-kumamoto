@@ -35,8 +35,11 @@
 
 - UI説明デモでは、累計支援額、支援ウォレット、支援件数、国・地域数、国別分布、ランキング、14日間推移をサンプルデータで表示する。
 - 統合デモでは、Ethereum SepoliaとBase Sepoliaの支援額・件数を単一集計表のchain別2行として表示する。chainごとの独立カードや集計画面の切替を採用しない。
+- Base Sepolia Bitcoin Registryが設定済みの場合は、Native Bitcoin／Lightningデモを同じ集計表へ追加する。有効な`SupportAttested`だけを金額・件数の正本とし、`SupportInvalidated`を除外する。`BitcoinTamagakiIssued`とSBT mintはtoken対応にだけ使用し、支援額へ再加算しない。
 - 両chainの玉垣SBTを一つのギャラリーへ時系列統合し、各SBTへchain名とglobal IDを表示する。支援履歴も一つの表へ統合する。
-- 統合ギャラリーには、全玉垣を軽量な垣根として示す俯瞰、100本単位の区画選択、個別画像の近景を設ける。wallet接続による保有SBT抽出と、表示名・番号・address・global ID検索を提供する。
+- Bitcoin／Lightning由来のBase Sepolia SBTも同じギャラリーと履歴へ統合し、routeと専用SBT contractを表示する。
+- 統合ギャラリーには、全玉垣数、100本単位の区画選択、個別画像の近景を設ける。wallet接続による保有SBT抽出と、表示名・番号・address・global ID検索を提供する。
+- デモ集計ページでは、熊本城を模したCSS俯瞰画像を使用しない。100本単位の区画、検索、個別玉垣によって支援規模と本人の玉垣を確認できるようにする。
 - 個別玉垣は`#tamagaki=<global ID>`の共有リンクで直接開き、対象区画へ移動して強調表示する。共有リンクは閲覧だけでwallet署名を要求しない。
 - 送金フォームだけは誤chain送信を防ぐため対象chainを明示選択する。
 - 公開RPCの`eth_getLogs`範囲上限に合わせて分割取得し、取得失敗を0件と表示しない。詳細は[ADR-0010](./0010-multichain-demo-deployment-and-observability.md)に従う。

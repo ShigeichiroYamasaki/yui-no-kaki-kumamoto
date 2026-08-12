@@ -165,4 +165,6 @@ npm run contracts:deploy:bitcoin:base-sepolia
 
 GitHub Pagesでは従来の`RECOVERY_*`変数をEthereum Sepoliaとして利用できます。Base Sepoliaを併用する場合は、`BASE_SEPOLIA_PUBLIC_RPC_URL`、`BASE_SEPOLIA_VAULT_ADDRESS`、`BASE_SEPOLIA_JPYC_ADDRESS`、`BASE_SEPOLIA_TAMAGAKI_SBT_ADDRESS`、`BASE_SEPOLIA_REGISTRY_ADDRESS`、`BASE_SEPOLIA_COUNCIL_ADDRESS`、`BASE_SEPOLIA_DEPLOYMENT_BLOCK`、`BASE_SEPOLIA_JPYC_DECIMALS`、`BASE_SEPOLIA_TAMAGAKI_METADATA_VERSION=2`をGitHub Actions Variablesへ追加します。三つの主要アドレスが揃うとBase Sepoliaパネルが有効になり、Ethereum Sepoliaと同時に表示されます。秘密鍵や書き込み権限はPagesへ設定しません。
 
+Bitcoin／Lightningデモ集計には、別途デプロイした`BitcoinSupportBaseModule`の値を`BASE_SEPOLIA_BITCOIN_REGISTRY_ADDRESS`、`BASE_SEPOLIA_BITCOIN_SBT_ADDRESS`、`BASE_SEPOLIA_BITCOIN_DEPLOYMENT_BLOCK`として設定します。集計は有効な`SupportAttested`を正本とし、`SupportInvalidated`を除外して、`BitcoinTamagakiIssued`のtoken IDを専用SBT contractと照合します。三値が揃うまでBitcoinデモ行は表示しません。
+
 ブラウザ集計は`eth_getLogs`を10,000 block以下へ分割して順次取得し、429だけを指数backoff付きで再試行します。設定RPCが利用できない場合は同じchainの読み取り専用公開RPCへ縮退します。一つのnetworkがrate limitになっても他networkと前回の正常値を消去せず、RPC URLやrequest bodyを画面へ表示しません。Pagesへ渡すRPC URLは公開情報になるため、provider keyには許可domain、利用量上限、読み取り専用projectを設定してください。
