@@ -83,7 +83,7 @@ flowchart TB
 ## オフチェーン構成
 
 - チェーンイベントを再編成に耐えて同期するインデクサー
-- 支援IntentごとのBitcoin addressを導出する分離wallet基盤、独立Bitcoin node、閾値アテステーションサービス。Lightning nodeは例外承認後に追加
+- 初期Bitcoin用のVASP認証済み入金明細取得・`txid:vout`照合・閾値アテステーションservice。固有addressを導出する分離wallet基盤、独立Bitcoin node、Lightning nodeは将来の直接受領経路でだけ追加
 - 国別・時間別・資産別の公開集計API
 - 任意公開名、国、メッセージを管理する撤回可能なデータストア
 - 銀行証憑・県受領確認書・復興報告書を保管する文書基盤
@@ -93,7 +93,7 @@ flowchart TB
 
 ### BitcoinとBaseの境界
 
-Native BTCはEVM Vaultへbridgeしません。初期本番では、支援Intentと国内登録VASPの入金明細を照合し、VASPが`Accepted`とした結果をアテステーションしてBase Registryへ登録した後、支払い前に指定したBase addressへERC-721＋ERC-5192玉垣SBTを発行します。Travel RuleのPII、VASP認証情報、Bitcoin private keyをBaseまたは公開Indexerへ渡しません。NPO自己管理addressと一回限りのLightning invoiceを用いる従来案は将来拡張であり、別個の開始承認が必要です。詳細は[ADR-0011](./adr/0011-bitcoin-lightning-and-base-sbt)と[ADR-0014](./adr/0014-trisa-centered-vasp-travel-rule-network)に従います。
+Native BTCはEVM Vaultへbridgeしません。初期本番では、支援者が送金前に予定額、Base address、玉垣hash、nonceだけを署名し、未知のtxidを含めません。送金後、検証者が国内登録VASPの認証済み入金明細とpublic chainを突合し、`txid:vout`、実受領額、confirmation、Intent hashをAttestationへ拘束します。`ComplianceAccepted`後にBase Registryへ登録し、指定Base addressへERC-721＋ERC-5192玉垣SBTを発行します。Travel RuleのPII、VASP認証情報、Bitcoin private keyを公開系へ渡しません。
 
 ## Bitcoin・LNDデモ系の構成
 
@@ -144,7 +144,8 @@ flowchart LR
 flowchart LR
   U["国外支援者"] --> OV["送付元VASP"]
   OV -->|"BTC + Travel Rule情報"| JV["国内登録VASP<br/>NPO専用受取口座"]
-  JV -->|"Accepted入金明細"| AT["照合・アテステーション"]
+  U -->|"送金前Intent署名・送金後txid申告"| AT["照合・アテステーション"]
+  JV -->|"認証済みtxid:vout・実受領額・ComplianceAccepted"| AT
   AT --> REG["Base BitcoinSupportRegistry"]
   REG --> SBT["玉垣SBT"]
   JV -->|"円転"| NB["認定NPO銀行口座"]
@@ -234,7 +235,7 @@ flowchart LR
   K -->|"受領・復興証憑"| IDX
 ```
 
-本番server、DB、Indexer、公開Web、Bitcoin Coreには資金移転可能なseedまたはxprvを置きません。LNDだけはchannel状態のためonline keyを必要とする限定例外ですが、長期保管庫にはしません。実効inbound liquidity、未決済invoice予約額、hot balance、on-chain reserveを監視し、容量不足時は新規Lightning invoiceを止めてNative Bitcoinへ案内します。Accepted BTCは金額または保管期限の上限で、固定allowlistの認定NPO管理Bitcoin hardware multisigへ移します。詳細は[ADR-0011](./adr/0011-bitcoin-lightning-and-base-sbt)、[ADR-0012](./adr/0012-lightning-inbound-liquidity-and-channel-capital)、[ADR-0013](./adr/0013-lightning-legal-classification-and-abuse-controls)を参照してください。
+この段落は将来の直接custody構成だけに適用します。server、DB、Indexer、公開Web、watch-only Bitcoin Coreには資金移転可能なseedまたはxprvを置かず、LNDは限定online-key例外として長期保管庫にしません。初期VASP経路ではVASPがBTCをcustody・円転し、このhardware multisigへ通常出金しません。
 
 ## 権限モデル
 
@@ -244,12 +245,12 @@ flowchart LR
 |---|---|---|
 | 支援者鍵 | 支援者自身のwallet | サイトはseed／private keyを要求しない |
 | EVM財務・管理鍵 | 複数組織のhardware wallet | Safe型multisig＋timelock。serverから署名しない |
-| Bitcoin長期保管鍵 | 認定NPOの統制下で複数組織が保持するhardware wallet | 必須multisig。watch-only descriptor＋PSBT。Bitcoin Coreにseedを入れず、LNDからの固定sweep先とする |
+| 将来のBitcoin長期保管鍵 | 認定NPOの統制下で複数組織が保持するhardware wallet | 初期本番では不使用。直接custody承認後だけmultisig、watch-only descriptor、PSBTを必須化 |
 | アテステーション・Paymaster鍵 | 独立主体ごとのHSM/KMS | 抽出不能、最小権限、閾値署名。資金移転権限なし |
 | LND macaroon | 限定されたinvoice service | invoice RPCだけを許可し、admin権限を配布しない |
 | Lightning channel鍵 | remote signer／専用隔離環境 | 常時署名の限定例外。初期本番ではLightningを無効化 |
 
-Bitcoin出金ではserverが未署名PSBTを作成し、認定NPOの複数担当、共同運営団体、独立監査・協力団体等のhardware walletで送付先、金額、feeを確認して必要数を署名します。初期候補では熊本県職員へBitcoinまたはVaultの資金管理鍵を持たせません。完成PSBTだけをBitcoin Coreがbroadcastします。秘密鍵なしのserver侵害で画面停止や偽表示が起こり得るため、署名者はhardware wallet画面と別経路の送付指図を照合します。
+将来の直接custody経路だけ、serverが未署名PSBTを作成し、複数hardware walletで確認・署名します。初期本番はVASP内でBTCを円転して認定NPO銀行口座へ送金します。熊本県職員へBitcoinまたはVaultの資金管理鍵を持たせません。
 
 Lightning nodeはchannel状態をオンラインで署名する必要があり、この原則の完全な適用対象にはできません。そのため初期本番は国内登録VASP経由のNative Bitcoinだけを有効にし、Lightningはremote signerまたは外部事業者、hot balance上限、固定hardware multisigへのsweep、復旧訓練、限定macaroonを含む例外審査後に有効化します。受付可能額はwallet残高や額面channel容量ではなく実効inbound liquidityで管理し、容量不足時はinvoice発行を止めVASP経由Native Bitcoinへ縮退します。将来NPOが直接custodyする経路では、online keyの例外によってAccepted BTCの長期保管にhardware multisigを必須とする要件を緩和しません。詳細は[ADR-0011](./adr/0011-bitcoin-lightning-and-base-sbt)、[ADR-0012](./adr/0012-lightning-inbound-liquidity-and-channel-capital)、[ADR-0013](./adr/0013-lightning-legal-classification-and-abuse-controls)、[ADR-0014](./adr/0014-trisa-centered-vasp-travel-rule-network)を参照してください。
 

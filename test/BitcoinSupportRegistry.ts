@@ -6,8 +6,6 @@ import { encodeAbiParameters, getAddress, keccak256, stringToHex, type Address, 
 const intentTypes = {
   SupportIntent: [
     { name: "route", type: "uint8" },
-    { name: "sourceId", type: "bytes32" },
-    { name: "sourceIndex", type: "uint32" },
     { name: "amount", type: "uint256" },
     { name: "recipient", type: "address" },
     { name: "publicMetadataHash", type: "bytes32" },
@@ -19,6 +17,10 @@ const intentTypes = {
 const attestationTypes = {
   Attestation: [
     { name: "intentHash", type: "bytes32" },
+    { name: "route", type: "uint8" },
+    { name: "sourceId", type: "bytes32" },
+    { name: "sourceIndex", type: "uint32" },
+    { name: "amount", type: "uint256" },
     { name: "verifierEpoch", type: "uint64" },
     { name: "observedAt", type: "uint64" },
     { name: "confirmationReference", type: "uint64" },
@@ -73,8 +75,6 @@ describe("BitcoinSupportRegistry", async function () {
     const block = await publicClient.getBlock();
     const intent = {
       route,
-      sourceId,
-      sourceIndex,
       amount: route === 0 ? 150_000n : 150_000_000n,
       recipient: supporter.account.address,
       publicMetadataHash,
@@ -83,7 +83,7 @@ describe("BitcoinSupportRegistry", async function () {
     };
     const domain = {
       name: "Kumamoto Bitcoin Support",
-      version: "1",
+      version: "2",
       chainId,
       verifyingContract: registryAddress,
     } as const;
@@ -96,6 +96,10 @@ describe("BitcoinSupportRegistry", async function () {
     const intentHash = await (await viem.getContractAt("BitcoinSupportRegistry", registryAddress)).read.hashIntent([intent]);
     const attestation = {
       intentHash,
+      route,
+      sourceId,
+      sourceIndex,
+      amount: intent.amount,
       verifierEpoch: 1n,
       observedAt: block.timestamp,
       confirmationReference: route === 0 ? 920_001n : block.timestamp,
@@ -215,7 +219,7 @@ describe("BitcoinSupportRegistry", async function () {
     const badSignature = await outsider.signTypedData({
       domain: {
         name: "Kumamoto Bitcoin Support",
-        version: "1",
+        version: "2",
         chainId,
         verifyingContract: registry.address,
       },
@@ -249,6 +253,62 @@ describe("BitcoinSupportRegistry", async function () {
       ]),
       registry,
       "InvalidAttestation",
+    );
+  });
+
+  it("binds post-payment evidence in verifier attestations instead of the pre-payment intent", async () => {
+    const { registry } = await fixture();
+    const request = await signedRequest(
+      registry.address,
+      0,
+      keccak256(stringToHex("bitcoin-txid-after-payment")),
+      2,
+      "btc-intent-before-payment",
+    );
+
+    assert.equal("sourceId" in request.intent, false);
+    assert.equal(request.attestation.sourceIndex, 2);
+
+    const mismatched = { ...request.attestation, amount: request.intent.amount + 1n };
+    await viem.assertions.revertWithCustomError(
+      registry.write.attestAndMint([
+        request.intent,
+        request.supporterSignature,
+        mismatched,
+        request.verifierSignatures,
+        request.artwork,
+      ]),
+      registry,
+      "InvalidAttestation",
+    );
+
+    const observedTooLate = {
+      ...request.attestation,
+      observedAt: request.intent.expiresAt + 1n,
+    };
+    const tooLateSignatures = await Promise.all(
+      verifierWallets.slice(0, 2).map((wallet) => wallet.signTypedData({
+        domain: {
+          name: "Kumamoto Bitcoin Support",
+          version: "2",
+          chainId,
+          verifyingContract: registry.address,
+        },
+        types: attestationTypes,
+        primaryType: "Attestation",
+        message: observedTooLate,
+      })),
+    );
+    await viem.assertions.revertWithCustomError(
+      registry.write.attestAndMint([
+        request.intent,
+        request.supporterSignature,
+        observedTooLate,
+        tooLateSignatures,
+        request.artwork,
+      ]),
+      registry,
+      "IntentExpired",
     );
   });
 });

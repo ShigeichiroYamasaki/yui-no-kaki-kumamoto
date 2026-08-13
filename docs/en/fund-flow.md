@@ -18,30 +18,33 @@ sequenceDiagram
   participant BR as Reconciliation + Base Registry
   participant O as Certified NPO treasury multisig
   participant E as Registered financial or payment provider
+  participant NB as Certified NPO bank account
   participant K as Kumamoto Disaster Support Account
   participant R as Registry
   S->>BV: Contribute ETH on Base
   BV-->>S: Event and Base Tamagaki SBT
   S->>PV: Contribute JPYC on Polygon
   PV-->>S: Event and Polygon Tamagaki SBT
-  S->>OV: Request BTC transfer with support intent
+  S->>OV: Request BTC transfer for the intended amount
   OV->>BTC: BTC + applicable Travel Rule data
-  BTC->>BR: Reconcile and attest Accepted deposit
+  S->>BR: Submit the txid after withdrawal
+  BTC->>BR: Authenticate txid:vout, amount, and ComplianceAccepted status
   BR-->>S: Make a Base Tamagaki SBT claimable
   O->>BV: Consolidate ETH with a chain-specific batch ID
   O->>PV: Consolidate JPYC with a chain-specific batch ID
   BV->>E: Transfer ETH
   PV->>E: Transfer JPYC
   BTC->>E: Convert BTC within the VASP boundary
-  E->>K: Remit the NPO's separate yen donation
+  E->>NB: Remit yen to the NPO's bank account
+  NB->>K: Send a separate board-approved yen donation
   K-->>R: Record prefectural receipt and recovery evidence
 ```
 
-The contracts, DAO, and certified NPO do not perform exchange services. EVM support is recognized on receipt; initial-production Bitcoin is recognized only after the registered VASP marks it `Accepted`. No supporter balance, exchange, or transfer service is offered. The VASP custodies and converts BTC and remits yen to the NPO's bank account. Following board approval, the NPO makes a separate yen donation to Kumamoto Prefecture. The NPO hardware multisig and LND are later-phase paths, not initial-production components.
+The contracts, DAO, and certified NPO do not perform exchange services. EVM support is recognized on receipt; initial-production Bitcoin is recognized only after the registered VASP marks it `ComplianceAccepted`. No supporter balance, exchange, or transfer service is offered. The VASP custodies and converts BTC and remits yen to the NPO's bank account. Following board approval, the NPO makes a separate yen donation to Kumamoto Prefecture. The NPO hardware multisig and LND are later-phase paths, not initial-production components.
 
 ## Bitcoin confirmation model
 
-Initial-production Native Bitcoin separates `IntentCreated → TravelRuleAccepted / Held / Rejected → Detected → Confirmed → ComplianceReview → Accepted → SBTIssued → Converted → BankTransferred`; zero-confirmation and pending-review deposits are excluded from confirmed totals. The public Registry receives a domain-separated commitment to the VASP deposit record rather than PII, and one accepted deposit can produce at most one SBT. Lightning retains the future-state model `Settled → ComplianceReview → Accepted / Held / Rejected`. See [ADR-0011](../adr/0011-bitcoin-lightning-and-base-sbt), [ADR-0013](../adr/0013-lightning-legal-classification-and-abuse-controls), and [ADR-0014](../adr/0014-trisa-centered-vasp-travel-rule-network).
+Initial-production Native Bitcoin separates `IntentCreated → TravelRuleAccepted / Held / Rejected → DepositDetected → Confirmed → ComplianceAccepted / Held / Rejected → SBTIssued → Converted → BankRemitted`. The pre-payment intent excludes the unknown txid. After payment, verifiers reconcile the beneficiary VASP's authenticated deposit record with the public chain and bind the `txid:vout`, actual amount, and confirmation reference in their attestation. PII and internal VASP identifiers never enter the public Registry. Lightning retains the future-state model `Settled → ComplianceReview → Accepted / Held / Rejected`.
 
 ## Accounting presentation
 

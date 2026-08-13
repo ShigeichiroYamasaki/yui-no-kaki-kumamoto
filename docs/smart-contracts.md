@@ -147,7 +147,7 @@ mintWithMetadata(address to, bytes32 supportId, bytes32 publicMetadataHash,
 
 ### Bitcoin／Lightning Base Registryプロトタイプ
 
-`BitcoinSupportRegistry`は、支援者が事前署名したEIP-712 `SupportIntent`と、独立検証者が署名した`Attestation`を検証し、同じBase transactionで玉垣SBTを発行します。Bitcoinはtxidとvout、Lightningはdomain-separated payment commitmentを一意キーとし、同じ支援からの二重発行を拒否します。検証者署名は設定threshold以上、署名者addressの昇順で渡します。検証者集合の更新ごとにepochを増やし、旧集合の署名を無効化します。
+`BitcoinSupportRegistry` version 2は二段階署名モデルです。支援者が送金前に署名するEIP-712 `SupportIntent`にはroute、予定額、SBT受取先、玉垣metadata hash、有効期限、nonceだけを含め、未確定のtxidを含めません。送金後、独立検証者の`Attestation`がIntent hash、`txid:vout`またはLightning公開commitment、実受領額、confirmation referenceを拘束します。コントラクトはrouteと金額の一致、threshold、epoch、nonceとevidenceの一意性を検証します。期限はSBT発行時刻ではなくAttestationの入金観測時刻へ適用するため、期限内入金がVASP審査遅延だけで失効しません。
 
 Bitcoinの`amount`はsatoshi・小数8桁、Lightningはmillisatoshi・小数11桁です。Lightning payment hash、preimage、invoice、macaroonはRegistryへ渡しません。`lib/bitcoin-support.ts`はtxid検査、Lightning公開commitment、画像hash、署名順序の共通処理を提供します。
 
@@ -161,7 +161,7 @@ cp ignition/parameters/bitcoin-base-sepolia.example.json \
 npm run contracts:deploy:bitcoin:base-sepolia
 ```
 
-このコードはBase側の証明・発行プロトタイプです。既存のEVM VaultへNative BTCを送ることはできません。Bitcoin Core watch-only受入、固有address導出、confirmation／再編成監視、PSBT、LND invoice service、Paymaster、Indexer、UIは未実装です。Native BitcoinはSignet/testnetとの端間試験と監査後、Lightningはonline signer例外の追加検証と別個の開始承認後にのみ有効化します。
+このコードはBase側の証明・発行プロトタイプです。VASPの認証済みAPI／署名済み明細を取得してpublic chainのoutpointと照合するservice、Paymaster、Indexer、UIは未実装です。将来直接経路のBitcoin Core watch-only受入、固有address導出、PSBT、LND invoice serviceも未実装です。ABIとEIP-712 versionが変わったため、旧`BitcoinSupportRegistry`をupgradeせず、新deployment IDで再デプロイする必要があります。
 
 GitHub Pagesでは従来の`RECOVERY_*`変数をEthereum Sepoliaとして利用できます。Base Sepoliaを併用する場合は、`BASE_SEPOLIA_PUBLIC_RPC_URL`、`BASE_SEPOLIA_VAULT_ADDRESS`、`BASE_SEPOLIA_JPYC_ADDRESS`、`BASE_SEPOLIA_TAMAGAKI_SBT_ADDRESS`、`BASE_SEPOLIA_REGISTRY_ADDRESS`、`BASE_SEPOLIA_COUNCIL_ADDRESS`、`BASE_SEPOLIA_DEPLOYMENT_BLOCK`、`BASE_SEPOLIA_JPYC_DECIMALS`、`BASE_SEPOLIA_TAMAGAKI_METADATA_VERSION=2`をGitHub Actions Variablesへ追加します。三つの主要アドレスが揃うとBase Sepoliaパネルが有効になり、Ethereum Sepoliaと同時に表示されます。秘密鍵や書き込み権限はPagesへ設定しません。
 

@@ -43,7 +43,7 @@
 | A-11 | **Medium** | 大量支援、巨大ログ、RPC rate limitで公開画面を停止 | 入力長制限 | rate limit、キャッシュ、ページング、複数RPC、バックフィルキュー、read-only degraded modeが必要 |
 | A-12 | **High** | Base sequencer停止・検閲、Data Availability・proof・canonical bridge障害、悪意あるupgrade | pause、処理中表示、複数RPC | 代替RPCだけではETHを退出できない。L1 forced transaction、canonical withdrawal、固定Recovery Vault、L1 gas reserve、停止基準、challenge期間中の公開状態が必要 |
 | A-13 | **High** | Polygon validator/milestone/checkpoint/PoS Bridge障害、偽JPYC、JPYC EX償還停止 | 公式asset allowlist、pause、chain別集計 | Baseのescape hatchは利用できない。公式JPYCのchain ID・codehash固定、複数RPC、finalized block使用、JPYC EX直接償還とPoS Bridgeの優先順位、最大滞留額・停止基準が必要 |
-| A-14 | **Critical** | Bitcoin監視者の侵害・共謀により未入金outpointを証明し、Base SBTや会計を偽造 | Registryは閾値署名、検証者epoch、`txid:vout`／commitment重複拒否、EIP-712 domainを実装 | 独立Bitcoin node、検証者交代timelock、公開照合、外部監査が必要 |
+| A-14 | **Critical** | Bitcoin検証者の侵害・共謀により未入金outpointを証明し、Base SBTや会計を偽造 | Registryは閾値署名、検証者epoch、`txid:vout`／commitment重複拒否、EIP-712 version 2を実装 | 初期経路ではbeneficiary VASPの認証済み明細とpublic chainを分離照合し、将来直接経路では独立Bitcoin nodeを用いる。検証者交代timelock、公開照合、外部監査が必要 |
 | A-15 | **High** | Bitcoin再編成、RBF、0-confirmation二重支払いを確定支援として処理 | RegistryはAccepted後にのみmintするが、Bitcoin監視は未実装 | 金額別confirmation、再編成検出、0-conf除外、監視不一致時pauseが必要 |
 | A-16 | **Critical** | Bitcoin xprv、multisig signer、Lightning macaroon／wallet鍵の侵害 | 初期本番は国内登録VASPがcustodyし、NPOとBase Registryは資金鍵を保持しない。Bitcoin Core/LND側は将来実装 | 初期はVASPのcustody・補償・出金統制を契約審査する。将来NPOが直接custodyする場合だけhardware multisig、二拠点backup、復旧訓練、固定sweep先を必須とし、Lightningには限定macaroon、remote signerまたは外部事業者、hot上限を追加 |
 | A-17 | **High** | Lightningのinbound liquidity枯渇、単一peer障害、未決済invoice集中により支援を受け取れない | 初期Lightning無効化、Native Bitcoin代替経路 | ADR-0012に従い複数peer、実効容量監視、invoice予約上限、Loop Out、fee budget、25%停止・40%警戒の提案値を限定運用で検証する |
@@ -90,7 +90,7 @@
 | オンチェーン表示名 | UI同意は回避可能 | 本番採否を再判断し、採用時は受領署名と明確な警告 |
 | L2エスケープ | 未実装。Base Sepolia対応は接続・デモ設定のみ | L1緊急マルチシグ、Escape Controller、固定L1 Recovery Vault、cross-domain認証、完全退出訓練 |
 | Polygon JPYC / SBT | `ERC20Only`・chain ID `137`・公式JPYC固定module、global ID helperを実装。本番未デプロイ | milestone finality、停止・回収runbook、複数RPC本番Indexer、Polygon testnet端間試験、外部監査 |
-| Bitcoin Registry | Base側の署名検証、epoch、一意性、SBT発行、無効化を実装。`Accepted`と`SBTIssued`は同一transaction | Bitcoin Core受入、`Detected`／`Confirmed`永続化、独立証憑照合、再編成対応Indexer、公開集計、PSBT運用 |
+| Bitcoin Registry | version 2の送金前Intent、送金後evidence Attestation、epoch、一意性、SBT発行、無効化を実装。`Accepted`と`SBTIssued`は同一transaction | VASP認証済み入金feed、outpoint照合、`DepositDetected`／`Confirmed`／`ComplianceAccepted`永続化、再編成対応Indexer、公開集計。Bitcoin Core・PSBTは将来直接経路だけ |
 | Lightning受付 | 手動のローカルregtest操作とBase Registry部品のみ。受付serviceと統合集計は未実装 | 分離LND、限定macaroon、流動性制御、settlement購読、共通情報源リスク対策、端間自動試験、別個の開始承認 |
 
 ## 運用上の安全原則

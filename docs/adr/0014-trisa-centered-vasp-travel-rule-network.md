@@ -26,8 +26,8 @@ TRISA（Travel Rule Information Sharing Architecture）は、VASP間でTravel Ru
 - originator VASPからの入金は、beneficiary VASPが適用法域、閾値、相互運用可能なprotocolに基づいてTravel Rule情報を受信・審査する。
 - 自己管理walletからの入金は自動的にTravel Rule対応済みとせず、初期本番では拒否または保留する。将来受け入れる場合は、契約VASPのunhosted-wallet手順と別個の開始承認を必須とする。
 - 認定NPOと本システムはTRISA node、GDS production certificate、KYC資料または暗号資産秘密鍵を保持しない。TRISA、Sygnaその他のnetwork選択と相互運用は契約VASPの責任範囲とする。
-- VASPが提供する署名済みAPI、webhook、日次fileまたは監査可能な明細により、寄附ID、VASP transaction ID、asset、amount、受領時刻、compliance状態を照合する。メールだけを確定根拠にしない。
-- VASPが`Accepted`とした入金だけを確定集計とSBT発行へ進める。Travel RuleのPIIは本システムへ取り込まず、公開chainにも記録しない。
+- VASPが提供する認証済みAPI、webhook、署名済みfileまたは二者承認可能な明細により、VASP transaction ID、`txid:vout`、asset、実受領額、受領時刻、compliance状態を照合する。支援者が提出したtxidやメールだけを確定根拠にしない。この粒度の照合データを得られないVASPは自動SBT経路に採用しない。
+- VASPが`ComplianceAccepted`とした入金だけを確定集計とSBT発行へ進める。Travel RuleのPIIは本システムへ取り込まず、公開chainにも記録しない。
 - VASPは承認済みBTCを円転し、認定NPO名義の国内銀行口座へ送金する。初期本番ではNPO Bitcoin hardware multisigへのwithdrawalを通常フローに含めない。
 
 この構成に必要な契約条件は、NPO法人名義口座、不特定多数からの国外寄附、Bitcoin入金、対応送信元VASP・法域・protocol、情報不足時の保留／拒否／返金、APIまたは明細、円転、銀行送金、手数料、障害・契約終了時の処理である。公開された一般向け法人口座条件だけで対応可能と判断しない。
@@ -55,7 +55,7 @@ TRISA（Travel Rule Information Sharing Architecture）は、VASP間でTravel Ru
 ### 3. 優先構成と将来拡張
 
 - 初期本番では、登録VASPが管理するNPO専用Bitcoin受取口座だけをbeneficiary endpointとする。Lightning受付serviceは将来拡張とする。
-- 支援者VASPがTRISAに対応している場合、資金移転前にTRISA exchangeを完了し、beneficiary VASPが`Accepted`を返した後にLightning／Bitcoin支払いへ進む。
+- 支援者VASPとbeneficiary VASPがTRISAに対応している場合、資金移転前にTRISA exchangeを完了し、Travel Rule情報が受理された後にBitcoin支払いへ進む。これは資金またはAML審査の最終受入を意味しない。
 - TRISA非対応VASPには、契約VASPが承認するinteroperability経路（TRP等）または人手を含む安全な代替手順を使用する。通常のemail、公開form、URL queryへPIIを載せない。
 - Travel Rule交換が失敗、pending、repair requested、rejectedの場合、invoice発行または資金利用を保留する。TRISA障害を理由に直接LNDへ迂回して統制を回避しない。
 - 自己管理walletからの支援は初期本番では拒否または保留する。将来の別経路として有効化する場合も、Travel Rule通知済みとは表示せず、VASPのアンホステッドwallet審査を経て`Accepted`とする。
@@ -63,22 +63,19 @@ TRISA（Travel Rule Information Sharing Architecture）は、VASP間でTravel Ru
 ### 4. Travel Rule network実装
 
 - 初期本番ではNPOまたは技術受託者によるTRISA Envoyのself-hosted deploymentを行わない。契約VASPがTRISA、Sygnaその他の承認済みnetworkとmanual fallbackを選定・運用する。
-- VASPはTRISA Global Directory Serviceへ登録し、TRIXO情報を提出し、VASP Identity Certificateを取得する。testnetとproductionのdirectory、certificate、endpoint、databaseを完全に分離する。
-- counterpartyはGDSで発見し、certificate chain、失効、legal name、jurisdiction、license／registration、TRISA endpoint、対応protocolを送信ごとに確認する。directory登録だけで制裁・信用審査を完了したとはみなさない。
-- TRISA通信はmTLSとSecure Envelopeを用い、本人情報はIVMS101を基本形式とする。NPO独自形式を公開chain、Lightning invoice memo、payment hash、Base Registry metadataへ埋め込まない。
-- Envoy APIでは`travelrule:manage`、`travelrule:view`、`pki:*`、`counterparties:*`等を職務別に分離する。公開WebやLND invoice serviceへ管理API keyを渡さない。
-- certificate、sealing key、API keyはHSM／KMSまたは専用secret管理へ置き、資金移転鍵、LND channel key、Bitcoin multisig鍵、Base attestation鍵と兼用しない。
+- 以下は契約VASPがTRISAを採用する場合だけ適用する。VASPはGlobal Directory Serviceへ登録し、TRIXO情報とVASP Identity Certificateを管理し、testnetとproductionを分離する。
+- TRISA採用時はcounterpartyをGDSで発見し、certificate chain、失効、legal name、jurisdiction、license／registration、endpointを確認する。mTLS、Secure Envelope、IVMS101を用い、Envoy権限とcertificate／sealing keyをVASPのcompliance boundaryで管理する。NPOまたは公開Webへ鍵やPIIを渡さない。
 - message ID、内部support ID、VASP transaction ID、Lightning公開commitmentまたはBitcoin outpointの対応は限定監査DBだけに保持する。payment hash、preimage、IVMS101 PIIを公開Indexerへ渡さない。
 
 ### 5. 状態モデル
 
 VASP関与経路は次の状態を追加する。
 
-`IntentCreated → CounterpartyDiscovered → TravelRulePrepared → TravelRuleAccepted / RepairRequested / Rejected → InvoiceIssued → Settled → ComplianceReview → Accepted / Held / Rejected → SBTIssued`
+`IntentCreated → CounterpartyDiscovered → TravelRulePrepared → TravelRuleAccepted / RepairRequested / Rejected → DepositDetected → Confirmed → ComplianceAccepted / Held / Rejected → SBTIssued → Converted → BankRemitted`
 
 - `TravelRuleAccepted`は相手VASPが情報交換を受理した状態であり、Lightning決済完了または寄附受領を意味しない。
 - `Settled`だけではTravel Rule、AML／CFT、制裁審査の完了を意味しない。
-- `Accepted`だけを確定集計、SBT発行、hardware multisigへの長期保管または登録VASPでの円転へ進める。
+- `ComplianceAccepted`だけを確定集計、SBT発行、登録VASPでの円転へ進める。将来の直接custody経路だけhardware multisigを使用する。
 - repair、reject、timeout、certificate失効、counterparty不一致を一つの一般エラーへ潰さず、運用担当だけに必要最小限の理由を表示する。
 
 ### 6. データ最小化と保存
@@ -89,10 +86,10 @@ VASP関与経路は次の状態を追加する。
 - 国外VASPとの情報交換では個人データの越境移転、委託、本人開示・訂正、漏えい通知をプライバシー規程とDPAで処理する。
 - 公開画面には`VASP経由`、`自己管理wallet経由`等の経路分類と審査状態だけを表示し、VASP名や本人情報を本人の同意・法的根拠なく公開しない。
 
-### 7. hardware multisigとの整合
+### 7. 将来のhardware multisigとの整合
 
-- VASP-managed Lightning受付は一時的な受付・compliance・円転境界であり、認定NPOの長期保管要件を置き換えない。
-- VASP内で直ちに承認済み円転を行わないAccepted BTCは、契約上の期限・上限内に認定NPO管理のBitcoin hardware multisigへwithdrawする。
+- 初期本番はVASP内でBTCを円転してNPO銀行口座へ送金し、hardware multisigへのwithdrawalを通常経路にしない。
+- 将来、NPO直接custodyを別途承認した場合だけ、円転しないAccepted BTCを認定NPO管理のBitcoin hardware multisigへwithdrawする。
 - VASPからNPO hardware multisigへの出金はアンホステッドwallet向け手順、address ownership確認、制裁審査、二者承認、固定allowlist、少額先行を要求する。TRISA messageだけでaddress ownershipを証明したとはみなさない。
 - NPO multisigからVASPへ戻す際も、VASPのアンホステッドwallet入金手順に従い、PSBT、outpoint、法人口座、support batchを照合する。
 
@@ -100,7 +97,7 @@ VASP関与経路は次の状態を追加する。
 
 | リスク | 必須対策 |
 |---|---|
-| 偽VASP／偽endpointへのPII送信 | GDS discovery、mTLS、certificate失効確認、KYV、別経路での契約先endpoint照合 |
+| 偽VASP／偽endpointへのPII送信 | 契約先endpointの別経路照合。TRISA採用時はGDS discovery、mTLS、certificate失効確認、KYV |
 | Travel Rule情報と実際のinvoice／outpointの差替え | support ID、asset、amount、network、beneficiary account、commitmentを限定DBで拘束し、送金前後に照合 |
 | TRISAを通ったことを資金の合法性保証として悪用 | TRISA acceptanceとAML／制裁risk decisionを別状態・別承認にする |
 | アンホステッドwalletを架空VASPとして登録 | counterparty種別を明示し、GDS未確認主体へVASP statusを付与しない |
