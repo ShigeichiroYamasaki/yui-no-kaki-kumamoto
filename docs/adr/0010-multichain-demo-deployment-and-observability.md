@@ -77,6 +77,7 @@ addressだけをchainから切り離して識別しない。contractは`chainId:
 - wallet接続は閲覧中のaddress取得だけに使用し署名を要求しない。全chainでowner addressが一致するSBTを抽出し、本人の玉垣を強調する。
 - 表示名、token ID、owner address、chain名、global IDをクライアント検索対象とする。恒久リンクはglobal IDをfragmentに格納し、対象区画へ移動する。fragmentに個人情報を追加しない。
 - トップページの本番玉垣ブロックは`BASE_MAINNET_TAMAGAKI_SBT_ADDRESS`と`POLYGON_MAINNET_TAMAGAKI_SBT_ADDRESS`をchain別に受け取り、支援eventのtoken IDと照合する。将来のBitcoin／Lightning由来SBTはADR-0011のRegistryとBase版SBT設定を追加して同じギャラリーへ統合する。いずれの値もGitHub Actions Variablesから公開bundleへ渡す読み取り専用の公開情報とする。
+- テストネット集計は`BASE_SEPOLIA_BITCOIN_REGISTRY_ADDRESS`、`BASE_SEPOLIA_BITCOIN_SBT_ADDRESS`、`BASE_SEPOLIA_BITCOIN_DEPLOYMENT_BLOCK`が揃った場合だけBitcoin／Lightning行を有効化する。Registryの有効なattestation、issued token、invalidationを突合し、未設定を0 BTCと誤表示しない。
 
 ### 6. Faucetを必須経路にしない
 

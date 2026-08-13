@@ -11,7 +11,7 @@ Bitcoinでは最後に合意したblock height、confirmation数、閾値アテ�
 ## 集計の正本と単位
 
 - Base／Polygonの確定額は、公式Vault address、chain ID、asset、開始blockを固定して取得した`SupportReceived`イベントだけから算出します。
-- Native Bitcoin／Lightningの確定額は、Base `BitcoinSupportRegistry`の有効な`SupportAttested`だけから算出します。元のBitcoin取引、Lightningの`SETTLED`、`BitcoinTamagakiIssued`、SBT mintは状態確認と表示に使用しますが、支援額へ再加算しません。
+- Native Bitcoin／Lightningの確定額は、Base `BitcoinSupportRegistry`の有効な`SupportAttested`だけから算出します。初期Bitcoinの検証者はbeneficiary VASPの認証済み入金明細とpublic chainを照合し、送金後Attestationへ`txid:vout`と実受領額を拘束します。元取引、SBT mint等は再加算しません。
 - `SupportInvalidated`が登録された支援は確定額・確定件数から除外し、取消履歴と理由を残します。確認中のBitcoin取引と未決済invoiceは確定値へ含めません。
 - 一意キーはEVMで`chainId:vault:supportId`、Native Bitcoinで`bitcoin:network:txid:vout`、Lightningで`lightning:network:domain-separated-payment-commitment`とします。支援件数は有効な一意キー数です。
 - RegistryのNative Bitcoin `amount`はsatoshi、Lightning `amount`はmillisatoshiです。`Native BTC = Σsatoshi / 10^8`、`Lightning BTC = Σmillisatoshi / 10^11`、`Bitcoin BTC = Native BTC + Lightning BTC`とし、丸め前の整数値もAPIで公開します。

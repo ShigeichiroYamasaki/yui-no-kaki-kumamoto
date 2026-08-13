@@ -15,10 +15,10 @@ contract BitcoinSupportRegistry is AccessControl, Pausable, EIP712 {
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
 
     bytes32 public constant SUPPORT_INTENT_TYPEHASH = keccak256(
-        "SupportIntent(uint8 route,bytes32 sourceId,uint32 sourceIndex,uint256 amount,address recipient,bytes32 publicMetadataHash,uint64 expiresAt,bytes32 nonce)"
+        "SupportIntent(uint8 route,uint256 amount,address recipient,bytes32 publicMetadataHash,uint64 expiresAt,bytes32 nonce)"
     );
     bytes32 public constant ATTESTATION_TYPEHASH = keccak256(
-        "Attestation(bytes32 intentHash,uint64 verifierEpoch,uint64 observedAt,uint64 confirmationReference)"
+        "Attestation(bytes32 intentHash,uint8 route,bytes32 sourceId,uint32 sourceIndex,uint256 amount,uint64 verifierEpoch,uint64 observedAt,uint64 confirmationReference)"
     );
 
     enum Route {
@@ -35,8 +35,6 @@ contract BitcoinSupportRegistry is AccessControl, Pausable, EIP712 {
 
     struct SupportIntent {
         Route route;
-        bytes32 sourceId;
-        uint32 sourceIndex;
         uint256 amount;
         address recipient;
         bytes32 publicMetadataHash;
@@ -46,6 +44,10 @@ contract BitcoinSupportRegistry is AccessControl, Pausable, EIP712 {
 
     struct Attestation {
         bytes32 intentHash;
+        Route route;
+        bytes32 sourceId;
+        uint32 sourceIndex;
+        uint256 amount;
         uint64 verifierEpoch;
         uint64 observedAt;
         uint64 confirmationReference;
@@ -117,7 +119,7 @@ contract BitcoinSupportRegistry is AccessControl, Pausable, EIP712 {
         uint256 initialThreshold,
         address[] memory initialVerifiers,
         uint256 chainId
-    ) EIP712("Kumamoto Bitcoin Support", "1") {
+    ) EIP712("Kumamoto Bitcoin Support", "2") {
         if (admin == address(0) || address(sbt) == address(0)) revert InvalidConfiguration();
         if (chainId != 0 && block.chainid != chainId) revert WrongChain(chainId, block.chainid);
         tamagakiSBT = sbt;
@@ -134,23 +136,24 @@ contract BitcoinSupportRegistry is AccessControl, Pausable, EIP712 {
         bytes[] calldata verifierSignatures,
         ArtworkInput calldata artwork
     ) external whenNotPaused returns (uint256 tokenId) {
-        if (
-            intent.recipient == address(0) || intent.sourceId == bytes32(0) || intent.amount == 0
-                || intent.nonce == bytes32(0)
-        ) revert InvalidIntent();
-        if (intent.expiresAt < block.timestamp) revert IntentExpired();
-        if (intent.route == Route.Lightning && intent.sourceIndex != 0) revert InvalidIntent();
+        if (intent.recipient == address(0) || intent.amount == 0 || intent.nonce == bytes32(0)) {
+            revert InvalidIntent();
+        }
         bytes32 intentHash = hashIntent(intent);
         if (!SignatureChecker.isValidSignatureNow(intent.recipient, intentHash, supporterSignature)) {
             revert InvalidSupporterSignature();
         }
         if (usedNonce[intent.nonce]) revert DuplicateNonce(intent.nonce);
-        bytes32 evidenceKey = evidenceKeyFor(intent.route, intent.sourceId, intent.sourceIndex);
-        if (intentByEvidence[evidenceKey] != bytes32(0)) revert DuplicateEvidence(evidenceKey);
         if (
             attestation.intentHash != intentHash || attestation.verifierEpoch != verifierEpoch
-                || attestation.observedAt == 0 || attestation.confirmationReference == 0
+                || attestation.route != intent.route || attestation.sourceId == bytes32(0)
+                || attestation.amount != intent.amount || attestation.observedAt == 0
+                || attestation.confirmationReference == 0
         ) revert InvalidAttestation();
+        if (attestation.observedAt > intent.expiresAt) revert IntentExpired();
+        if (attestation.route == Route.Lightning && attestation.sourceIndex != 0) revert InvalidAttestation();
+        bytes32 evidenceKey = evidenceKeyFor(attestation.route, attestation.sourceId, attestation.sourceIndex);
+        if (intentByEvidence[evidenceKey] != bytes32(0)) revert DuplicateEvidence(evidenceKey);
         _verifyAttestations(attestation, verifierSignatures);
 
         bytes32 artworkHash = keccak256(
@@ -199,8 +202,6 @@ contract BitcoinSupportRegistry is AccessControl, Pausable, EIP712 {
                 abi.encode(
                     SUPPORT_INTENT_TYPEHASH,
                     intent.route,
-                    intent.sourceId,
-                    intent.sourceIndex,
                     intent.amount,
                     intent.recipient,
                     intent.publicMetadataHash,
@@ -217,6 +218,10 @@ contract BitcoinSupportRegistry is AccessControl, Pausable, EIP712 {
                 abi.encode(
                     ATTESTATION_TYPEHASH,
                     attestation.intentHash,
+                    attestation.route,
+                    attestation.sourceId,
+                    attestation.sourceIndex,
+                    attestation.amount,
                     attestation.verifierEpoch,
                     attestation.observedAt,
                     attestation.confirmationReference
@@ -257,10 +262,10 @@ contract BitcoinSupportRegistry is AccessControl, Pausable, EIP712 {
         Attestation calldata attestation
     ) private {
         _records[intentHash] = SupportRecord({
-            route: intent.route,
-            sourceId: intent.sourceId,
-            sourceIndex: intent.sourceIndex,
-            amount: intent.amount,
+            route: attestation.route,
+            sourceId: attestation.sourceId,
+            sourceIndex: attestation.sourceIndex,
+            amount: attestation.amount,
             recipient: intent.recipient,
             publicMetadataHash: intent.publicMetadataHash,
             observedAt: attestation.observedAt,
@@ -295,10 +300,10 @@ contract BitcoinSupportRegistry is AccessControl, Pausable, EIP712 {
     ) private {
         emit SupportAttested(
             intentHash,
-            intent.route,
-            intent.sourceId,
-            intent.sourceIndex,
-            intent.amount,
+            attestation.route,
+            attestation.sourceId,
+            attestation.sourceIndex,
+            attestation.amount,
             intent.recipient,
             attestation.observedAt,
             attestation.confirmationReference,

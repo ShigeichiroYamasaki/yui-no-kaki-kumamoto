@@ -15,13 +15,16 @@ Bitcoin inscriptionを譲渡不能な参加証明として扱う方法、tokeniz
 ### 1. 受付経路
 
 - Native Bitcoin MainnetとLightning Networkを国外支援の候補経路に追加する。
-- Native Bitcoinでは支援IntentごとにHD walletから固有受取addressを導出し、`bitcoin:<network>:<txid>:<vout>`を支援global IDとする。addressを複数支援者で共用しない。
+- 初期本番のNative BitcoinはADR-0014に従い、国内登録VASPが管理する認定NPO専用受取口座で受領する。NPOはBitcoin秘密鍵を保持しない。
+- 初期経路では、支援者が送金前に`route`、予定受領額、SBT受取先、公開metadata hash、有効期限、一回限りnonceを含むEIP-712 `SupportIntent`へ署名する。送金時点で未確定の`txid:vout`を支援者署名へ含めない。
+- 支援者は送付元VASPが発行したtxidを送金後に提出する。検証者はその申告だけを信用せず、beneficiary VASPの認証済みAPI、署名済み明細または二者承認済み監査fileで`txid:vout`、実受領額、confirmation、compliance状態を照合する。txidを取得・照合できないVASP経路は自動SBT対象外とし、保留または手動例外審査とする。
+- 将来NPOが直接受け入れるNative Bitcoinでは、支援IntentごとにHD walletから固有受取addressを導出する。初期VASP経路と混同しない。
 - Lightningでは一回限りのinvoiceを支援Intentへ対応させ、公開global IDには`lightning:<network>:<domain-separated-payment-commitment>`を用いる。元のpayment hashを公開IDにせず、Keysendを標準受付経路にしない。
 - tokenized／wrapped BTCはNative Bitcoinと明確に区別し、発行者、償還、bridge、登録事業者対応を別ADRで承認するまで「Bitcoin支援」として追加しない。
 
 ### 2. 支援者とSBT受取先の対応
 
-- 正式なSBT受領の主要導線では、支援者は送金前にBase walletを接続し、支援ID、satoshi額、Base受取address、公開玉垣metadata hash、有効期限を含むEIP-712支援Intentへ署名する。この署名は送金ではなくgasを消費しない。
+- 正式なSBT受領の主要導線では、支援者は送金前にBase walletを接続し、route、予定satoshi額、Base受取address、公開玉垣metadata hash、有効期限、nonceを含むEIP-712支援Intentへ署名する。この署名は送金ではなくgasを消費せず、txidまたはvoutを含まない。
 - 一回限りのBOLT 11 invoiceを署名済みIntentへ結び付け、支払い後に受取address、金額、玉垣内容を差し替えられないようにする。Lightning walletとBase walletは別であることをUIに明示する。
 - Base walletを持たない支援者はSBTなしで支援できる。入金後に一回限りのClaim tokenで受取先を指定する経路は補助・復旧経路とし、token窃取、配送先本人性、再発行の運用を別途承認するまで標準導線にしない。
 - BIP-322署名はBitcoin addressとBase addressの関連付けに利用できるが、過去の特定transactionを誰が送信したかの証明として単独使用しない。
@@ -39,11 +42,12 @@ Bitcoin inscriptionを譲渡不能な参加証明として扱う方法、tokeniz
 
 ### 4. 確認とアテステーション
 
-- Bitcoin入金検出だけでは支援成立としない。`Detected → Confirmed → ComplianceReview → Accepted → SBTIssued → Included → Converted → Delivered → Reported`の状態を分離する。Lightningは`Settled → ComplianceReview → Accepted / Held / Rejected`を経て、AcceptedだけをSBT発行・確定集計へ進める。
+- Bitcoin入金検出だけでは支援成立としない。初期VASP経路は`IntentCreated → TravelRuleAccepted / Held / Rejected → DepositDetected → Confirmed → ComplianceAccepted / Held / Rejected → SBTIssued → Converted → BankRemitted → Delivered → Reported`を分離する。コントラクトの`Accepted`は`ComplianceAccepted`に対応する。Lightningは`Settled → ComplianceReview → Accepted / Held / Rejected`を経て、AcceptedだけをSBT発行・確定集計へ進める。
 - confirmation閾値は金額・再編成リスク・登録事業者要件に応じて定める。0-confirmationを確定支援、SBT発行、円転batchへ使用しない。
 - Lightningはinvoiceがsettledであることをpayment hashと受領nodeで確認し、preimageを公開台帳へ直接保存しない。
-- Baseの`BitcoinSupportRegistry`へ、支援ID、txidとvoutまたはdomain-separated payment commitment、satoshi／millisatoshi額、確認block heightまたはsettled時刻、SBT受取先、公開metadata hash、状態を登録する。元のLightning payment hashは限定監査領域だけでcommitmentとの対応を保持する。
-- 単一bridgeまたは単一backendの判断でSBTをmintしない。Native Bitcoinは認定NPO、技術運営者、独立監査・監視者等が管理する独立Bitcoin nodeによる閾値アテステーションを要求する。Lightningは公開chainだけでsettlementを独立再現できないため、分離された検証組織が受領nodeの限定証憑、payment commitment、append-only監査log、可能な場合は外部事業者の記録を突合して署名する。共通のLNDを情報源とする残余リスクを明示する。
+- Baseの`BitcoinSupportRegistry`では、支援者署名済みIntentと、後から得られるtxidとvoutまたはdomain-separated payment commitment、実受領額、確認block heightまたはsettled時刻を含む検証者Attestationを分離する。AttestationはIntent hash、route、予定額と一致しなければならない。元のLightning payment hashは限定監査領域だけでcommitmentとの対応を保持する。
+- Intentの有効期限はSBT発行transactionの時刻ではなく、検証者が署名する入金観測時刻へ適用する。期限内に送金された支援をVASP審査やconfirmation待ちの遅延だけで失効させない。
+- 単一bridgeまたは単一backendの判断でSBTをmintしない。初期Native Bitcoinは、beneficiary VASPの認証済み入金記録とpublic chainの`txid:vout`を分離された検証組織が照合し、閾値アテステーションする。将来の直接受領は独立Bitcoin nodeで検証する。Lightningは限定証憑、payment commitment、append-only監査log、可能な場合は外部事業者記録を突合する。
 - `txid:vout`およびpayment commitmentごとに有効な玉垣SBTを最大1枚とし、chain ID、Registry address、期限を署名domainへ含める。
 
 ### 4.1 集計の正本
@@ -63,8 +67,8 @@ Bitcoin inscriptionを譲渡不能な参加証明として扱う方法、tokeniz
 
 ### 6. 鍵管理とBitcoin資金管理
 
-- アプリケーション、DB、Indexer、公開Web、Bitcoin Coreに資金移転可能なprivate key、seed、xprvを保存しない。Bitcoin Coreはwatch-only descriptorのみを持つ。
-- Bitcoin受取wallet、LND hot wallet、長期保管・円転walletを分離する。長期保管・円転には認定NPO管理のBitcoin hardware multisigを必須とし、単独EOA、単独hardware wallet、LND walletを長期保管先にしない。初期構成案は認定NPOの複数担当、共同運営団体、独立監査・協力団体が別々に保持するhardware walletによる`3-of-5`とするが、最終的な署名者と閾値はADR-0003の未決事項として法人決議とリスク評価で確定する。熊本県職員へ資金管理鍵を持たせない。
+- 初期本番では国内登録VASPがBTCをcustody・円転し、認定NPO、アプリケーション、DB、Indexer、公開WebはBitcoin private key、seed、xprvを保持しない。
+- 以下のwatch-only Bitcoin Core、PSBT、認定NPO管理hardware multisig要件は、将来NPOが直接custodyする経路だけに適用する。単独walletやLNDを長期保管先にせず、署名者・閾値は法人決議とリスク評価で確定する。熊本県職員へ資金管理鍵を持たせない。
 - 出金はserverが未署名PSBTを作成し、複数当事者がhardware walletの画面で送付先・金額・feeを確認して署名する。完成PSBTだけをwatch-only nodeからbroadcastする。
 - EVM Vault管理、upgrade、送付先変更は単独EOAではなくhardware wallet署名者によるSafe型multisigとtimelockへ移管する。deploy用EOAの権限を本番開始前に除去する。
 - 自動アテステーション鍵とPaymaster鍵はアプリserverのfileへ置かず、抽出不能なHSM/KMSで署名する。単一cloud accountでは成立しない閾値とし、資金移転権限を付与しない。
@@ -74,7 +78,7 @@ Bitcoin inscriptionを譲渡不能な参加証明として扱う方法、tokeniz
 
 ### 7. Lightningオンライン鍵の限定例外
 
-- Lightning nodeはchannel状態を常時署名するため、「オンライン署名鍵をどこにも置かない」方針とは両立しない。初期production releaseはNative Bitcoinのみを有効化し、Lightning受付を既定で無効にする。
+- Lightning nodeはchannel状態を常時署名するため、「オンライン署名鍵をどこにも置かない」方針とは両立しない。初期production releaseはADR-0014の国内登録VASP経由Native Bitcoinのみを有効化し、NPO自己管理Bitcoin addressとLightning受付を既定で無効にする。
 - Lightningを有効化するには、外部Lightning決済事業者またはremote signer／専用HSMを含む分離node構成、channel backup・復旧訓練、流動性・fee・障害監視、法務・会計確認を別途完了する。
 - 例外承認後もWeb/APIへ`admin.macaroon`を配布しない。invoice serviceには`AddInvoice`、`LookupInvoice`、`SubscribeInvoices`相当だけの制約付きmacaroonを与え、Secrets Manager、接続元制限、監査log、rotationを適用する。
 - LNDのonline channel keyはBitcoin長期保管multisig、EVM管理鍵、アテステーション鍵と兼用しない。Lightning hot balanceには金額・保管期限の上限を設け、超過分を固定allowlistのhardware multisigへsweepする。LND online keyの例外は長期保管要件を緩和しない。
@@ -101,12 +105,13 @@ EVM内で原子的にSBTを発行できるが、Bitcoin Mainnetから直接支�
 
 ## 結果
 
-Bitcoinの国際性とBaseのSBT・DAO機能を両立できる一方、cross-chainアテステーション、Bitcoin multisig、Lightning流動性、登録事業者対応という新しい運用境界が生じる。Base側の`BitcoinSupportRegistry`、EIP-712支援Intent、検証者epoch付き閾値署名、outpoint／Lightning commitment重複防止、Base SBT発行、無効化、pauseはプロトタイプ実装済みである。Bitcoin Core watch-only受入、HD address導出、confirmation／再編成監視、PSBT運用、LND invoice service、限定macaroon、Paymaster、Indexer、UIは未実装である。Native BitcoinはSignetまたはBitcoin testnetとBase Sepoliaを用いた端間試験、外部監査、少額円転試験が完了するまで実資金を受け付けない。Lightningはこれらに加えてLightning test環境、online signer例外、流動性・復旧試験が完了し、別個の開始承認を得るまで無効とする。
+Bitcoinの国際性とBaseのSBT・DAO機能を両立できる一方、VASP入金照合、cross-chainアテステーション、将来のBitcoin multisig、Lightning流動性という運用境界が生じる。Base側の`BitcoinSupportRegistry`はversion 2として、送金前Intentからsource evidenceを分離し、送金後Attestationへ`txid:vout`またはLightning commitmentを拘束する。検証者epoch付き閾値署名、evidence重複防止、Base SBT発行、無効化、pauseはプロトタイプ実装済みである。VASP API／署名済み明細との照合service、Paymaster、Indexer、UIは未実装である。将来経路のBitcoin Core watch-only受入、HD address導出、PSBT、LND invoice serviceも未実装であり、別個の開始承認まで実資金を受け付けない。
 
 ## プロトタイプ実装上の制約
 
 - `BitcoinSupportRegistry`はBTCを保管・移転せず、公開証明とSBT発行だけを担当する。
-- Bitcoinでは`sourceId=txid`、`sourceIndex=vout`、`amount=satoshi`、`confirmationReference=block height`とする。
+- 支援者のversion 2 `SupportIntent`は`route`、予定`amount`、`recipient`、`publicMetadataHash`、`expiresAt`、`nonce`だけを含み、送金前に未知のsource evidenceを含めない。
+- Bitcoinの検証者`Attestation`では`sourceId=txid`、`sourceIndex=vout`、`amount=satoshi`、`confirmationReference=block height`とする。
 - Lightningでは`sourceId=domain-separated payment commitment`、`sourceIndex=0`、`amount=millisatoshi`、`confirmationReference=settled timestamp`とする。payment hashとpreimageは入力しない。
 - 支援者署名と検証者署名はEIP-712 domainにBase chain IDとRegistry addressを含む。検証者集合を変更するとepochが増え、旧epochの未確定署名は使えない。
 - 現行の検証者集合変更はadminによる即時操作であり、本番前にSafe型multisigとtimelockへ移管する必要がある。
@@ -124,3 +129,4 @@ Bitcoinの国際性とBaseのSBT・DAO機能を両立できる一方、cross-cha
 - [ADR-0008](./0008-certified-npo-joint-operation.md): 法的主体と登録事業者
 - [ADR-0012](./0012-lightning-inbound-liquidity-and-channel-capital.md): Lightningのinbound liquidity、必要BTC、再調整、受付上限
 - [ADR-0013](./0013-lightning-legal-classification-and-abuse-controls.md): Lightning寄附の法的分類、AML・制裁、不当勧誘、悪用防止
+- [ADR-0014](./0014-trisa-centered-vasp-travel-rule-network.md): 登録VASPを受領窓口とする段階的Travel Rule対応

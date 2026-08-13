@@ -11,7 +11,7 @@ For Bitcoin, the interface shows the last agreed block height, confirmation coun
 ## Canonical aggregation and units
 
 - Final Base and Polygon totals use only `SupportReceived` events filtered by the published Vault address, chain ID, asset, and start block.
-- Final Native Bitcoin and Lightning totals use only valid `SupportAttested` events from the Base `BitcoinSupportRegistry`. The source Bitcoin transaction, Lightning `SETTLED` record, `BitcoinTamagakiIssued`, and SBT mint are used for status and verification, never added again as contribution value.
+- Final Native Bitcoin and Lightning totals use only valid `SupportAttested` events from the Base `BitcoinSupportRegistry`. For initial Bitcoin, verifiers reconcile an authenticated beneficiary-VASP deposit record with the public `txid:vout` and bind the actual received amount after payment. The source transaction and SBT mint are never added again.
 - A support record followed by `SupportInvalidated` is removed from final amount and count while the correction history and reason remain visible. Pending Bitcoin transactions and unsettled invoices are excluded from finalized totals.
 - Canonical keys are `chainId:vault:supportId` for EVM, `bitcoin:network:txid:vout` for Native Bitcoin, and `lightning:network:domain-separated-payment-commitment` for Lightning. The support count is the number of valid canonical keys.
 - Native Bitcoin Registry amounts are satoshis and Lightning amounts are millisatoshis. `Native BTC = sum(satoshi) / 10^8`, `Lightning BTC = sum(millisatoshi) / 10^11`, and `Bitcoin BTC = Native BTC + Lightning BTC`. The API also publishes the unrounded integer values.

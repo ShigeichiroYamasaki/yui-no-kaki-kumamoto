@@ -16,7 +16,7 @@
 
 - 公式に確認されたネットワークと資産だけを許可する。
 - ETHはBase Mainnet、公式JPYCはPolygon PoSのチェーン別受付コントラクトで受領する。
-- Native BitcoinとLightningを国外支援の候補経路とし、固有addressまたは一回限りのinvoiceで支援Intentと対応付ける。Bitcoin詳細はADR-0011に従う。
+- 初期Native Bitcoinは国内登録VASPのNPO専用受取口座で受領する。支援者は送金前に`supportId`として使う一回限りnonce、予定受領額、SBT受取先、玉垣metadata hashを含む支援Intentへ署名し、送金後にVASPが確認した`txid:vout`を検証者アテステーションで結び付ける。NPO固有addressとLightningは将来経路とする。
 - 受付イベントには支援ID、ウォレット、資産、数量、公開用ハッシュを含める。
 - 国、メッセージ、表示名は任意であり、原文をオンチェーンへ保存しない。
 - 未確認資産、ゼロ金額、停止中の受付を拒否する。
@@ -35,11 +35,11 @@
 
 - 初期本番候補では支援成立時に資産を認定NPOへ帰属させ、支援者別残高・交換・振替を提供しない。
 - トレジャリーからの送金先を、認定NPOと契約し熊本県災害支援口座へ円貨送金する登録金融・決済事業者の入金先に限定する。
-- 管理主体はNPOの組織マルチシグとし、個人または技術受託者の単独EOAを使用しない。
+- EVM Vaultの管理主体はNPOの組織マルチシグとし、個人または技術受託者の単独EOAを使用しない。初期Bitcoinは契約VASPがcustodyする。
 - 送金は一意なバッチIDを持ち、二重実行を拒否する。
 - JPYC・ETH・BTCの円転は登録事業者に委ね、コントラクト、Bitcoin受入基盤、DAO自身は交換しない。
-- BTCは認定NPOのhardware walletを用いたBitcoin multisigで管理し、EVM管理鍵、Lightning node鍵、Bitcoin鍵を分離する。
-- アプリケーション、DB、Indexer、公開Web、Bitcoin Coreに資金移転可能な秘密鍵を保存しない。Bitcoinはwatch-only descriptorとPSBT、EVM管理はhardware wallet multisig、アテステーションは独立HSM/KMSを用いる。
+- 初期BTCは国内登録VASPが管理・円転し、NPO、本システム、公開WebはBitcoin秘密鍵を保持しない。将来NPOが直接custodyする場合だけhardware multisig、watch-only descriptor、PSBTを必須とする。
+- アプリケーション、DB、Indexer、公開Webに資金移転可能な秘密鍵を保存しない。EVM管理はhardware wallet multisig、Bitcoinアテステーションは独立HSM/KMSを用いる。
 - Lightning channel鍵は常時オンライン署名を必要とする限定例外であるため、初期本番ではLightning受付を無効化し、別途の例外承認、hot balance上限、復旧訓練、限定macaroonを満たしてから有効化する。
 - 運営費は復興支援金と分離する。
 
@@ -97,7 +97,7 @@
 
 ## 本番移行ゲート
 
-具体的な認定NPOの理事会承認、熊本県との覚書、熊本県災害支援口座、対象資産・経路に対応する登録金融・決済事業者、会計処理、規約、プライバシー方針、監査完了が揃うまで、その資産経路の本番受付を開始しない。Native BitcoinにはBitcoin multisigと閾値アテステーションを必須とする。Lightning運用はシステム全体の初期開始条件にはせず、ADR-0011の限定例外条件、ADR-0012の流動性・受付制御条件、ADR-0013の法律意見・AML／制裁・不当勧誘・受領専用構成を満たした後に別途有効化する。ADR-0007、ADR-0008、ADR-0011、ADR-0012、ADR-0013の該当する本番移行条件を満たし、Critical/Highリスクが未解決でないことを各経路の開始承認の必須資料とする。
+具体的な認定NPOの理事会承認、熊本県との覚書、熊本県災害支援口座、対象資産・経路に対応する登録金融・決済事業者、会計処理、規約、プライバシー方針、監査完了が揃うまで、その資産経路の本番受付を開始しない。初期本番のNative BitcoinはADR-0014に基づく国内登録VASPのNPO専用受取口座、VASP間通知、入金照合、円転・銀行送金へ限定する。NPO管理Bitcoin multisig、自己管理walletからの直接入金、Lightningは初期開始条件にせず、ADR-0011の限定例外条件、ADR-0012の流動性・受付制御条件、ADR-0013の法律意見・AML／制裁・不当勧誘・受領専用構成、ADR-0014のアンホステッドwallet境界・PII保護を満たした後に別途有効化する。ADR-0007、ADR-0008、ADR-0011、ADR-0012、ADR-0013、ADR-0014の該当する本番移行条件を満たし、Critical/Highリスクが未解決でないことを各経路の開始承認の必須資料とする。
 
 ## プロトタイプとの境界
 

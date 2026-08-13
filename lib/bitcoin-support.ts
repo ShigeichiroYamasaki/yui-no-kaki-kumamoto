@@ -10,8 +10,6 @@ import {
 export const bitcoinSupportIntentTypes = {
   SupportIntent: [
     { name: "route", type: "uint8" },
-    { name: "sourceId", type: "bytes32" },
-    { name: "sourceIndex", type: "uint32" },
     { name: "amount", type: "uint256" },
     { name: "recipient", type: "address" },
     { name: "publicMetadataHash", type: "bytes32" },
@@ -23,6 +21,10 @@ export const bitcoinSupportIntentTypes = {
 export const bitcoinAttestationTypes = {
   Attestation: [
     { name: "intentHash", type: "bytes32" },
+    { name: "route", type: "uint8" },
+    { name: "sourceId", type: "bytes32" },
+    { name: "sourceIndex", type: "uint32" },
+    { name: "amount", type: "uint256" },
     { name: "verifierEpoch", type: "uint64" },
     { name: "observedAt", type: "uint64" },
     { name: "confirmationReference", type: "uint64" },
@@ -31,8 +33,6 @@ export const bitcoinAttestationTypes = {
 
 export type BitcoinSupportIntent = {
   route: 0 | 1;
-  sourceId: Hex;
-  sourceIndex: number;
   amount: bigint;
   recipient: Address;
   publicMetadataHash: Hex;
@@ -40,10 +40,21 @@ export type BitcoinSupportIntent = {
   nonce: Hex;
 };
 
+export type BitcoinSupportAttestation = {
+  intentHash: Hex;
+  route: 0 | 1;
+  sourceId: Hex;
+  sourceIndex: number;
+  amount: bigint;
+  verifierEpoch: bigint;
+  observedAt: bigint;
+  confirmationReference: bigint;
+};
+
 export function bitcoinSupportDomain(chainId: number, registry: Address): TypedDataDomain {
   return {
     name: "Kumamoto Bitcoin Support",
-    version: "1",
+    version: "2",
     chainId,
     verifyingContract: getAddress(registry),
   };

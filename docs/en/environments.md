@@ -8,7 +8,7 @@ The demo uses the same conceptual model as production so stakeholders can experi
 |---|---|---|
 | Assets | Simulated values, MockJPYC, and Bitcoin/Lightning test assets | Approved ETH, official JPYC, and Native BTC; Lightning BTC is added only after exception approval |
 | Wallet | None in the UI-only demo; test-only wallet signatures in the integrated demo | Dedicated supported production wallets and signatures |
-| Network | Local Hardhat, Sepolia, Base Sepolia, and local Bitcoin Core/LND regtest; Signet/testnet is the next integration stage | ETH on Base, JPYC on Polygon, initially Native Bitcoin only, Bitcoin-derived SBTs on Base, and an Ethereum L1 recovery path for Base ETH; Lightning is enabled later |
+| Network | Local Hardhat, Sepolia, Base Sepolia, and local Bitcoin Core/LND regtest; Signet/testnet is the next integration stage | ETH on Base, JPYC on Polygon, initially VASP-to-VASP Native Bitcoin through a Japanese registered VASP, Bitcoin-derived SBTs on Base, and an Ethereum L1 recovery path for Base ETH; direct self-custody and Lightning are enabled later |
 | Prefectural receipt | Demo identifiers and simulated states | Official destination and evidence hashes |
 | Recovery reports | Simulated browser updates | Append-only updates by authorized reporters |
 | Presentation | Permanently labeled as a prototype | Displays the certified NPO, registered provider, terms, ownership model, and operational status |
