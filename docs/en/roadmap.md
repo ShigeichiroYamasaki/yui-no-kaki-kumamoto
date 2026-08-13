@@ -15,7 +15,8 @@
 - Select and consult an existing certified NPO; design accounting, ownership, terms, and personal-data controls
 - Define contracts and responsibility boundaries for the registered provider and technical contractor
 - Conduct threat modeling and external review
-- Consult providers on Bitcoin/Lightning support, the Bitcoin multisig, Lightning node, BIP-322 scope, and confirmation policy
+- Consult a Japanese-registered VASP on an NPO-named account that permits international third-party donations, VASP-to-VASP Bitcoin deposits, Travel Rule processing, reconciliation APIs, conversion, bank remittance, holds, and refunds
+- Treat the Bitcoin multisig, Lightning node, direct self-custody, and BIP-322 as future paths separate from initial production
 
 ## Phase 2 — Public testnet
 
@@ -35,7 +36,7 @@
 - Confirm legal, accounting, payment-services, and AML requirements
 - Run a small end-to-end test from JPYC support to conversion and a separate yen donation to the Prefecture
 - Verify that Base ETH and Polygon JPYC remain separately reconciled rather than being mixed into one on-chain accounting batch
-- Test end-to-end reconciliation from Native BTC through the NPO Bitcoin multisig, a small registered-provider conversion, Base SBT, and prefectural transfer batch
+- Test end-to-end reconciliation from an originator VASP through the Japanese VASP's hosted NPO account, Travel Rule acceptance, small conversion, NPO bank account, Base SBT, and prefectural transfer batch
 - Without real funds, separately validate the Lightning remote signer or external provider, restricted macaroons, hot-balance cap, effective-inbound monitoring, invoice reservations, Loop Out and Native Bitcoin fallback, recovery procedure, and payment commitments
 - Operate and reconcile within limited amounts and periods
 - Gather feedback from supporters, Kumamoto Prefecture, and providers
@@ -47,7 +48,8 @@
 - Issue financial, security, and transparency reports
 - Exercise the escape hatch every six months and after an L2 or bridge upgrade
 - Accept improvement proposals from the public community
-- Operate Native Bitcoin intake with Bitcoin-derived Base Tamagaki
+- Operate VASP-to-VASP Native Bitcoin intake through the Japanese VASP's hosted NPO account with Bitcoin-derived Base Tamagaki
+- Add direct self-custody Bitcoin intake only after VASP unhosted-wallet controls and separate launch approval
 - Enable Lightning only in a later release after the ADR-0011 exception conditions, ADR-0012 liquidity and intake controls, and a separate launch approval are complete
 
 Movement between phases is determined not by dates but by whether agreement, audit, and operational-readiness conditions have been met.

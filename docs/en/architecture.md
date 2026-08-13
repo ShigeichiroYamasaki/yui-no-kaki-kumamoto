@@ -2,13 +2,15 @@
 
 ## Overview
 
+For initial production, the certified NPO does not operate a Bitcoin address, LND node, or hardware multisig. A Japanese-registered VASP provides an NPO-specific hosted receiving account and performs receipt, Travel Rule processing, AML/CFT and sanctions review, custody, and conversion. This system receives only publishable accepted-payment results for aggregation and SBT issuance. Direct self-custody and Lightning payments are later phases.
+
 ```mermaid
 flowchart LR
   S[Primarily international supporters] --> W[Multilingual Web3 support app]
   W --> BV[Base ETH Vault]
   W --> PV[Polygon JPYC Vault]
-  W --> BTC[Unique Bitcoin address / future Lightning invoice]
-  BTC --> BR[Bitcoin verifiers + Base Registry]
+  W --> BTC[Registered VASP hosted Bitcoin account for the NPO]
+  BTC --> BR[VASP reconciliation + Base Registry]
   N["Certified NPO・legal operator"] --> BV
   N --> PV
   BV --> BT[Base Tamagaki SBT]
@@ -40,12 +42,12 @@ flowchart TB
   D["Supporters and DAO participants"] -->|"Support and non-binding advice"| N["Certified NPO<br/>legally accountable operator"]
   D -->|"Base ETH"| BV["Base ETH Vault"]
   D -->|"Polygon JPYC"| PV["Polygon JPYC Vault"]
-  D -->|"Native Bitcoin / future Lightning"| BTC["Bitcoin receiver and NPO multisig"]
+  D -->|"Initial: VASP-originated Native Bitcoin"| BTC["Registered VASP hosted account for the NPO"]
   N -->|"Terms, accounting, board approval, reconciliation"| BV
   N -->|"Terms, accounting, board approval, reconciliation"| PV
   BV -->|"Transfer to registered deposit address"| F["Registered financial or payment provider<br/>AML, conversion, records"]
   PV -->|"Transfer to registered deposit address"| F
-  BTC -->|"Transfer after threshold verification"| F
+  BTC -->|"Review, custody, and conversion"| F
   F -->|"Yen bank remittance"| P["Kumamoto Prefecture<br/>Disaster Support Account"]
   P -->|"Receipt and recovery reports"| N
   K["Corporate technical contractor"] -->|"Development, maintenance, monitoring"| N
@@ -91,7 +93,7 @@ This is the production principle. The image-enabled Sepolia demo also evaluates 
 
 ### Bitcoin-to-Base boundary
 
-Native BTC is not bridged into an EVM Vault. A unique Bitcoin address or one-time Lightning invoice maps to a signed donation intent. Independent verifiers confirm the required confirmations or settlement and submit a threshold attestation to a Base Registry. The ERC-721 and ERC-5192 Tamagaki SBT is then minted to the Base address selected before payment. For Lightning, the Registry receives a domain-separated commitment rather than the underlying payment hash. Bitcoin private keys, xprvs, Lightning macaroons, payment hashes, and preimages never enter Base or the public indexer. See [ADR-0011](../adr/0011-bitcoin-lightning-and-base-sbt).
+Native BTC is not bridged into an EVM Vault. In initial production, a support intent is reconciled with the registered VASP's accepted deposit record. A threshold attestation of that result is submitted to the Base Registry, and an ERC-721 plus ERC-5192 Tamagaki SBT is minted to the Base address selected before payment. Travel Rule PII, VASP credentials, and Bitcoin private keys never enter Base or the public indexer. Direct NPO-controlled addresses and one-time Lightning invoices are later extensions requiring separate launch approval. See [ADR-0011](../adr/0011-bitcoin-lightning-and-base-sbt) and [ADR-0014](../adr/0014-trisa-centered-vasp-travel-rule-network).
 
 ## Bitcoin and LND demo architecture
 
@@ -136,9 +138,26 @@ flowchart LR
 
 Solid lines are the locally operable Bitcoin and Lightning path; dotted lines are boundaries currently connected through tests or manual operations. Automatic invoice settlement subscription, the intake API that submits to the Registry, independent verifier services, Paymaster, indexer, and public-UI integration remain unimplemented. Demo seeds, BTC, macaroons, addresses, and channels are never reused in production.
 
-## Bitcoin and LND production architecture
+## Initial Bitcoin production architecture
 
-Production separates intake, custody, evidence, and public-read boundaries. Native Bitcoin intake derives a unique address per signed intent from a watch-only descriptor. Lightning remains disabled at initial production launch. If separately approved, only a restricted macaroon reaches the invoice service, and the LND online channel key is never shared with long-term custody or attestation keys.
+```mermaid
+flowchart LR
+  U["International supporter"] --> OV["Originator VASP"]
+  OV -->|"BTC + applicable Travel Rule data"| JV["Japanese registered VASP<br/>hosted NPO account"]
+  JV -->|"Accepted deposit record"| AT["Reconciliation and attestation"]
+  AT --> REG["Base BitcoinSupportRegistry"]
+  REG --> SBT["Tamagaki SBT"]
+  JV -->|"Conversion"| NB["Certified NPO bank account"]
+  NB -->|"Board-approved yen donation"| K["Kumamoto Disaster Support Account"]
+  REG --> IDX["Public indexer"]
+  K -->|"Receipt and recovery evidence"| IDX
+```
+
+Only the support ID, VASP transaction ID, asset, amount, receipt time, and publishable status leave the VASP boundary. Travel Rule identity data remains with the VASP. Initial production rejects or holds self-custody deposits and keeps Lightning disabled. See [ADR-0014](../adr/0014-trisa-centered-vasp-travel-rule-network).
+
+## Future Bitcoin and LND architecture
+
+This target architecture applies only if direct self-custody or Lightning intake is approved later; it is not part of initial production. Native Bitcoin intake derives a unique address per signed intent from a watch-only descriptor. If separately approved, only a restricted macaroon reaches the invoice service, and the LND online channel key is never shared with long-term custody or attestation keys.
 
 ```mermaid
 flowchart LR

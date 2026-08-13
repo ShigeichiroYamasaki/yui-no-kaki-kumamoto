@@ -2,13 +2,15 @@
 
 ## 全体構成
 
+初期本番のBitcoin経路では、認定NPO自身のBitcoin address、LND、hardware multisigを使用せず、国内登録VASPのNPO専用受取口座を入口とします。VASPが受領、Travel Rule、AML／CFT・制裁審査、custody、円転を担当し、本システムは公開可能な入金結果だけを受けて集計とSBT発行を行います。Lightningと自己管理walletからの直接入金は後続段階です。
+
 ```mermaid
 flowchart LR
   S[国外を中心とする支援者] --> W[多言語Web3支援アプリ]
   W --> BV[Base ETH Vault]
   W --> PV[Polygon JPYC Vault]
-  W --> BTC[Bitcoin固有address / 将来のLightning invoice]
-  BTC --> BR[Bitcoin検証者 + Base Registry]
+  W --> BTC[国内登録VASPのNPO専用Bitcoin受取口座]
+  BTC --> BR[VASP入金照合 + Base Registry]
   N["認定NPO・法的運営主体"] --> BV
   N --> PV
   BV --> BT[Base玉垣SBT]
@@ -40,12 +42,12 @@ flowchart TB
   D["支援者・DAO参加者"] -->|"支援・非拘束の参考投票"| N["認定NPO法人<br/>法的運営主体"]
   D -->|"Base ETH"| BV["Base ETH Vault"]
   D -->|"Polygon JPYC"| PV["Polygon JPYC Vault"]
-  D -->|"Native Bitcoin / 将来のLightning"| BTC["Bitcoin受入基盤・NPO multisig"]
+  D -->|"初期: VASP経由Native Bitcoin"| BTC["国内登録VASPのNPO専用受取口座"]
   N -->|"規約・会計・理事会決議・照合"| BV
   N -->|"規約・会計・理事会決議・照合"| PV
   BV -->|"登録済み入金先への送付"| F["登録金融・決済事業者<br/>AML・円転・取引記録"]
   PV -->|"登録済み入金先への送付"| F
-  BTC -->|"閾値確認後に登録済み事業者へ送付"| F
+  BTC -->|"審査・custody・円転"| F
   F -->|"円貨の銀行送金"| P["熊本県<br/>熊本県災害支援口座"]
   P -->|"受領確認・復興報告"| N
   K["株式会社等の技術受託者"] -->|"開発・保守・監視"| N
@@ -91,7 +93,7 @@ flowchart TB
 
 ### BitcoinとBaseの境界
 
-Native BTCはEVM Vaultへbridgeしません。Bitcoin側で固有addressまたは一回限りのLightning invoiceを署名済み支援Intentへ対応させ、必要なconfirmationまたはsettlementを独立検証者が確認します。閾値アテステーションをBase Registryへ登録した後、支払い前に指定したBase addressへERC-721＋ERC-5192玉垣SBTを発行します。Lightningでは元のpayment hashではなくdomain-separated commitmentをRegistryへ登録します。Bitcoin private key、xprv、Lightning macaroon、payment hash、preimageをBaseまたは公開Indexerへ渡しません。詳細は[ADR-0011](./adr/0011-bitcoin-lightning-and-base-sbt)に従います。
+Native BTCはEVM Vaultへbridgeしません。初期本番では、支援Intentと国内登録VASPの入金明細を照合し、VASPが`Accepted`とした結果をアテステーションしてBase Registryへ登録した後、支払い前に指定したBase addressへERC-721＋ERC-5192玉垣SBTを発行します。Travel RuleのPII、VASP認証情報、Bitcoin private keyをBaseまたは公開Indexerへ渡しません。NPO自己管理addressと一回限りのLightning invoiceを用いる従来案は将来拡張であり、別個の開始承認が必要です。詳細は[ADR-0011](./adr/0011-bitcoin-lightning-and-base-sbt)と[ADR-0014](./adr/0014-trisa-centered-vasp-travel-rule-network)に従います。
 
 ## Bitcoin・LNDデモ系の構成
 
@@ -136,9 +138,26 @@ flowchart LR
 
 実線は現在ローカルで操作できるBitcoin／Lightning経路、破線はテストコードまたは手動で接続する境界です。invoiceの`SETTLED`を自動購読してRegistryへ送る受付API、独立検証者service、Paymaster、Indexer、公開画面との端間連携は未実装です。デモのseed、BTC、macaroon、address、channelを本番へ転用しません。
 
-## Bitcoin・LND本番系の構成
+## Bitcoin本番系の初期構成
 
-本番系では資金面、受付面、証明面、公開面を分離します。Native Bitcoin受取基盤はwatch-only descriptorから支援Intentごとの固有addressを払い出します。Lightning受付は初期本番では無効であり、例外承認後もinvoice専用serviceへ限定macaroonだけを与え、LNDのonline channel keyを長期保管鍵やアテステーション鍵と共有しません。
+```mermaid
+flowchart LR
+  U["国外支援者"] --> OV["送付元VASP"]
+  OV -->|"BTC + Travel Rule情報"| JV["国内登録VASP<br/>NPO専用受取口座"]
+  JV -->|"Accepted入金明細"| AT["照合・アテステーション"]
+  AT --> REG["Base BitcoinSupportRegistry"]
+  REG --> SBT["玉垣SBT"]
+  JV -->|"円転"| NB["認定NPO銀行口座"]
+  NB -->|"理事会承認済み円貨寄附"| K["熊本県災害支援口座"]
+  REG --> IDX["公開Indexer"]
+  K -->|"受領・復興証憑"| IDX
+```
+
+本システムへ渡すのは寄附ID、VASP transaction ID、資産、金額、受領時刻、公開可能な状態だけとし、Travel Rule本人情報はVASP境界外へ出しません。自己管理wallet入金は初期本番では拒否または保留し、Lightningは無効とします。詳細は[ADR-0014](./adr/0014-trisa-centered-vasp-travel-rule-network)を参照してください。
+
+## Bitcoin・LND将来構成
+
+将来、VASP経由だけでは到達できない自己管理walletやLightningを受け入れる場合の目標構成です。初期本番には含めません。Native Bitcoin受取基盤はwatch-only descriptorから支援Intentごとの固有addressを払い出します。Lightning受付は例外承認後もinvoice専用serviceへ限定macaroonだけを与え、LNDのonline channel keyを長期保管鍵やアテステーション鍵と共有しません。
 
 ```mermaid
 flowchart LR
@@ -232,7 +251,7 @@ flowchart LR
 
 Bitcoin出金ではserverが未署名PSBTを作成し、認定NPOの複数担当、共同運営団体、独立監査・協力団体等のhardware walletで送付先、金額、feeを確認して必要数を署名します。初期候補では熊本県職員へBitcoinまたはVaultの資金管理鍵を持たせません。完成PSBTだけをBitcoin Coreがbroadcastします。秘密鍵なしのserver侵害で画面停止や偽表示が起こり得るため、署名者はhardware wallet画面と別経路の送付指図を照合します。
 
-Lightning nodeはchannel状態をオンラインで署名する必要があり、この原則の完全な適用対象にはできません。そのため初期本番はNative Bitcoinのみを有効にし、Lightningはremote signerまたは外部事業者、hot balance上限、固定hardware multisigへのsweep、復旧訓練、限定macaroonを含む例外審査後に有効化します。受付可能額はwallet残高や額面channel容量ではなく実効inbound liquidityで管理し、容量不足時はinvoice発行を止めNative Bitcoinへ縮退します。online keyの例外は、Accepted BTCの長期保管にhardware multisigを必須とする要件を緩和しません。詳細は[ADR-0011](./adr/0011-bitcoin-lightning-and-base-sbt)、[ADR-0012](./adr/0012-lightning-inbound-liquidity-and-channel-capital)、[ADR-0013](./adr/0013-lightning-legal-classification-and-abuse-controls)を参照してください。
+Lightning nodeはchannel状態をオンラインで署名する必要があり、この原則の完全な適用対象にはできません。そのため初期本番は国内登録VASP経由のNative Bitcoinだけを有効にし、Lightningはremote signerまたは外部事業者、hot balance上限、固定hardware multisigへのsweep、復旧訓練、限定macaroonを含む例外審査後に有効化します。受付可能額はwallet残高や額面channel容量ではなく実効inbound liquidityで管理し、容量不足時はinvoice発行を止めVASP経由Native Bitcoinへ縮退します。将来NPOが直接custodyする経路では、online keyの例外によってAccepted BTCの長期保管にhardware multisigを必須とする要件を緩和しません。詳細は[ADR-0011](./adr/0011-bitcoin-lightning-and-base-sbt)、[ADR-0012](./adr/0012-lightning-inbound-liquidity-and-channel-capital)、[ADR-0013](./adr/0013-lightning-legal-classification-and-abuse-controls)、[ADR-0014](./adr/0014-trisa-centered-vasp-travel-rule-network)を参照してください。
 
 ## セキュリティ境界と重大な改善
 

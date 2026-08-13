@@ -2,7 +2,7 @@
 
 ## Receiving support
 
-International supporters may send ETH to the Base Mainnet Vault, official JPYC to the Polygon PoS Vault, or Native BTC to a donation-specific Bitcoin address. EVM Vaults atomically mint a Tamagaki SBT on the same chain. Native Bitcoin mints a Base SBT only after confirmation and threshold attestation. A Lightning invoice follows the same non-atomic model but is disabled at initial production launch and added only after the key, liquidity, legal, and compliance conditions in ADR-0011, ADR-0012, and ADR-0013 are met.
+International supporters may send ETH to the Base Mainnet Vault or official JPYC to the Polygon PoS Vault. For initial-production Bitcoin, the supporter first creates a support intent and sends Native BTC from an originator VASP to an NPO-specific account hosted by a Japanese-registered beneficiary VASP. That VASP performs Travel Rule processing, AML/CFT and sanctions review, custody, and conversion. A Base SBT is issued only after reconciliation of an `Accepted` deposit. Direct self-custody and Lightning intake remain disabled until the conditions in ADR-0011 through ADR-0014 are met.
 
 Country, public name, and message are optional. Country is never inferred from a wallet or IP address; only self-declared information is aggregated.
 
@@ -13,9 +13,9 @@ sequenceDiagram
   participant S as Supporter
   participant BV as Base ETH Vault
   participant PV as Polygon JPYC Vault
-  participant BTC as Bitcoin / future Lightning receiver
-  participant BM as NPO Bitcoin hardware multisig
-  participant BR as Bitcoin verifiers + Base Registry
+  participant OV as Originator VASP
+  participant BTC as Japanese VASP hosted NPO account
+  participant BR as Reconciliation + Base Registry
   participant O as Certified NPO treasury multisig
   participant E as Registered financial or payment provider
   participant K as Kumamoto Disaster Support Account
@@ -24,24 +24,24 @@ sequenceDiagram
   BV-->>S: Event and Base Tamagaki SBT
   S->>PV: Contribute JPYC on Polygon
   PV-->>S: Event and Polygon Tamagaki SBT
-  S->>BTC: Pay a unique address or invoice
-  BTC->>BR: Threshold-attest confirmation/settlement and compliance acceptance
+  S->>OV: Request BTC transfer with support intent
+  OV->>BTC: BTC + applicable Travel Rule data
+  BTC->>BR: Reconcile and attest Accepted deposit
   BR-->>S: Make a Base Tamagaki SBT claimable
-  BTC->>BM: Sweep Accepted BTC to the fixed destination
   O->>BV: Consolidate ETH with a chain-specific batch ID
   O->>PV: Consolidate JPYC with a chain-specific batch ID
   BV->>E: Transfer ETH
   PV->>E: Transfer JPYC
-  BM->>E: Transfer BTC with a multi-hardware-wallet signed PSBT
+  BTC->>E: Convert BTC within the VASP boundary
   E->>K: Remit the NPO's separate yen donation
   K-->>R: Record prefectural receipt and recovery evidence
 ```
 
-The contracts, Bitcoin receiver, and DAO do not perform exchange services. EVM support is recognized on receipt; Bitcoin and Lightning support is recognized only after confirmation and compliance acceptance. No supporter balance, exchange, or transfer service is offered. Long-term custody of Accepted BTC requires the certified-NPO-controlled Bitcoin hardware multisig, while LND holds only bounded channel operating funds. A provider with the required registration and controls converts the NPO's ETH, JPYC, or BTC, and the NPO makes a separate yen donation to Kumamoto Prefecture. This is not presented as a direct cryptoasset donation to the Prefecture.
+The contracts, DAO, and certified NPO do not perform exchange services. EVM support is recognized on receipt; initial-production Bitcoin is recognized only after the registered VASP marks it `Accepted`. No supporter balance, exchange, or transfer service is offered. The VASP custodies and converts BTC and remits yen to the NPO's bank account. Following board approval, the NPO makes a separate yen donation to Kumamoto Prefecture. The NPO hardware multisig and LND are later-phase paths, not initial-production components.
 
 ## Bitcoin confirmation model
 
-Native Bitcoin separates `Detected → Confirmed → ComplianceReview → Accepted → SBTIssued`; zero-confirmation payments are excluded from confirmed totals. Lightning separates `Settled → ComplianceReview → Accepted / Held / Rejected`. The public Registry receives a domain-separated commitment, and one `txid:vout` or payment commitment can produce at most one SBT. See [ADR-0011](../adr/0011-bitcoin-lightning-and-base-sbt) and [ADR-0013](../adr/0013-lightning-legal-classification-and-abuse-controls).
+Initial-production Native Bitcoin separates `IntentCreated → TravelRuleAccepted / Held / Rejected → Detected → Confirmed → ComplianceReview → Accepted → SBTIssued → Converted → BankTransferred`; zero-confirmation and pending-review deposits are excluded from confirmed totals. The public Registry receives a domain-separated commitment to the VASP deposit record rather than PII, and one accepted deposit can produce at most one SBT. Lightning retains the future-state model `Settled → ComplianceReview → Accepted / Held / Rejected`. See [ADR-0011](../adr/0011-bitcoin-lightning-and-base-sbt), [ADR-0013](../adr/0013-lightning-legal-classification-and-abuse-controls), and [ADR-0014](../adr/0014-trisa-centered-vasp-travel-rule-network).
 
 ## Accounting presentation
 

@@ -45,11 +45,12 @@
 | A-13 | **High** | Polygon validator/milestone/checkpoint/PoS Bridge障害、偽JPYC、JPYC EX償還停止 | 公式asset allowlist、pause、chain別集計 | Baseのescape hatchは利用できない。公式JPYCのchain ID・codehash固定、複数RPC、finalized block使用、JPYC EX直接償還とPoS Bridgeの優先順位、最大滞留額・停止基準が必要 |
 | A-14 | **Critical** | Bitcoin監視者の侵害・共謀により未入金outpointを証明し、Base SBTや会計を偽造 | Registryは閾値署名、検証者epoch、`txid:vout`／commitment重複拒否、EIP-712 domainを実装 | 独立Bitcoin node、検証者交代timelock、公開照合、外部監査が必要 |
 | A-15 | **High** | Bitcoin再編成、RBF、0-confirmation二重支払いを確定支援として処理 | RegistryはAccepted後にのみmintするが、Bitcoin監視は未実装 | 金額別confirmation、再編成検出、0-conf除外、監視不一致時pauseが必要 |
-| A-16 | **Critical** | Bitcoin xprv、multisig signer、Lightning macaroon／wallet鍵の侵害 | Base Registryは資金鍵を保持しない。Bitcoin Core/LND側は未実装。本番設計はwatch-only Bitcoin Core、PSBT、hardware multisig、HSM/KMS分離、初期Lightning無効化 | Accepted BTCの長期保管には認定NPO管理hardware multisigを必須とし、署名者・閾値の法人決議、二拠点backup、復旧訓練、固定sweep先監視を要求する。Lightning有効化時は限定macaroon、remote signerまたは外部事業者、金額・保管期限のhot上限を追加 |
+| A-16 | **Critical** | Bitcoin xprv、multisig signer、Lightning macaroon／wallet鍵の侵害 | 初期本番は国内登録VASPがcustodyし、NPOとBase Registryは資金鍵を保持しない。Bitcoin Core/LND側は将来実装 | 初期はVASPのcustody・補償・出金統制を契約審査する。将来NPOが直接custodyする場合だけhardware multisig、二拠点backup、復旧訓練、固定sweep先を必須とし、Lightningには限定macaroon、remote signerまたは外部事業者、hot上限を追加 |
 | A-17 | **High** | Lightningのinbound liquidity枯渇、単一peer障害、未決済invoice集中により支援を受け取れない | 初期Lightning無効化、Native Bitcoin代替経路 | ADR-0012に従い複数peer、実効容量監視、invoice予約上限、Loop Out、fee budget、25%停止・40%警戒の提案値を限定運用で検証する |
 | A-18 | **High** | Bitcoin取引、Lightning `SETTLED`、Registry、SBT mintを別支援として二重計上、またはsatoshiとmillisatoshiを同じ桁で集計する | Registryのoutpoint／commitment一意制約 | 有効な`SupportAttested`だけを金額の正本とし、global IDで冪等化、route別整数単位を固定、`SupportInvalidated`を反映し、第三者が再計算できる集計fixtureをCIで検証する |
 | A-19 | **High** | 侵害された単一LND／invoice serviceが存在しないLightning settlementの証憑を作り、複数検証者が同じ偽情報へ署名する | 閾値アテステーション、初期Lightning無効化 | 閾値組織だけでは情報源の独立性を保証しない。限定settlement証憑、payment commitment、append-only log、外部事業者記録を分離照合し、不一致時停止、定期監査、hot exposure上限を要求する |
 | A-20 | **Critical** | Lightning受付が寄附の範囲を越えて第三者資金の保管・転送、交換媒介、制裁回避、犯罪収益の返金経路として運用される | 初期Lightning無効化、NPO自己勘定受領の設計 | ADR-0013に従い一般routing・支援者残高・自由返金・交換を禁止し、Accepted BTCを必須hardware multisigへ移す。法律意見、当局相談、AML／制裁統制、受領専用構成、異常案件訓練を開始条件にする |
+| A-21 | **High** | 偽VASP、相互運用不能、一般法人口座の第三者入金禁止、またはTravel Rule受理を資金の合法性保証と誤認する | 初期本番を国内登録VASPのNPO専用受取口座へ限定 | ADR-0014に従い、国外寄附を明示許可する契約、対応VASP・法域・protocol、保留・返金、署名済み入金明細を確認する。PIIはVASP内に限定し、Travel Rule状態とAML判断を分離する |
 
 ## 当事者の操作ミス・内部不正
 

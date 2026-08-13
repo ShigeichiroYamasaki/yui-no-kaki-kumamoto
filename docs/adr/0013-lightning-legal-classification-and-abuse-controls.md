@@ -81,7 +81,7 @@ Lightning受付は、次の証拠を理事会と共同運営会議が承認す�
 
 1. 確定した業務・鍵・資金フローに対する日本法の法律意見
 2. 所管財務局・金融庁への事前相談要否と、その回答または相談記録
-3. 登録交換業者・Lightning providerとの契約、円転可否、unhosted wallet・トラベルルール・制裁対応
+3. 登録交換業者・Lightning providerとの契約、円転可否、ADR-0014に基づくVASP間通知、unhosted wallet・制裁対応
 4. 受領主体、会計認識時点、返金・保留・没収不能時の処理を定めた規程
 5. AML/CFT・制裁risk assessment、case管理、証拠保全、当局照会・届出責任者
 6. 不当寄附勧誘、広告、利用規約、プライバシー、苦情・異議申立ての法務review
@@ -111,3 +111,4 @@ Lightning受付は、次の証拠を理事会と共同運営会議が承認す�
 - [ADR-0008](./0008-certified-npo-joint-operation.md): 認定NPOを中心とする運営主体
 - [ADR-0011](./0011-bitcoin-lightning-and-base-sbt.md): Bitcoin・Lightning受付とBase SBT
 - [ADR-0012](./0012-lightning-inbound-liquidity-and-channel-capital.md): Lightning流動性と受付上限
+- [ADR-0014](./0014-trisa-centered-vasp-travel-rule-network.md): 登録VASPを受領窓口とする段階的Travel Rule対応

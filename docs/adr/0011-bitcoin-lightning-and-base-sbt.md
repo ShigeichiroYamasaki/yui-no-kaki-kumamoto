@@ -74,7 +74,7 @@ Bitcoin inscriptionを譲渡不能な参加証明として扱う方法、tokeniz
 
 ### 7. Lightningオンライン鍵の限定例外
 
-- Lightning nodeはchannel状態を常時署名するため、「オンライン署名鍵をどこにも置かない」方針とは両立しない。初期production releaseはNative Bitcoinのみを有効化し、Lightning受付を既定で無効にする。
+- Lightning nodeはchannel状態を常時署名するため、「オンライン署名鍵をどこにも置かない」方針とは両立しない。初期production releaseはADR-0014の国内登録VASP経由Native Bitcoinのみを有効化し、NPO自己管理Bitcoin addressとLightning受付を既定で無効にする。
 - Lightningを有効化するには、外部Lightning決済事業者またはremote signer／専用HSMを含む分離node構成、channel backup・復旧訓練、流動性・fee・障害監視、法務・会計確認を別途完了する。
 - 例外承認後もWeb/APIへ`admin.macaroon`を配布しない。invoice serviceには`AddInvoice`、`LookupInvoice`、`SubscribeInvoices`相当だけの制約付きmacaroonを与え、Secrets Manager、接続元制限、監査log、rotationを適用する。
 - LNDのonline channel keyはBitcoin長期保管multisig、EVM管理鍵、アテステーション鍵と兼用しない。Lightning hot balanceには金額・保管期限の上限を設け、超過分を固定allowlistのhardware multisigへsweepする。LND online keyの例外は長期保管要件を緩和しない。
@@ -124,3 +124,4 @@ Bitcoinの国際性とBaseのSBT・DAO機能を両立できる一方、cross-cha
 - [ADR-0008](./0008-certified-npo-joint-operation.md): 法的主体と登録事業者
 - [ADR-0012](./0012-lightning-inbound-liquidity-and-channel-capital.md): Lightningのinbound liquidity、必要BTC、再調整、受付上限
 - [ADR-0013](./0013-lightning-legal-classification-and-abuse-controls.md): Lightning寄附の法的分類、AML・制裁、不当勧誘、悪用防止
+- [ADR-0014](./0014-trisa-centered-vasp-travel-rule-network.md): 登録VASPを受領窓口とする段階的Travel Rule対応
