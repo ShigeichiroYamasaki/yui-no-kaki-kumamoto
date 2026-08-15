@@ -11,7 +11,6 @@ const props = defineProps<{ locale: "ja" | "en" }>();
 const supportEvent = parseAbiItem(
   "event SupportReceived(bytes32 indexed supportId, address indexed supporter, address indexed asset, uint256 amount, bytes32 countryCodeHash, bytes32 messageHash, uint256 tokenId)",
 );
-const transferEvent = parseAbiItem("event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)");
 const bitcoinAttestedEvent = parseAbiItem("event SupportAttested(bytes32 indexed intentHash, uint8 indexed route, bytes32 indexed sourceId, uint32 sourceIndex, uint256 amount, address recipient, uint64 observedAt, uint64 confirmationReference, uint64 verifierEpoch)");
 const bitcoinIssuedEvent = parseAbiItem("event BitcoinTamagakiIssued(bytes32 indexed intentHash, uint256 indexed tokenId, address indexed recipient)");
 const bitcoinInvalidatedEvent = parseAbiItem("event SupportInvalidated(bytes32 indexed intentHash, uint256 indexed tokenId, bytes32 reasonHash)");
@@ -229,15 +228,10 @@ async function fetchNetwork(network: DemoNetwork) {
     const support = await withRpcBackoff(() => client.getLogs({
       address: network.vaultAddress, event: supportEvent, fromBlock, toBlock: chunkToBlock,
     }));
-    const mint = await withRpcBackoff(() => client.getLogs({
-        address: network.sbtAddress, event: transferEvent, args: { from: zeroAddress },
-        fromBlock, toBlock: chunkToBlock,
-    }));
-    chunks.push({ support, mint });
+    chunks.push({ support });
     await wait(120);
   }
   const supportLogs = chunks.flatMap((chunk) => chunk.support);
-  const mintLogs = chunks.flatMap((chunk) => chunk.mint);
   const blockNumbers = [...new Set(supportLogs.map((log) => log.blockNumber))];
   const blocks = [];
   for (const blockNumber of blockNumbers) {
@@ -256,11 +250,14 @@ async function fetchNetwork(network: DemoNetwork) {
       asset: normalized === zeroAddress ? "ETH" : "MockJPYC", amount: value, tokenId, sbtAddress: network.sbtAddress,
     }];
   });
-  const minted = mintLogs.flatMap((log): SbtRow[] => {
-    const { to, tokenId } = log.args;
-    if (!to || tokenId === undefined || !log.transactionHash) return [];
+  // SupportReceived and the SBT mint are atomic in RecoverySupportVault. Build
+  // the gallery from the canonical support event instead of issuing a second,
+  // independent Transfer-log scan that can be truncated or rate-limited.
+  const minted = supportLogs.flatMap((log): SbtRow[] => {
+    const { supporter, tokenId } = log.args;
+    if (!supporter || tokenId === undefined || !log.transactionHash) return [];
     return [{
-      network, tokenId, owner: to, txHash: log.transactionHash, blockNumber: log.blockNumber,
+      network, tokenId, owner: supporter, txHash: log.transactionHash, blockNumber: log.blockNumber,
       globalId: tamagakiGlobalId(network.chain.id, network.sbtAddress, tokenId), sbtAddress: network.sbtAddress,
     }];
   });

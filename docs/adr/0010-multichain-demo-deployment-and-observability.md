@@ -78,6 +78,7 @@ addressだけをchainから切り離して識別しない。contractは`chainId:
 - 表示名、token ID、owner address、chain名、global IDをクライアント検索対象とする。恒久リンクはglobal IDをfragmentに格納し、対象区画へ移動する。fragmentに個人情報を追加しない。
 - トップページの本番玉垣ブロックは`BASE_MAINNET_TAMAGAKI_SBT_ADDRESS`と`POLYGON_MAINNET_TAMAGAKI_SBT_ADDRESS`をchain別に受け取り、支援eventのtoken IDと照合する。将来のBitcoin／Lightning由来SBTはADR-0011のRegistryとBase版SBT設定を追加して同じギャラリーへ統合する。いずれの値もGitHub Actions Variablesから公開bundleへ渡す読み取り専用の公開情報とする。
 - テストネット集計は`BASE_SEPOLIA_BITCOIN_REGISTRY_ADDRESS`、`BASE_SEPOLIA_BITCOIN_SBT_ADDRESS`、`BASE_SEPOLIA_BITCOIN_DEPLOYMENT_BLOCK`が揃った場合だけBitcoin／Lightning行を有効化する。Registryの有効なattestation、issued token、invalidationを突合し、未設定を0 BTCと誤表示しない。
+- EVM支援の件数と玉垣一覧は、同一transactionで支援受領とSBT発行を完了するVaultの`SupportReceived`を共通の正本とする。玉垣一覧だけを独立したERC-721 `Transfer`ログ検索から構築しない。公開RPCの取得制限や検索開始blockの差によって「支援件数は見えるが玉垣が欠落する」状態を防ぎ、`tokenURI`取得に失敗した場合もtoken ID、所有者、chainを持つ代替表示を残す。
 
 ### 6. Faucetを必須経路にしない
 

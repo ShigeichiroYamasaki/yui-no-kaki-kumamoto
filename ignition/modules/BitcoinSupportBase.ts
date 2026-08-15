@@ -9,13 +9,16 @@ const REPORTER_ROLE = keccak256(stringToHex("REPORTER_ROLE"));
  * Verifier signatures submitted to the Registry are sorted by recovered numeric address.
  */
 export default buildModule("BitcoinSupportBaseModule", (m) => {
-  const admin = m.getParameter("admin", m.getAccount(0));
-  const baseTokenURI = m.getParameter("baseTokenURI", "ipfs://kumamoto-bitcoin-tamagaki/");
-  const threshold = m.getParameter("threshold", 2);
-  const verifier1 = m.getParameter("verifier1", m.getAccount(1));
-  const verifier2 = m.getParameter("verifier2", m.getAccount(2));
-  const verifier3 = m.getParameter("verifier3", m.getAccount(3));
-  const expectedChainId = m.getParameter("expectedChainId", 0);
+  // All security-sensitive roles are explicit parameters. Referencing
+  // m.getAccount(1..3) as defaults fails validation on remote networks where
+  // Hardhat is intentionally configured with only the deployer account.
+  const admin = m.getParameter("admin");
+  const baseTokenURI = m.getParameter("baseTokenURI");
+  const threshold = m.getParameter("threshold");
+  const verifier1 = m.getParameter("verifier1");
+  const verifier2 = m.getParameter("verifier2");
+  const verifier3 = m.getParameter("verifier3");
+  const expectedChainId = m.getParameter("expectedChainId");
 
   const tamagakiSBT = m.contract("TamagakiSBT", [admin, baseTokenURI], { id: "BitcoinTamagakiSBT" });
   const bitcoinSupportRegistry = m.contract("BitcoinSupportRegistry", [
