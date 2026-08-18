@@ -11,6 +11,7 @@ test/                   Hardhat 3 + Node Test Runner + Viemテスト
 ignition/modules/       Hardhat Ignitionデプロイ定義
 ignition/parameters/    デモ・本番パラメータ例
 scripts/                補助デプロイスクリプト
+docker/bitcoin-lnd/     Bitcoin Core・LND 2台のローカルregtest環境
 docs/adr/               本番系・デモ系の機能仕様と意思決定記録
 ```
 
@@ -35,6 +36,17 @@ npm run contracts:compile
 npm run test:contracts
 npm run dev
 ```
+
+## ローカルLightningデモ
+
+Bitcoin Core `regtest`、支払側LND Alice、受付側LND BobをDockerで起動します。
+
+```bash
+npm run lightning:config
+npm run lightning:up
+```
+
+channel開設とinvoice支払いは[ローカルLightningデモ手順](docs/lightning-demo.md)を参照してください。実BTC、公開testnet、本番seed・macaroonを使用してはいけません。
 
 すべての検証：
 

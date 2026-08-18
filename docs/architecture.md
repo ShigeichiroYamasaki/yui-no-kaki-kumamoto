@@ -97,7 +97,7 @@ Native BTCはEVM Vaultへbridgeしません。初期本番では、支援者が�
 
 ## Bitcoin・LNDデモ系の構成
 
-デモ系は実資金を使わず、開発者が用意するDocker Compose上のBitcoin `regtest`と2台のLND nodeで支払いを再現します。`miner` walletは試験資金とblock生成だけに使用し、Aliceを支援者、Bobを受付nodeとしてchannel開設、BOLT 11 invoice、`SETTLED`確認までを検証します。Base側はHardhatまたはBase Sepoliaの`BitcoinSupportRegistry`で支援Intent、閾値署名、重複防止、玉垣SBT発行を検証します。現時点のリポジトリはこのCompose定義と端間自動化を同梱していません。
+デモ系は実資金を使わず、リポジトリの`docker/bitcoin-lnd/compose.yml`でBitcoin `regtest`と2台のLND nodeを起動して支払いを再現します。`miner` walletは試験資金とblock生成だけに使用し、Aliceを支援者、Bobを受付nodeとしてchannel開設、BOLT 11 invoice、`SETTLED`確認までを検証します。Base側はHardhatまたはBase Sepoliaの`BitcoinSupportRegistry`で支援Intent、閾値署名、重複防止、玉垣SBT発行を検証します。Composeからsettlement購読、検証者、Registry送信、Indexerまでの端間自動化はまだ同梱していません。操作手順は[ローカルLightningデモ環境](./lightning-demo)に記載します。
 
 ```mermaid
 flowchart LR

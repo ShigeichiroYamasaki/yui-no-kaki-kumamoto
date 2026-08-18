@@ -97,7 +97,7 @@ Native BTC is not bridged into an EVM Vault. Before payment, the supporter signs
 
 ## Bitcoin and LND demo architecture
 
-The demo uses no real funds. Bitcoin `regtest` and two LND nodes run under a developer-provided Docker Compose environment. The `miner` wallet supplies test BTC and creates blocks; Alice acts as the supporter and Bob as the receiver. This reproduces channel opening, BOLT 11 invoice payment, and `SETTLED` verification. On the Base side, Hardhat or Base Sepolia exercises the signed intent, threshold attestation, duplicate prevention, and Tamagaki SBT minting in `BitcoinSupportRegistry`. The repository does not yet bundle that Compose definition or end-to-end automation.
+The demo uses no real funds. The repository's `docker/bitcoin-lnd/compose.yml` runs Bitcoin `regtest` and two LND nodes. The `miner` wallet supplies test BTC and creates blocks; Alice acts as the supporter and Bob as the receiver. This reproduces channel opening, BOLT 11 invoice payment, and `SETTLED` verification. On the Base side, Hardhat or Base Sepolia exercises the signed intent, threshold attestation, duplicate prevention, and Tamagaki SBT minting in `BitcoinSupportRegistry`. Settlement subscription, verifier submission, Registry delivery, and indexing are not yet automated end to end. See the [local Lightning demo guide](./lightning-demo).
 
 ```mermaid
 flowchart LR
