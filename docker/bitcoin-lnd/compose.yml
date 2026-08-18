@@ -1,0 +1,90 @@
+name: kumamoto-relief-lightning-demo
+
+services:
+  bitcoind:
+    image: bitcoin/bitcoin:29.4
+    restart: unless-stopped
+    command:
+      - -regtest=1
+      - -server=1
+      - -txindex=1
+      - -fallbackfee=0.0002
+      - -rpcbind=0.0.0.0
+      - -rpcallowip=0.0.0.0/0
+      - -zmqpubrawblock=tcp://0.0.0.0:28332
+      - -zmqpubrawtx=tcp://0.0.0.0:28333
+      - -discover=0
+      - -printtoconsole=1
+    ports:
+      - "127.0.0.1:18443:18443"
+    expose:
+      - "18444"
+      - "28332"
+      - "28333"
+    volumes:
+      - bitcoin-regtest:/home/bitcoin/.bitcoin
+    networks:
+      - lightning-demo
+
+  lnd-alice:
+    image: lightninglabs/lnd:v0.20.2-beta
+    restart: unless-stopped
+    depends_on:
+      - bitcoind
+    command:
+      - --bitcoin.regtest
+      - --bitcoin.node=bitcoind
+      - --bitcoind.rpchost=bitcoind:18443
+      - --bitcoind.rpccookie=/bitcoin/regtest/.cookie
+      - --bitcoind.zmqpubrawblock=tcp://bitcoind:28332
+      - --bitcoind.zmqpubrawtx=tcp://bitcoind:28333
+      - --rpclisten=0.0.0.0:10009
+      - --restlisten=0.0.0.0:8080
+      - --listen=0.0.0.0:9735
+      - --debuglevel=info
+    ports:
+      - "127.0.0.1:10009:10009"
+      - "127.0.0.1:8080:8080"
+    expose:
+      - "9735"
+    volumes:
+      - lnd-alice-regtest:/root/.lnd
+      - bitcoin-regtest:/bitcoin:ro
+    networks:
+      - lightning-demo
+
+  lnd-bob:
+    image: lightninglabs/lnd:v0.20.2-beta
+    restart: unless-stopped
+    depends_on:
+      - bitcoind
+    command:
+      - --bitcoin.regtest
+      - --bitcoin.node=bitcoind
+      - --bitcoind.rpchost=bitcoind:18443
+      - --bitcoind.rpccookie=/bitcoin/regtest/.cookie
+      - --bitcoind.zmqpubrawblock=tcp://bitcoind:28332
+      - --bitcoind.zmqpubrawtx=tcp://bitcoind:28333
+      - --rpclisten=0.0.0.0:10009
+      - --restlisten=0.0.0.0:8080
+      - --listen=0.0.0.0:9735
+      - --debuglevel=info
+    ports:
+      - "127.0.0.1:10010:10009"
+      - "127.0.0.1:8081:8080"
+    expose:
+      - "9735"
+    volumes:
+      - lnd-bob-regtest:/root/.lnd
+      - bitcoin-regtest:/bitcoin:ro
+    networks:
+      - lightning-demo
+
+networks:
+  lightning-demo:
+    internal: true
+
+volumes:
+  bitcoin-regtest:
+  lnd-alice-regtest:
+  lnd-bob-regtest:

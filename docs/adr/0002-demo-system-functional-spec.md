@@ -70,7 +70,7 @@
 
 - Bitcoin Core `regtest`、miner wallet、Alice／BobのLND nodeを隔離されたローカル環境で使用し、block生成、node同期、peer接続、channel開設、BOLT 11 invoice、`SETTLED`までを無価値の試験BTCで再現する。
 - Base側の`BitcoinSupportRegistry`はHardhatまたはBase Sepoliaで、署名済みIntent、閾値署名、outpoint／Lightning commitmentの一意性、SBT発行、無効化を検証する。
-- 現時点ではDocker Compose定義、LND settlement購読、検証者service、Registry送信、統合Indexer、公開UIを一つに結ぶ端間自動化はリポジトリへ同梱していない。手動開発環境を公開デモまたは本番実装済みと表現しない。
+- Bitcoin Core、Alice／Bob LND、永続volume、loopback限定host port、内部networkを定義したローカルregtest専用Docker Composeをリポジトリへ同梱する。LND settlement購読、検証者service、Registry送信、統合Indexer、公開UIを一つに結ぶ端間自動化は未実装であり、手動開発環境を公開デモまたは本番実装済みと表現しない。
 - `regtest`のseed、macaroon、address、channel、BTCをpublic testnetまたは本番へ転用しない。Signet／testnetとBase Sepoliaの統合試験は次段階とする。
 - ローカル集計でも、invoice `SETTLED`、Registry `SupportAttested`、SBT mintを同じ支援額として複数回加算しない。
 

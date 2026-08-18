@@ -19,7 +19,7 @@ const Layout = defineComponent({
         .replace(/\.md$/, "");
       const translatedPages = [
         "", "vision", "architecture", "fund-flow", "tamagaki-sbt", "transparency",
-        "governance", "environments", "roadmap", "risks", "wallet-experience", "prefecture-operations", "smart-contracts", "demo-status", "mainnet-status",
+        "governance", "environments", "roadmap", "risks", "wallet-experience", "lightning-demo", "prefecture-operations", "smart-contracts", "demo-status", "mainnet-status",
       ];
       const languageLink = isEnglish
         ? `/${pageSlug}`
@@ -73,7 +73,7 @@ const Layout = defineComponent({
             { text: "Mainnet Status", link: "/en/mainnet-status" },
           ],
         },
-        { text: "Implementation", items: [{ text: "Smart Contracts", link: "/en/smart-contracts" }] },
+        { text: "Implementation", items: [{ text: "Smart Contracts", link: "/en/smart-contracts" }, { text: "Local Lightning Demo", link: "/en/lightning-demo" }] },
         { text: "Language", items: [{ text: "日本語版", link: "/" }] },
       ] : [
         {
@@ -97,7 +97,7 @@ const Layout = defineComponent({
         },
         {
           text: "実装",
-          items: [{ text: "スマートコントラクト", link: "/smart-contracts" }],
+          items: [{ text: "スマートコントラクト", link: "/smart-contracts" }, { text: "ローカルLightningデモ", link: "/lightning-demo" }],
         },
         { text: "設計記録", items: [{ text: "ADR一覧", link: "/adr/" }] },
       ],
